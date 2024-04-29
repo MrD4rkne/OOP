@@ -8,17 +8,24 @@ import Simulation.Event.IEventReporter;
 public abstract class Vehicle {
     protected Line line;
     protected final int sideNo;
+    protected final int lineVehicleNo;
     protected final int capacity;
-    protected Segment currentSegment;
-    protected Direction direction;
     protected IMyList<Passenger> passengers;
     
-    public Vehicle(Line line, int sideNo, int capacity) {
+    public Vehicle(Line line, int sideNo, int lineVehicleNo,int capacity) {
         this.line=line;
+        this.lineVehicleNo=lineVehicleNo;
         this.sideNo = sideNo;
         this.capacity=capacity;
         passengers= new MyArrayList<Passenger>(capacity);
-        currentSegment=null;
+    }
+
+    public int getSideNo(){
+        return sideNo;
+    }
+
+    public int getLineVehicleNo(){
+        return lineVehicleNo;
     }
 
     public boolean hasSpace() {
@@ -32,28 +39,24 @@ public abstract class Vehicle {
     }
 
     public Stop[] getStopsLeft() {
-        return line.getStopsLeft(currentSegment, direction);
+        return line.getStopsLeft(this);
     }
 
     public void stop(Segment segment,IEventQueue eventQueue, IEventReporter eventReporter, int time) {
-        this.currentSegment = segment;
-        Stop currentStop = currentSegment.getStop();
-
+        Stop currentStop = segment.getStop();
         getOffPassengers(currentStop, time);
+        line.reportStop(segment, eventReporter, time);
+        line.trySchedule(this, eventQueue, time);
         currentStop.tryBoardPassengers(this, eventQueue,time);
-
-        line.reportStop(segment, direction, eventReporter, time);
-        line.trySchedule(this,segment, direction, eventQueue, time);
-        this.currentSegment=null;
     }
     
-    private void getOffPassengers(Stop stop, int time) {
+    private void getOffPassengers(Stop currentStop, int time) {
         for (int i = 0; i < passengers.size(); i++) {
-            if(!stop.hasSpace())
+            if(!currentStop.hasSpace())
                 return;
             Passenger passenger = passengers.get(i);
-            if (passenger.getDesiredStop() == currentSegment.getStop()) {
-                if(passenger.tryEnterStop(stop,time)) {
+            if (passenger.getDesiredStop() == currentStop) {
+                if(passenger.tryEnterStop(currentStop,time)) {
                     passengers.removeAt(i);
                     i--;
                 }

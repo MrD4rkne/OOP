@@ -5,17 +5,19 @@ import Collection.MyArrayList;
 import Simulation.Event.IEventQueue;
 import Simulation.Event.IEventReporter;
 
-import java.util.Arrays;
-
 public abstract class Line {
     protected final int id;
     protected final IMyList<Segment> route;
     protected final int[] segmentDurations;
-    protected final int vehicleCount;
+    protected final Vehicle[] vehicles;
+    protected final Segment[] vehiclesSegment;
+    protected final Direction[] directions;
     
     public Line(int id, int vehicleCount, Stop[] stops, int[] segmentDurations) {
         this.id = id;
-        this.vehicleCount = vehicleCount;
+        this.vehicles = new Vehicle[vehicleCount];
+        this.vehiclesSegment = new Segment[vehicleCount];
+        this.directions = new Direction[vehicleCount];
         this.route = new MyArrayList<Segment>(generateRoute(stops));
         this.segmentDurations = new int[segmentDurations.length];
         System.arraycopy(segmentDurations, 0, this.segmentDurations, 0, segmentDurations.length);
@@ -26,14 +28,12 @@ public abstract class Line {
     }
     
     public int getVehicleCount() {
-        return vehicleCount;
+        return vehicles.length;
     }
-    
-    public Stop[] getStopsLeft(Segment currentSegment, Direction direction) {
-        if(!doesSegmentIsInRoute(currentSegment)){
-            throw new IllegalArgumentException("Segment does not belong to this line's route.");
-        }
 
+    public Stop[] getStopsLeft(Vehicle vehicle) {
+        Direction direction = getCurrentVehicleDirection(vehicle);
+        Segment currentSegment = getCurrentVehicleSegment(vehicle);
         int stopsLeftCount = getStopsLeftCount(currentSegment.getIndex(), direction);
         Segment[] segmentsLeft = null;
         switch(direction){
@@ -51,20 +51,20 @@ public abstract class Line {
 
         Stop[] stopsLeft = new Stop[segmentsLeft.length];
         for(int i = 0; i<stopsLeftCount; i++){
-           stopsLeft[i] = segmentsLeft[i].getStop();
+            stopsLeft[i] = segmentsLeft[i].getStop();
         }
         return stopsLeft;
     }
 
-    public abstract void trySchedule(Vehicle vehicle, Segment segment, Direction direction, IEventQueue eventQueue, int time);
+    public abstract void trySchedule(Vehicle vehicle,IEventQueue eventQueue, int time);
 
-    public abstract void reportStop(Segment segment, Direction direction, IEventReporter eventReporter, int time);
+    public abstract void reportStop(Segment segment, IEventReporter eventReporter, int time);
     
-    private boolean isFinalStop(Segment segment, Direction direction) {
+    protected boolean isFinalStop(Segment segment, Direction direction) {
         return getStopsLeftCount(segment.getIndex(), direction) == 0;
     }
     
-    private Segment getNextSegment(Segment currentSegment, Direction direction){
+    protected Segment getNextSegment(Segment currentSegment, Direction direction){
         if(isFinalStop(currentSegment,direction))
             throw new IllegalStateException();
         switch(direction) {
@@ -75,39 +75,58 @@ public abstract class Line {
         }
         throw new IllegalStateException();
     }
-    
-    private int getTimeToNextStopDuration(Segment segment, Direction direction) {
-        if(direction == Direction.UP)
-            return segmentDurations[segment.getIndex()];
-        else if(direction == Direction.DOWN)
-            return segmentDurations[segment.getIndex()-1];
-        throw new UnsupportedOperationException("Invalid direction");
-    }
-    
-    private Direction switchDirection(Direction direction) {
-        switch(direction){
-            case UP:
-                return Direction.DOWN;
-            case DOWN:
-                return Direction.UP;
-        }
-        throw new UnsupportedOperationException("Invalid direction");
-    }
 
-    private int getLoopStopDuration(){
+    protected int getLoopStopDuration(){
         return segmentDurations[segmentDurations.length-1];
     }
 
-    private boolean doesSegmentIsInRoute(Segment segment){
-        return segment.getIndex() >=0 && segment.getIndex() < route.size() && segment == route.get(segment.getIndex());
-    }
-
-    private int getStopsLeftCount(int index, Direction direction) {
+    protected int getStopsLeftCount(int index, Direction direction) {
         if(direction == Direction.UP)
             return route.size()-index -1;
         else if(direction == Direction.DOWN)
             return index;
         throw new UnsupportedOperationException("Invalid direction");
+    }
+
+    protected int calculateTimeUntilArrival(Segment from, Segment to, Direction direction){
+        int time = 0;
+        Segment current = from;
+        while(!isFinalStop(current,direction)){
+            if(current == to)
+                break;
+
+            time+= calculateTimeUntilNextStop(current,direction);
+            current = getNextSegment(current,direction);
+        }
+        return time;
+    }
+
+    protected int calculateTimeUntilNextStop(Segment current, Direction direction){
+        switch (direction){
+            case UP:
+                return segmentDurations[current.getIndex()];
+            case DOWN:
+                return segmentDurations[current.getIndex()-1];
+        }
+        throw new IllegalArgumentException();
+    }
+
+    protected Segment getCurrentVehicleSegment(Vehicle vehicle){
+        return vehiclesSegment[vehicle.getLineVehicleNo()];
+    }
+
+    protected Direction getCurrentVehicleDirection(Vehicle vehicle){
+        return directions[vehicle.getLineVehicleNo()];
+    }
+
+    protected Direction switchDirection(Direction direction){
+        switch (direction){
+            case UP:
+                return Direction.DOWN;
+            case DOWN:
+                return Direction.UP;
+        }
+        throw new IllegalArgumentException();
     }
 
     private Segment[] generateRoute(Stop[] stops){
