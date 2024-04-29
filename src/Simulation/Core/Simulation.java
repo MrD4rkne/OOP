@@ -12,7 +12,6 @@ public class Simulation {
     private static final int SIMULATION_START_MINUTE = 6 * 60;
 
     private final int daysCount;
-    private final int tramCapacity;
     private final int passengersCount;
     private final Stop[] stops;
     private final Line[] lines;
@@ -22,7 +21,6 @@ public class Simulation {
 
     public Simulation(int daysCount, int tramCapacity, int passengersCount, Stop[] stops, Line[] lines, ILogReporter eventReporter) {
         this.daysCount = daysCount;
-        this.tramCapacity = tramCapacity;
         this.passengersCount = passengersCount;
         this.lines = new Line[lines.length];
         System.arraycopy(lines, 0, this.lines, 0, lines.length);
