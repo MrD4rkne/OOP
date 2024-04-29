@@ -1,8 +1,10 @@
-﻿package Simulation.Common;
+package Simulation.Common;
 
 import Collection.IMyList;
 import Collection.MyArrayList;
-import Simulation.Event.IEventQueue;
+import Simulation.Events.IEventQueue;
+import Simulation.Passengers.Passenger;
+import Simulation.Vehicles.Vehicle;
 
 public class Stop {
     private final String name;
@@ -30,14 +32,18 @@ public class Stop {
         waitingPassengers.add(passenger);
     }
 
-    public void tryBoardPassengers(Vehicle vehicle, IEventQueue eventQueue, int time) {
+    public int tryBoardPassengers(Vehicle vehicle, IEventQueue eventQueue, int time) {
+        int boardCount = 0;
         for (int i = 0; i < waitingPassengers.size(); i++) {
-            if (!vehicle.hasSpace()) {
-                return;
+            if (!vehicle.hasSpaceLeft()) {
+                break;
             }
             Passenger passenger = waitingPassengers.get(i);
             passenger.board(vehicle, time);
             waitingPassengers.removeAt(i);
+            i--;
+            boardCount++;
         }
+        return boardCount;
     }
 }

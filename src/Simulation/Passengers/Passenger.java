@@ -1,5 +1,9 @@
-﻿package Simulation.Common;
+package Simulation.Passengers;
 
+import Simulation.Common.Stop;
+import Simulation.Events.IEventQueue;
+import Simulation.Logs.ILogReporter;
+import Simulation.Vehicles.Vehicle;
 import Simulation.Core.RandomNumberGenerator;
 
 public class Passenger {
@@ -68,5 +72,9 @@ public class Passenger {
         desiredStop=null;
         totalTimeWaiting=0;
         timeOfStartedWaiting=-1;
+    }
+
+    public void forceGetOutOfVehicle(IEventQueue eventQueue, ILogReporter reporter, int time) {
+        reporter.log(new PassengerLeftVehicleDueToEndOfDay(time, this));
     }
 }

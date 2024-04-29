@@ -1,8 +1,10 @@
-﻿package Simulation.Event;
+package Simulation.Passengers;
 
-import Simulation.Common.Passenger;
+import Simulation.Events.Event;
+import Simulation.Events.IEventQueue;
+import Simulation.Logs.ILogReporter;
 
-public class PassengerTryEnterPrimaryStopEvent extends Event{
+public class PassengerTryEnterPrimaryStopEvent extends Event {
     private final Passenger passenger;
     
     public PassengerTryEnterPrimaryStopEvent(Passenger passenger, int time) {
@@ -11,7 +13,7 @@ public class PassengerTryEnterPrimaryStopEvent extends Event{
     }
 
     @Override
-    public void process(IEventQueue queue, IEventReporter reporter) {
+    public void process(IEventQueue queue, ILogReporter reporter) {
         boolean didEnter = passenger.tryEnterStop(passenger.getPrimaryStop(), time);
         // TODO: Report the event
     }

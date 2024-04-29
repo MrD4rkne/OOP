@@ -1,29 +1,27 @@
-﻿package Simulation.Core;
+package Simulation.Core;
 
-import Simulation.Common.Passenger;
-import Simulation.Event.*;
+import Simulation.Passengers.Passenger;
+import Simulation.Events.*;
 import Simulation.Common.Line;
 import Simulation.Common.Stop;
+import Simulation.Logs.ILogReporter;
+import Simulation.Passengers.PassengerTryEnterPrimaryStopEvent;
 
 public class Simulation {
     private static final int MINUTES_PER_DAY = 24 * 60;
     private static final int SIMULATION_START_MINUTE = 6 * 60;
 
     private final int daysCount;
-    private final int stopsCapacity;
-    private final int stopsCount;
     private final int tramCapacity;
     private final int passengersCount;
     private final Stop[] stops;
     private final Line[] lines;
-    private final IEventReporter eventReporter;
+    private final ILogReporter eventReporter;
     private final IEventQueue eventQueue;
     private final Passenger[] passengers;
 
-    public Simulation(int daysCount, int stopsCapacity, int stopsCount, int tramCapacity, int passengersCount, Stop[] stops, Line[] lines, IEventReporter eventReporter) {
+    public Simulation(int daysCount, int tramCapacity, int passengersCount, Stop[] stops, Line[] lines, ILogReporter eventReporter) {
         this.daysCount = daysCount;
-        this.stopsCapacity = stopsCapacity;
-        this.stopsCount = stopsCount;
         this.tramCapacity = tramCapacity;
         this.passengersCount = passengersCount;
         this.lines = new Line[lines.length];
@@ -53,6 +51,7 @@ public class Simulation {
 
     private void preparePassengersForDay() {
         for (Passenger passenger : passengers) {
+            passenger.reset();
             int time = RandomNumberGenerator.random(SIMULATION_START_MINUTE, MINUTES_PER_DAY);
             PassengerTryEnterPrimaryStopEvent event = new PassengerTryEnterPrimaryStopEvent(passenger, time);
             eventQueue.add(event);

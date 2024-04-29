@@ -1,6 +1,8 @@
-﻿package Simulation.Event;
+package Simulation.Vehicles;
 
-import Simulation.Common.Vehicle;
+import Simulation.Events.Event;
+import Simulation.Events.IEventQueue;
+import Simulation.Logs.ILogReporter;
 
 public class VehicleArrivesAtStopEvent extends Event {
     private final Vehicle vehicle;
@@ -13,7 +15,7 @@ public class VehicleArrivesAtStopEvent extends Event {
     }
 
     @Override
-    public void process(IEventQueue queue, IEventReporter reporter) {
+    public void process(IEventQueue queue, ILogReporter reporter) {
         vehicle.stop(stopIndex, queue,reporter,time);
     }
 }

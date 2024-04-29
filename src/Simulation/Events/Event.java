@@ -1,4 +1,6 @@
-﻿package Simulation.Event;
+package Simulation.Events;
+
+import Simulation.Logs.ILogReporter;
 
 public abstract class Event implements Comparable<Event>{
     protected final int time;
@@ -11,7 +13,7 @@ public abstract class Event implements Comparable<Event>{
         return time;
     }
     
-    public abstract void process(IEventQueue queue, IEventReporter reporter);
+    public abstract void process(IEventQueue queue, ILogReporter reporter);
     
     @Override
     public int compareTo(Event other) {

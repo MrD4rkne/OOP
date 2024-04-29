@@ -1,4 +1,4 @@
-﻿package Simulation.Common;
+package Simulation.Common;
 
 public class Segment {
     private final int index;

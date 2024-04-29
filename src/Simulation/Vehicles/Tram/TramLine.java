@@ -1,15 +1,16 @@
-﻿package Simulation.Tram;
+package Simulation.Vehicles.Tram;
 
 import Simulation.Common.Line;
 import Simulation.Common.Segment;
 import Simulation.Common.Stop;
-import Simulation.Common.Vehicle;
-import Simulation.Event.IEventQueue;
-import Simulation.Event.IEventReporter;
-import Simulation.Event.VehicleStartRouteEvent;
-import Simulation.Tram.Tram;
+import Simulation.Vehicles.Vehicle;
+import Simulation.Events.IEventQueue;
+import Simulation.Logs.ILogReporter;
+import Simulation.Vehicles.VehicleStartRouteEvent;
+import Simulation.Vehicles.VehicleEndsDayLog;
+import Simulation.Vehicles.VehicleEndsRouteLog;
 
-public class TramLine extends Line<Tram> {
+public class TramLine extends Line {
     private static final int TRAM_LAST_DEPARTURE_MINUTE = 23*60;
     
     private final int tramsCapacity;
@@ -20,7 +21,7 @@ public class TramLine extends Line<Tram> {
     }
 
     @Override
-    public void prepareVehicles(IEventQueue eventQueue, IEventReporter eventReporter, int currentTime) {
+    public void prepareVehicles(IEventQueue eventQueue, ILogReporter eventReporter, int currentTime) {
         boolean shouldStartLeft = true;
         int interval = calculateFullRouteTime()/vehicles.size();
         for (int i = 0; i < vehicles.size(); i++) {
@@ -32,11 +33,14 @@ public class TramLine extends Line<Tram> {
     }
 
     @Override
-    public void notifyEndOfRoute(Tram vehicle, IEventQueue eventQueue, IEventReporter eventReporter, int currentTime) {
+    public void notifyEndOfRoute(Vehicle vehicle, IEventQueue eventQueue, ILogReporter eventReporter, int currentTime) {
+        eventReporter.log(new VehicleEndsRouteLog(currentTime, vehicle, vehicle.getFinalStop()));
         if(currentTime > TRAM_LAST_DEPARTURE_MINUTE){
-            eventReporter.reportTramFinishedDay(vehicle, currentTime);
+            vehicle.endDay(eventQueue,eventReporter,currentTime);
             return;
         }
+        
+        vehicle.enterLoop(eventQueue,eventReporter,currentTime, vehicle.getFinalStop());
         int nextDeparture = currentTime + getLoopStopDuration();
         boolean shouldStartLeft = !isGoingRight(vehicle);
         VehicleStartRouteEvent startRouteEvent = new VehicleStartRouteEvent(nextDeparture, vehicle, createRoute(shouldStartLeft));

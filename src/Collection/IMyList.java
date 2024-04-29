@@ -1,4 +1,4 @@
-﻿package Collection;
+package Collection;
 
 public interface IMyList<T> extends Iterable<T> {
     void add(T elem);

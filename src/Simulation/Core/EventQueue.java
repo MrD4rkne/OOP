@@ -1,7 +1,7 @@
-﻿package Simulation.Core;
+package Simulation.Core;
 
-import Simulation.Event.Event;
-import Simulation.Event.IEventQueue;
+import Simulation.Events.Event;
+import Simulation.Events.IEventQueue;
 
 class EventQueue implements IEventQueue {
     private final Heap<Event> heap;

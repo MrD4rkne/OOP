@@ -1,4 +1,4 @@
-﻿package Simulation.Event;
+package Simulation.Events;
 
 public interface IEventQueue {
     void add(Event event);

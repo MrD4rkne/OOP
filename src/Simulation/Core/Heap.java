@@ -1,4 +1,4 @@
-﻿package Simulation.Core;
+package Simulation.Core;
 
 import Collection.IMyList;
 import Collection.MyArrayList;

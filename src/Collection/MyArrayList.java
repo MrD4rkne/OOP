@@ -1,4 +1,4 @@
-﻿package Collection;
+package Collection;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -119,7 +119,7 @@ public class MyArrayList<T> implements IMyList<T> {
         if(length <=0 || index + length - 1 > size){
             throw new IllegalArgumentException();
         }
-        T[] subArray = (T[]) Array.newInstance(array.getClass().getComponentType(), length);
+        @SuppressWarnings("unchecked") T[] subArray = (T[]) Array.newInstance(array.getClass().getComponentType(), length);
         System.arraycopy(array, index, subArray, 0, length);
         return subArray;
     }

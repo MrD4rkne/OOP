@@ -1,20 +1,21 @@
-﻿package Simulation.Common;
+package Simulation.Common;
 
 import Collection.IMyList;
 import Collection.MyArrayList;
-import Simulation.Event.IEventQueue;
-import Simulation.Event.IEventReporter;
+import Simulation.Events.IEventQueue;
+import Simulation.Logs.ILogReporter;
+import Simulation.Vehicles.Vehicle;
 
-public abstract class Line<T extends Vehicle>  {
+public abstract class Line  {
     protected final int id;
     protected final Stop[] stops;
     protected final int[] segmentDurations;
-    protected final IMyList<T> vehicles;
+    protected final IMyList<Vehicle> vehicles;
     protected final Segment[] vehiclesSegment;
     
     public Line(int id, int vehicleCount, Stop[] stops, int[] segmentDurations) {
         this.id = id;
-        this.vehicles = new MyArrayList<T>();
+        this.vehicles = new MyArrayList<Vehicle>(vehicleCount);
         this.vehiclesSegment = new Segment[vehicleCount];
         this.stops = new Stop[stops.length];
         System.arraycopy(stops, 0, this.stops, 0, stops.length);
@@ -30,9 +31,9 @@ public abstract class Line<T extends Vehicle>  {
         return vehicles.size();
     }
     
-    public abstract void prepareVehicles(IEventQueue eventQueue, IEventReporter eventReporter, int currentTime);
+    public abstract void prepareVehicles(IEventQueue eventQueue, ILogReporter eventReporter, int currentTime);
 
-    public abstract void notifyEndOfRoute(T vehicle, IEventQueue eventQueue, IEventReporter eventReporter, int currentTime);
+    public abstract void notifyEndOfRoute(Vehicle vehicle, IEventQueue eventQueue, ILogReporter eventReporter, int currentTime);
 
     protected int getLoopStopDuration(){
         return segmentDurations[segmentDurations.length-1];
