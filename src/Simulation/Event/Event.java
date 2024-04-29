@@ -17,6 +17,4 @@ public abstract class Event implements Comparable<Event>{
     public int compareTo(Event other) {
         return Integer.compare(time, other.time);
     }
-    
-    public abstract String toString();
 }

@@ -2,7 +2,7 @@
 
 import Simulation.Event.IEventQueue;
 import Simulation.Event.IEventReporter;
-import Simulation.Event.PassengerTryEnterPrimaryStop;
+import Simulation.Event.PassengerTryEnterPrimaryStopEvent;
 
 public class Simulation {
     private static final int MINUTES_PER_DAY=24*60;
@@ -44,7 +44,7 @@ public class Simulation {
     {
         for(Passenger passenger : passengers) {
             int time = RandomNumberGenerator.random(SIMULATION_START_MINUTE, MINUTES_PER_DAY);
-            PassengerTryEnterPrimaryStop event = new PassengerTryEnterPrimaryStop(passenger, time);
+            PassengerTryEnterPrimaryStopEvent event = new PassengerTryEnterPrimaryStopEvent(passenger, time);
             eventQueue.add(event);
         }
     }

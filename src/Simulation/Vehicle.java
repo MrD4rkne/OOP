@@ -5,13 +5,11 @@ import Collection.MyArrayList;
 import Simulation.Event.IEventQueue;
 import Simulation.Event.IEventReporter;
 
-import java.security.PrivateKey;
-
 public abstract class Vehicle {
     protected Line line;
     protected final int sideNo;
     protected final int capacity;
-    protected int currentStopIndex;
+    protected Segment currentSegment;
     protected Direction direction;
     protected IMyList<Passenger> passengers;
     
@@ -20,14 +18,11 @@ public abstract class Vehicle {
         this.sideNo = sideNo;
         this.capacity=capacity;
         passengers= new MyArrayList<Passenger>(capacity);
+        currentSegment=null;
     }
 
     public boolean hasSpace() {
         return passengers.size()<capacity;
-    }
-
-    public int getTimeToStop(Stop stop, Direction direction) {
-        return line.getTimeToStop(currentStopIndex, direction,stop);
     }
 
     public void board(Passenger passenger){
@@ -37,27 +32,19 @@ public abstract class Vehicle {
     }
 
     public Stop[] getStopsLeft() {
-        return line.getStopsLeft(currentStopIndex, direction);
+        return line.getStopsLeft(currentSegment, direction);
     }
 
-    public void stop(int currentStopIndex,IEventQueue eventQueue, IEventReporter eventReporter, int time) {
-        this.currentStopIndex = currentStopIndex;
-        Stop currentStop = line.getStop(currentStopIndex);
+    public void stop(Segment segment,IEventQueue eventQueue, IEventReporter eventReporter, int time) {
+        this.currentSegment = segment;
+        Stop currentStop = currentSegment.getStop();
+
         getOffPassengers(currentStop, time);
         currentStop.tryBoardPassengers(this, eventQueue,time);
-        
-        int nextStopIndex = -1;
-        int timeToNextStop = -1;
-        if(line.isLastStop(currentStopIndex, direction)) {
-            // TODO: report loop
-            direction = line.switchDirection(direction);
-            nextStopIndex = line.getStartIndex(direction);
-            timeToNextStop = line.getLoopStopDuration();
-        }
-        else{
-            nextStopIndex = line.getNextStopIndex(currentStopIndex, direction);
-            timeToNextStop = line.getTimeToNextStopDuration(currentStopIndex, direction);
-        }
+
+        line.reportStop(segment, direction, eventReporter, time);
+        line.trySchedule(this,segment, direction, eventQueue, time);
+        this.currentSegment=null;
     }
     
     private void getOffPassengers(Stop stop, int time) {
@@ -65,10 +52,11 @@ public abstract class Vehicle {
             if(!stop.hasSpace())
                 return;
             Passenger passenger = passengers.get(i);
-            if (passenger.getDesiredStop() == line.getStop(currentStopIndex)) {
-                passenger.enterStop(stop,time);
-                passengers.removeAt(i);
-                i--;
+            if (passenger.getDesiredStop() == currentSegment.getStop()) {
+                if(passenger.tryEnterStop(stop,time)) {
+                    passengers.removeAt(i);
+                    i--;
+                }
             }
         }
     }

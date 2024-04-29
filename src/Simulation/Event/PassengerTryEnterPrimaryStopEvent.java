@@ -2,17 +2,17 @@
 
 import Simulation.Passenger;
 
-public class PassengerTryEnterPrimaryStop extends Event{
+public class PassengerTryEnterPrimaryStopEvent extends Event{
     private final Passenger passenger;
     
-    public PassengerTryEnterPrimaryStop(Passenger passenger, int time) {
+    public PassengerTryEnterPrimaryStopEvent(Passenger passenger, int time) {
         super(time);
         this.passenger=passenger;
     }
 
     @Override
     public void process(IEventQueue queue, IEventReporter reporter) {
-        boolean didEnter = passenger.enterStop(passenger.getPrimaryStop(), time);
+        boolean didEnter = passenger.tryEnterStop(passenger.getPrimaryStop(), time);
         // TODO: Report the event
     }
 

@@ -37,7 +37,7 @@ public class Passenger {
         return totalTimeWaiting;
     }
     
-    public boolean enterStop(Stop stop, int time) {
+    public boolean tryEnterStop(Stop stop, int time) {
         if(stop.hasSpace()){
             stop.enter(this);
             timeOfStartedWaiting = time;

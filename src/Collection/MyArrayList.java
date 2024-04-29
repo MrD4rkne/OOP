@@ -10,6 +10,11 @@ public class MyArrayList<T> implements IMyList<T> {
     private T[] array;
     private int size;
 
+    public MyArrayList(T[] elems){
+        this(Math.max(elems.length, DEFAULT_CAPACITY));
+        addRange(elems);
+    }
+
     public MyArrayList(){
         this(DEFAULT_CAPACITY);
     }
@@ -24,12 +29,15 @@ public class MyArrayList<T> implements IMyList<T> {
     @Override
     public void add(T elem) {
         if(size == array.length){
-            @SuppressWarnings("unchecked")
-            T[] newArray = (T[]) Array.newInstance(array.getClass().getComponentType(), array.length * GROWTH_FACTOR);
-            System.arraycopy(array, 0, newArray, 0, array.length);
-            array = newArray;
+            resize(size+1);
         }
         array[size++] = elem;
+    }
+
+    @Override
+    public void addRange(T[] elems) {
+        resize(size + elems.length);
+        System.arraycopy(elems,0,array,size,elems.length);
     }
 
     @Override
@@ -89,7 +97,46 @@ public class MyArrayList<T> implements IMyList<T> {
     }
 
     @Override
+    public IMyList<T> sub(int index) {
+        return new MyArrayList<T>(subArray(index));
+    }
+
+    @Override
+    public IMyList<T> sub(int index, int length) {
+        return new MyArrayList<T>(subArray(index,length));
+    }
+
+    @Override
+    public T[] subArray(int index) {
+        return subArray(index, size-index);
+    }
+
+    @Override
+    public T[] subArray(int index, int length) {
+        if(index < 0 || index > size){
+            throw new IndexOutOfBoundsException();
+        }
+        if(length <=0 || index + length - 1 > size){
+            throw new IllegalArgumentException();
+        }
+        T[] subArray = (T[]) Array.newInstance(array.getClass().getComponentType(), length);
+        System.arraycopy(array, index, subArray, 0, length);
+        return subArray;
+    }
+
+    @Override
     public Iterator<T> iterator() {
         return new MyIterator<T>(array, size);
+    }
+
+    private void resize(int minDesiredSize){
+        int newSize = array.length;
+        while(newSize < minDesiredSize){
+            newSize*=GROWTH_FACTOR;
+        }
+        size=newSize;
+        T[] newArray = (T[]) Array.newInstance(array.getClass().getComponentType(), size);
+        System.arraycopy(array, 0, newArray, 0, array.length);
+        array = newArray;
     }
 }

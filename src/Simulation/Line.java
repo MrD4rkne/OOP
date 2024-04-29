@@ -1,18 +1,22 @@
 ﻿package Simulation;
 
+import Collection.IMyList;
+import Collection.MyArrayList;
+import Simulation.Event.IEventQueue;
+import Simulation.Event.IEventReporter;
+
 import java.util.Arrays;
 
-public class Line {
-    private final int id;
-    private final Stop[] stops;
-    private final int[] segmentDurations;
-    private final int vehicleCount;
+public abstract class Line {
+    protected final int id;
+    protected final IMyList<Segment> route;
+    protected final int[] segmentDurations;
+    protected final int vehicleCount;
     
     public Line(int id, int vehicleCount, Stop[] stops, int[] segmentDurations) {
         this.id = id;
         this.vehicleCount = vehicleCount;
-        this.stops = new Stop[stops.length];
-        System.arraycopy(stops, 0, this.stops, 0, stops.length);
+        this.route = new MyArrayList<Segment>(generateRoute(stops));
         this.segmentDurations = new int[segmentDurations.length];
         System.arraycopy(segmentDurations, 0, this.segmentDurations, 0, segmentDurations.length);
     }
@@ -25,79 +29,92 @@ public class Line {
         return vehicleCount;
     }
     
-    public Stop[] getStopsLeft(int index, Direction direction) {
-        int stopsLeftCount = getStopsLeftCount(index, direction);
-        if(direction == Direction.UP) {
-            int stopsToSkip = stops.length - stopsLeftCount;
-            return Arrays.stream(stops).skip(stopsToSkip).toArray(Stop[]::new);
+    public Stop[] getStopsLeft(Segment currentSegment, Direction direction) {
+        if(!doesSegmentIsInRoute(currentSegment)){
+            throw new IllegalArgumentException("Segment does not belong to this line's route.");
         }
+
+        int stopsLeftCount = getStopsLeftCount(currentSegment.getIndex(), direction);
+        Segment[] segmentsLeft = null;
+        switch(direction){
+            case UP:
+                if(isFinalStop(currentSegment, direction)){
+                    return new Stop[0];
+                }
+                int nextStopIndex = currentSegment.getIndex()+1;
+                segmentsLeft = route.subArray(nextStopIndex);
+                break;
+            case DOWN:
+                segmentsLeft = route.subArray(0, currentSegment.getIndex());
+                break;
+        }
+
+        Stop[] stopsLeft = new Stop[segmentsLeft.length];
+        for(int i = 0; i<stopsLeftCount; i++){
+           stopsLeft[i] = segmentsLeft[i].getStop();
+        }
+        return stopsLeft;
+    }
+
+    public abstract void trySchedule(Vehicle vehicle, Segment segment, Direction direction, IEventQueue eventQueue, int time);
+
+    public abstract void reportStop(Segment segment, Direction direction, IEventReporter eventReporter, int time);
+    
+    private boolean isFinalStop(Segment segment, Direction direction) {
+        return getStopsLeftCount(segment.getIndex(), direction) == 0;
+    }
+    
+    private Segment getNextSegment(Segment currentSegment, Direction direction){
+        if(isFinalStop(currentSegment,direction))
+            throw new IllegalStateException();
+        switch(direction) {
+            case UP:
+                return route.get(currentSegment.getIndex() + 1);
+            case DOWN:
+                return route.get(currentSegment.getIndex() - 1);
+        }
+        throw new IllegalStateException();
+    }
+    
+    private int getTimeToNextStopDuration(Segment segment, Direction direction) {
+        if(direction == Direction.UP)
+            return segmentDurations[segment.getIndex()];
         else if(direction == Direction.DOWN)
-            return Arrays.stream(stops).limit(stopsLeftCount).toArray(Stop[]::new);
+            return segmentDurations[segment.getIndex()-1];
         throw new UnsupportedOperationException("Invalid direction");
     }
     
-    public int getStartIndex(Direction direction){
-        if(direction == Direction.UP)
-            return 0;
-        else if(direction == Direction.DOWN)
-            return stops.length-1;
-        throw new UnsupportedOperationException("Invalid direction");
-    }
-    
-    public boolean isLastStop(int index, Direction direction) {
-        return getStopsLeftCount(index, direction) == 0;
-    }
-    
-    public int getNextStopIndex(int index, Direction direction){
-        if(direction == Direction.UP)
-            return index+1;
-        else if(direction == Direction.DOWN)
-            return index-1;
-        throw new UnsupportedOperationException("Invalid direction");
-    }
-    
-    public int getTimeToNextStopDuration(int index, Direction direction) {
-        if(direction == Direction.UP)
-            return segmentDurations[index];
-        else if(direction == Direction.DOWN)
-            return segmentDurations[index-1];
-        throw new UnsupportedOperationException("Invalid direction");
-    }
-    
-    public Direction switchDirection(Direction direction) {
-        if(direction == Direction.UP)
-            return Direction.DOWN;
-        else if(direction == Direction.DOWN)
-            return Direction.UP;
+    private Direction switchDirection(Direction direction) {
+        switch(direction){
+            case UP:
+                return Direction.DOWN;
+            case DOWN:
+                return Direction.UP;
+        }
         throw new UnsupportedOperationException("Invalid direction");
     }
 
-    public int getTimeToStop(int currentStopIndex, Direction direction, Stop stop) {
-        int time = 0;
-        while(!isLastStop(currentStopIndex, direction)) {
-            time += getTimeToNextStopDuration(currentStopIndex, direction);
-            if(stops[getNextStopIndex(currentStopIndex, direction)] == stop)
-                return time;
-            currentStopIndex += direction == Direction.UP ? 1 : -1;
-        }
-        Direction switchedDirection = switchDirection(direction);
-        return time + getLoopStopDuration() + getTimeToStop(getStartIndex(switchedDirection), switchedDirection, stop);
+    private int getLoopStopDuration(){
+        return segmentDurations[segmentDurations.length-1];
     }
-    
-    public Stop getStop(int index){
-        return stops[index];
+
+    private boolean doesSegmentIsInRoute(Segment segment){
+        return segment.getIndex() >=0 && segment.getIndex() < route.size() && segment == route.get(segment.getIndex());
     }
-    
-    
+
     private int getStopsLeftCount(int index, Direction direction) {
         if(direction == Direction.UP)
-            return stops.length-index -1;
+            return route.size()-index -1;
         else if(direction == Direction.DOWN)
             return index;
         throw new UnsupportedOperationException("Invalid direction");
     }
-    
-    public int getLoopStopDuration(){
-        return segmentDurations[segmentDurations.length-1];
+
+    private Segment[] generateRoute(Stop[] stops){
+        Segment[] route = new Segment[stops.length];
+        for(int i = 0; i<route.length; i++){
+            route[i] = new Segment(i, stops[i]);
+        }
+        return route;
     }
 }
