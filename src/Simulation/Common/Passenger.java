@@ -1,4 +1,6 @@
-﻿package Simulation;
+﻿package Simulation.Common;
+
+import Simulation.Core.RandomNumberGenerator;
 
 public class Passenger {
     private final int id;

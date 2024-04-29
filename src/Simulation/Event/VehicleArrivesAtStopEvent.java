@@ -1,20 +1,19 @@
 ﻿package Simulation.Event;
 
-import Simulation.Segment;
-import Simulation.Vehicle;
+import Simulation.Common.Vehicle;
 
 public class VehicleArrivesAtStopEvent extends Event {
     private final Vehicle vehicle;
-    private final Segment segment;
+    private final int stopIndex;
 
-    public VehicleArrivesAtStopEvent(int time, Vehicle vehicle,Segment segment){
+    public VehicleArrivesAtStopEvent(int time, Vehicle vehicle,int stopIndex){
         super(time);
         this.vehicle=vehicle;
-        this.segment=segment;
+        this.stopIndex=stopIndex;
     }
 
     @Override
     public void process(IEventQueue queue, IEventReporter reporter) {
-        vehicle.stop(segment, queue,reporter,time);
+        vehicle.stop(stopIndex, queue,reporter,time);
     }
 }

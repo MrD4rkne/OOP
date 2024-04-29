@@ -1,13 +1,14 @@
-﻿package Simulation;
+﻿package Simulation.Core;
 
-import Simulation.Event.IEventQueue;
-import Simulation.Event.IEventReporter;
-import Simulation.Event.PassengerTryEnterPrimaryStopEvent;
+import Simulation.Common.Passenger;
+import Simulation.Event.*;
+import Simulation.Common.Line;
+import Simulation.Common.Stop;
 
 public class Simulation {
-    private static final int MINUTES_PER_DAY=24*60;
-    private static final int SIMULATION_START_MINUTE=6*60;
-    
+    private static final int MINUTES_PER_DAY = 24 * 60;
+    private static final int SIMULATION_START_MINUTE = 6 * 60;
+
     private final int daysCount;
     private final int stopsCapacity;
     private final int stopsCount;
@@ -18,8 +19,8 @@ public class Simulation {
     private final IEventReporter eventReporter;
     private final IEventQueue eventQueue;
     private final Passenger[] passengers;
-    
-    public Simulation(int daysCount, int stopsCapacity, int stopsCount, int tramCapacity, int passengersCount, Stop[] stops, Line[] lines,IEventReporter eventReporter) {
+
+    public Simulation(int daysCount, int stopsCapacity, int stopsCount, int tramCapacity, int passengersCount, Stop[] stops, Line[] lines, IEventReporter eventReporter) {
         this.daysCount = daysCount;
         this.stopsCapacity = stopsCapacity;
         this.stopsCount = stopsCount;
@@ -31,35 +32,44 @@ public class Simulation {
         System.arraycopy(stops, 0, this.stops, 0, stops.length);
         this.eventReporter = eventReporter;
         eventQueue = new EventQueue();
-        this.passengers=generatePassengers();
+        this.passengers = generatePassengers();
     }
-    
-    public void simulate(){
-        preparePassengersForDay();
-        for(int day = 1; day<=daysCount; day++) {
+
+    public void simulate() {
+        eventQueue.clear();
+        for (int day = 1; day <= daysCount; day++) {
+            prepareVehiclesForDay(day);
+            preparePassengersForDay();
+            simulateDay();
         }
     }
-    
-    private void preparePassengersForDay()
-    {
-        for(Passenger passenger : passengers) {
+
+    private void simulateDay() {
+        while(!eventQueue.isEmpty()) {
+            Event event = eventQueue.pop();
+            event.process(eventQueue, eventReporter);
+        }
+    }
+
+    private void preparePassengersForDay() {
+        for (Passenger passenger : passengers) {
             int time = RandomNumberGenerator.random(SIMULATION_START_MINUTE, MINUTES_PER_DAY);
             PassengerTryEnterPrimaryStopEvent event = new PassengerTryEnterPrimaryStopEvent(passenger, time);
             eventQueue.add(event);
         }
     }
-    
+
     private void prepareVehiclesForDay(int day) {
         for (Line line : lines) {
             for (int i = 0; i < line.getVehicleCount(); i++) {
-                line.
+                line.prepareVehicles(eventQueue, eventReporter, SIMULATION_START_MINUTE);
             }
         }
     }
-    
-    private Passenger[] generatePassengers(){
+
+    private Passenger[] generatePassengers() {
         Passenger[] passengers = new Passenger[passengersCount];
-        for(int i=0; i<passengersCount; i++) {
+        for (int i = 0; i < passengersCount; i++) {
             passengers[i] = new Passenger(i, stops[RandomNumberGenerator.random(0, stops.length)]);
         }
         return passengers;

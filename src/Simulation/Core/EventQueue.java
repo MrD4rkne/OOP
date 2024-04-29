@@ -1,15 +1,15 @@
-﻿package Simulation;
+﻿package Simulation.Core;
 
 import Simulation.Event.Event;
 import Simulation.Event.IEventQueue;
 
 class EventQueue implements IEventQueue {
     private final Heap<Event> heap;
-    
+
     public EventQueue() {
         heap = new Heap<Event>();
     }
-    
+
     @Override
     public void add(Event event) {
         heap.insert(event);
@@ -17,8 +17,8 @@ class EventQueue implements IEventQueue {
 
     @Override
     public Event pop() {
-       assert(!heap.isEmpty());
-       return heap.popMin();
+        assert(!heap.isEmpty());
+        return heap.popMin();
     }
 
     @Override

@@ -1,4 +1,4 @@
-﻿package Simulation;
+﻿package Simulation.Core;
 
 import Collection.IMyList;
 import Collection.MyArrayList;
@@ -15,7 +15,7 @@ class Heap<T extends Comparable<T>> {
         int index = heap.size() - 1;
         heapifyUp(index);
     }
-    
+
     public T peekMin() {
         if (heap.isEmpty()) {
             throw new IllegalStateException("Heap is empty");
@@ -57,7 +57,7 @@ class Heap<T extends Comparable<T>> {
             heapifyDown(smallest);
         }
     }
-    
+
     private void heapifyUp(int index) {
         int parentIndex = (index - 1) / 2;
         while (index > 0 && heap.get(index).compareTo(heap.get(parentIndex)) < 0) {

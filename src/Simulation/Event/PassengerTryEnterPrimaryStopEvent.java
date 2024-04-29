@@ -1,6 +1,6 @@
 ﻿package Simulation.Event;
 
-import Simulation.Passenger;
+import Simulation.Common.Passenger;
 
 public class PassengerTryEnterPrimaryStopEvent extends Event{
     private final Passenger passenger;
