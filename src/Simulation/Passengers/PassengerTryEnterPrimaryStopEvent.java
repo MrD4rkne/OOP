@@ -15,11 +15,11 @@ public class PassengerTryEnterPrimaryStopEvent extends Event {
     @Override
     public void process(IEventQueue queue, ILogReporter reporter) {
         boolean didEnter = passenger.tryEnterStop(passenger.getPrimaryStop(), time);
-        // TODO: Report the event
-    }
-
-    @Override
-    public String toString() {
-        return "";
+        if(didEnter){
+            reporter.log(new PassengerEnteredPrimaryStopLog(time, passenger));
+        }
+        else{
+            reporter.log(new PassengerCouldNotEnterPrimaryStopLog(time,passenger));
+        }
     }
 }

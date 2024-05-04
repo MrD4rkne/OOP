@@ -21,15 +21,18 @@ public class TramLine extends Line {
     }
 
     @Override
-    public void prepareVehicles(IEventQueue eventQueue, ILogReporter eventReporter, int currentTime) {
+    public int prepareVehicles(IEventQueue eventQueue, ILogReporter eventReporter, int currentTime, int vehicleStartingNo) {
         boolean shouldStartLeft = true;
-        int interval = calculateFullRouteTime()/vehicles.size();
-        for (int i = 0; i < vehicles.size(); i++) {
-            vehicles.set(i,new Tram(this, i, tramsCapacity));
-            int departureTime = currentTime + i*interval;
+        int interval = calculateFullRouteTime()/getVehicleCount();
+        vehicles.clear();
+        for (int i = 0; i < getVehicleCount(); i++) {
+            vehicles.add(new Tram(this, vehicleStartingNo + i, tramsCapacity));
+            int departureTime = currentTime + (i/2)*interval;
             VehicleStartRouteEvent startRouteEvent = new VehicleStartRouteEvent(departureTime, vehicles.get(i), createRoute(shouldStartLeft));
             shouldStartLeft = !shouldStartLeft;
+            eventQueue.add(startRouteEvent);
         }
+        return getVehicleCount();
     }
 
     @Override
@@ -53,8 +56,17 @@ public class TramLine extends Line {
     
     private Segment[] createRoute(boolean shouldStartLeft){
         Segment[] route = new Segment[stops.length];
-        for (int i = 0; i < stops.length; i++) {
-            route[i] = new Segment(i,stops[i], segmentDurations[i]);
+        if(shouldStartLeft) {
+            for (int i = 0; i < stops.length; i++) {
+                int duration = i == stops.length-1 ? 0 : segmentDurations[i];
+                route[i] = new Segment(i, stops[i], duration);
+            }
+        }
+        else{
+            for (int i = 0; i < stops.length; i++) {
+                int duration = i == stops.length-1 ? 0 : segmentDurations[stops.length-1-i -1];
+                route[i] = new Segment(i, stops[stops.length-1-i], duration);
+            }
         }
         return route;
     }

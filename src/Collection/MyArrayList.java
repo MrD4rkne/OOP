@@ -38,6 +38,7 @@ public class MyArrayList<T> implements IMyList<T> {
     public void addRange(T[] elems) {
         resize(size + elems.length);
         System.arraycopy(elems,0,array,size,elems.length);
+        size+=elems.length;
     }
 
     @Override
@@ -125,17 +126,22 @@ public class MyArrayList<T> implements IMyList<T> {
     }
 
     @Override
+    public void clear() {
+        array =(T[]) Array.newInstance(array.getClass().getComponentType(), DEFAULT_CAPACITY);
+        size=0;
+    }
+
+    @Override
     public Iterator<T> iterator() {
         return new MyIterator<T>(array, size);
     }
 
     private void resize(int minDesiredSize){
-        int newSize = array.length;
-        while(newSize < minDesiredSize){
-            newSize*=GROWTH_FACTOR;
+        int newCapacity = array.length;
+        while(newCapacity < minDesiredSize){
+            newCapacity*=GROWTH_FACTOR;
         }
-        size=newSize;
-        T[] newArray = (T[]) Array.newInstance(array.getClass().getComponentType(), size);
+        T[] newArray = (T[]) Array.newInstance(array.getClass().getComponentType(), newCapacity);
         System.arraycopy(array, 0, newArray, 0, array.length);
         array = newArray;
     }

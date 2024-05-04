@@ -1,4 +1,4 @@
-﻿package Simulation.Vehicles;
+package Simulation.Vehicles;
 
 import Simulation.Common.Stop;
 import Simulation.Logs.Log;
@@ -15,7 +15,7 @@ public class VehicleEntersLoopLog extends Log {
     
     @Override
     public String toString() {
-        return String.format("%s enters loop at stop %s",
-                vehicle.toString(), stop.getName());
+        return String.format("%s enters loop at %s",
+                vehicle.toString(), stop.toString());
     }
 }

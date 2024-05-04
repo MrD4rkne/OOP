@@ -26,4 +26,6 @@ public interface IMyList<T> extends Iterable<T> {
     T[] subArray(int index);
 
     T[] subArray(int index, int length);
+
+    void clear();
 }

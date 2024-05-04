@@ -1,4 +1,4 @@
-﻿package Simulation.Vehicles;
+package Simulation.Vehicles;
 
 import Simulation.Common.Stop;
 import Simulation.Logs.Log;
@@ -17,7 +17,7 @@ public class VehicleStartRouteLog extends Log {
 
     @Override
     public String toString() {
-        return String.format("%s starts its route from stop %s to stop %s",
-                vehicle.toString(), firstStop.getName(), lastStop.getName());
+        return String.format("%s starts its route from %s to %s",
+                vehicle.toString(), firstStop.toString(), lastStop.toString());
     }
 }

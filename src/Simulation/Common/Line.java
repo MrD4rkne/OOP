@@ -10,13 +10,15 @@ public abstract class Line  {
     protected final int id;
     protected final Stop[] stops;
     protected final int[] segmentDurations;
+
+    protected int vehiclesCount;
+
     protected final IMyList<Vehicle> vehicles;
-    protected final Segment[] vehiclesSegment;
     
     public Line(int id, int vehicleCount, Stop[] stops, int[] segmentDurations) {
         this.id = id;
         this.vehicles = new MyArrayList<Vehicle>(vehicleCount);
-        this.vehiclesSegment = new Segment[vehicleCount];
+        this.vehiclesCount=vehicleCount;
         this.stops = new Stop[stops.length];
         System.arraycopy(stops, 0, this.stops, 0, stops.length);
         this.segmentDurations = new int[segmentDurations.length];
@@ -28,10 +30,10 @@ public abstract class Line  {
     }
     
     public int getVehicleCount() {
-        return vehicles.size();
+        return vehiclesCount;
     }
     
-    public abstract void prepareVehicles(IEventQueue eventQueue, ILogReporter eventReporter, int currentTime);
+    public abstract int prepareVehicles(IEventQueue eventQueue, ILogReporter eventReporter, int currentTime, int vehicleStartingNo);
 
     public abstract void notifyEndOfRoute(Vehicle vehicle, IEventQueue eventQueue, ILogReporter eventReporter, int currentTime);
 

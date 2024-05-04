@@ -1,12 +1,17 @@
-﻿package Simulation.Logs;
+package Simulation.Logs;
 
 public class ConsoleLogReporter implements ILogReporter {
-    private final int dayNo;
+    private int dayNo;
     
-    public ConsoleLogReporter(int dayNo) {
-        this.dayNo = dayNo;
+    public ConsoleLogReporter() {
+
     }
-    
+
+    @Override
+    public void prepareLogging(int dayNo) {
+        this.dayNo=dayNo;
+    }
+
     public void log(Log log){
         printMessage(log.getTime(), log.toString());
     }

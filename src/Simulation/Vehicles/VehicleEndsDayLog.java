@@ -1,4 +1,4 @@
-﻿package Simulation.Vehicles;
+package Simulation.Vehicles;
 
 import Simulation.Logs.Log;
 

@@ -61,18 +61,22 @@ public abstract class Vehicle {
     public Stop[] getStopsLeft() {
         Stop[] stopsLeft = new Stop[getStopsLeftCount()];
         for (int i = 0; i < stopsLeft.length; i++) {
-            stopsLeft[i] = route.get(i+stopsLeft.length).getStop();
+            stopsLeft[i] = route.get(currentStopIndex + i + 1).getStop();
         }
         return stopsLeft;
     }
 
+    // TODO: should passenger enter the same vehicle they've just left?
     public void stop(int stopIndex, IEventQueue eventQueue, ILogReporter eventReporter, int time) {
         this.currentStopIndex=stopIndex;
         eventReporter.log(new VehicleArriveAtStopLog(time, this, route.get(stopIndex).getStop()));
         
         Stop currentStop = route.get(stopIndex).getStop();
         int passengersGetOffCount = getOffPassengers(currentStop, time);
-        int passengersBoardCount = currentStop.tryBoardPassengers(this, eventQueue,time);
+        int passengersBoardCount = 0;
+        if(!isOnFinalStop()){
+            passengersBoardCount = currentStop.tryBoardPassengers(this, eventQueue, eventReporter, time);
+        }
         
         eventReporter.log(new VehicleLeavesStopLog(time, this, currentStop, passengersBoardCount, passengersGetOffCount));
         scheduleNextAction(eventQueue, eventReporter, time);
@@ -99,7 +103,7 @@ public abstract class Vehicle {
     protected abstract String getName();
     
     private int getStopsLeftCount() {
-        return route.size()-currentStopIndex;
+        return route.size()-currentStopIndex -1;
     }
     
     private void scheduleNextAction(IEventQueue eventQueue, ILogReporter eventReporter, int currentTime){
@@ -134,7 +138,7 @@ public abstract class Vehicle {
     private void kickOutPassengers(int time, IEventQueue eventQueue, ILogReporter eventReporter) {
         for (int i = 0; i < passengers.size(); i++) {
             Passenger passenger = passengers.get(i);
-            passenger.forceGetOutOfVehicle(eventQueue, eventReporter, time);
+            passenger.forceGetOutOfVehicle(eventQueue, eventReporter, this,time);
             passengers.removeAt(i);
             i--;
         }

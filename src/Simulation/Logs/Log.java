@@ -1,4 +1,4 @@
-﻿package Simulation.Logs;
+package Simulation.Logs;
 
 public abstract class Log {
     protected final int time;

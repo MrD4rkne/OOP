@@ -1,4 +1,4 @@
-﻿package Simulation.Vehicles;
+package Simulation.Vehicles;
 
 import Simulation.Common.Stop;
 import Simulation.Logs.Log;
@@ -19,7 +19,7 @@ public class VehicleLeavesStopLog extends Log {
 
     @Override
     public String toString() {
-        return String.format("%s leaves stop %s. %d passengers boarded, %d passengers left",
-                vehicle.toString(), stop.getName(), passengersBoarded, passengersLeft);
+        return String.format("%s leaves %s. %d passengers boarded, %d passengers left",
+                vehicle.toString(), stop.toString(), passengersBoarded, passengersLeft);
     }
 }

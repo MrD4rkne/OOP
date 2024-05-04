@@ -53,10 +53,11 @@ public class Passenger {
         return false;
     }
     
-    public void board(Vehicle vehicle, int time) {
+    public void board(Vehicle vehicle, int time, ILogReporter reporter) {
         Stop[] stops = vehicle.getStopsLeft();
         desiredStop = stops[RandomNumberGenerator.random(0, stops.length)];
         vehicle.board(this);
+        reporter.log(new PassengerBoardVehicle(time,this,vehicle, desiredStop));
         drivesTaken++;
         totalTimeWaiting+= time - timeOfStartedWaiting;
         this.timeOfStartedWaiting=-1;
@@ -74,7 +75,12 @@ public class Passenger {
         timeOfStartedWaiting=-1;
     }
 
-    public void forceGetOutOfVehicle(IEventQueue eventQueue, ILogReporter reporter, int time) {
-        reporter.log(new PassengerLeftVehicleDueToEndOfDay(time, this));
+    public void forceGetOutOfVehicle(IEventQueue eventQueue, ILogReporter reporter, Vehicle vehicle,int time) {
+        reporter.log(new PassengerLeftVehicleDueToEndOfDay(time, this, vehicle));
+    }
+
+    @Override
+    public String toString(){
+        return "no. "+ id;
     }
 }

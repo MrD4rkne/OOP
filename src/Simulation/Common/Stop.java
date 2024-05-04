@@ -3,6 +3,7 @@ package Simulation.Common;
 import Collection.IMyList;
 import Collection.MyArrayList;
 import Simulation.Events.IEventQueue;
+import Simulation.Logs.ILogReporter;
 import Simulation.Passengers.Passenger;
 import Simulation.Vehicles.Vehicle;
 
@@ -32,18 +33,23 @@ public class Stop {
         waitingPassengers.add(passenger);
     }
 
-    public int tryBoardPassengers(Vehicle vehicle, IEventQueue eventQueue, int time) {
+    public int tryBoardPassengers(Vehicle vehicle, IEventQueue eventQueue, ILogReporter reporter, int time) {
         int boardCount = 0;
         for (int i = 0; i < waitingPassengers.size(); i++) {
             if (!vehicle.hasSpaceLeft()) {
                 break;
             }
             Passenger passenger = waitingPassengers.get(i);
-            passenger.board(vehicle, time);
+            passenger.board(vehicle, time, reporter);
             waitingPassengers.removeAt(i);
             i--;
             boardCount++;
         }
         return boardCount;
+    }
+
+    @Override
+    public String toString(){
+        return "Stop " + name;
     }
 }

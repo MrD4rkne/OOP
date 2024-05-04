@@ -19,7 +19,7 @@ public class Simulation {
     private final IEventQueue eventQueue;
     private final Passenger[] passengers;
 
-    public Simulation(int daysCount, int tramCapacity, int passengersCount, Stop[] stops, Line[] lines, ILogReporter eventReporter) {
+    public Simulation(int daysCount, int passengersCount, Stop[] stops, Line[] lines, ILogReporter eventReporter) {
         this.daysCount = daysCount;
         this.passengersCount = passengersCount;
         this.lines = new Line[lines.length];
@@ -34,6 +34,7 @@ public class Simulation {
     public void simulate() {
         eventQueue.clear();
         for (int day = 1; day <= daysCount; day++) {
+            eventReporter.prepareLogging(day);
             prepareVehiclesForDay(day);
             preparePassengersForDay();
             simulateDay();
@@ -57,10 +58,10 @@ public class Simulation {
     }
 
     private void prepareVehiclesForDay(int day) {
+        int currentVehicleNo = 0;
         for (Line line : lines) {
-            for (int i = 0; i < line.getVehicleCount(); i++) {
-                line.prepareVehicles(eventQueue, eventReporter, SIMULATION_START_MINUTE);
-            }
+            int vehiclesCount = line.prepareVehicles(eventQueue, eventReporter, SIMULATION_START_MINUTE, currentVehicleNo);
+            currentVehicleNo+=vehiclesCount;
         }
     }
 
