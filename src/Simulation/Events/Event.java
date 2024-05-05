@@ -1,6 +1,7 @@
 package Simulation.Events;
 
 import Simulation.Logs.ILogReporter;
+import Simulation.Logs.IStatistic;
 
 public abstract class Event implements Comparable<Event>{
     protected final int time;

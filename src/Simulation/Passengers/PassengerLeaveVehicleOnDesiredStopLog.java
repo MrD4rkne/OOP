@@ -1,6 +1,7 @@
 package Simulation.Passengers;
 
 import Simulation.Common.Stop;
+import Simulation.Logs.IStatistic;
 import Simulation.Logs.Log;
 import Simulation.Vehicles.Vehicle;
 
@@ -11,11 +12,20 @@ public class PassengerLeaveVehicleOnDesiredStopLog extends Log {
 
     private final Stop stop;
 
-    public PassengerLeaveVehicleOnDesiredStopLog(int time, Passenger passenger, Vehicle vehicle, Stop stop) {
+    private final int tripDuration;
+
+    public PassengerLeaveVehicleOnDesiredStopLog(int time, Passenger passenger, Vehicle vehicle, Stop stop, int tripDuration) {
         super(time);
         this.passenger = passenger;
         this.vehicle=vehicle;
         this.stop=stop;
+        this.tripDuration=tripDuration;
+    }
+
+    @Override
+    public void updateStatistic(IStatistic statistic) {
+        super.updateStatistic(statistic);
+        statistic.addPassengerArriveAtDestination(passenger,vehicle,tripDuration);
     }
 
     @Override

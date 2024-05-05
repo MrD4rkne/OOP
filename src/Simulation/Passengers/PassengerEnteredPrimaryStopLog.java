@@ -1,5 +1,6 @@
 package Simulation.Passengers;
 
+import Simulation.Logs.IStatistic;
 import Simulation.Logs.Log;
 
 public class PassengerEnteredPrimaryStopLog extends Log {

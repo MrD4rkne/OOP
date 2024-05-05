@@ -10,6 +10,10 @@ public abstract class Log {
     public int getTime() {
         return time;
     }
+
+    public void updateStatistic(IStatistic statistic){
+        statistic.addEvent();
+    }
     
     public abstract String toString();
 }

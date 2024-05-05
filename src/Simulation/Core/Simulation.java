@@ -1,5 +1,7 @@
 package Simulation.Core;
 
+import Simulation.Logs.IStatistic;
+import Simulation.Logs.Statistic;
 import Simulation.Passengers.Passenger;
 import Simulation.Events.*;
 import Simulation.Common.Line;
@@ -9,6 +11,7 @@ import Simulation.Passengers.PassengerTryEnterPrimaryStopEvent;
 
 public class Simulation {
     private static final int MINUTES_PER_DAY = 24 * 60;
+    private static final int PASSENGER_GET_OUT_LAST_MINUTE = 12 * 60;
     private static final int SIMULATION_START_MINUTE = 6 * 60;
 
     private final int daysCount;
@@ -33,8 +36,9 @@ public class Simulation {
 
     public void simulate() {
         eventQueue.clear();
+        IStatistic statistic = new Statistic();
         for (int day = 1; day <= daysCount; day++) {
-            eventReporter.prepareLogging(day);
+            eventReporter.prepareLogging(day,statistic);
             prepareVehiclesForDay(day);
             preparePassengersForDay();
             simulateDay();
@@ -51,7 +55,7 @@ public class Simulation {
     private void preparePassengersForDay() {
         for (Passenger passenger : passengers) {
             passenger.reset();
-            int time = RandomNumberGenerator.random(SIMULATION_START_MINUTE, MINUTES_PER_DAY);
+            int time = RandomNumberGenerator.random(SIMULATION_START_MINUTE, PASSENGER_GET_OUT_LAST_MINUTE);
             PassengerTryEnterPrimaryStopEvent event = new PassengerTryEnterPrimaryStopEvent(passenger, time);
             eventQueue.add(event);
         }

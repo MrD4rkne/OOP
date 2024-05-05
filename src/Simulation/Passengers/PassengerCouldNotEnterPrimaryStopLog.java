@@ -1,5 +1,6 @@
 package Simulation.Passengers;
 
+import Simulation.Logs.IStatistic;
 import Simulation.Logs.Log;
 
 public class PassengerCouldNotEnterPrimaryStopLog extends Log {
@@ -8,6 +9,12 @@ public class PassengerCouldNotEnterPrimaryStopLog extends Log {
     public PassengerCouldNotEnterPrimaryStopLog(int time, Passenger passenger) {
         super(time);
         this.passenger = passenger;
+    }
+
+    @Override
+    public void updateStatistic(IStatistic statistic) {
+        super.updateStatistic(statistic);
+        statistic.addPassengerDidNotTravelThisDay(passenger);
     }
 
     @Override
