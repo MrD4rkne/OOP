@@ -1,21 +1,20 @@
 package Simulation.Common;
 
 import Collection.IMyList;
+import Collection.IQueue;
 import Collection.MyArrayList;
-import Simulation.Events.IEventQueue;
-import Simulation.Logs.ILogReporter;
+import Collection.Queue;
 import Simulation.Passengers.Passenger;
-import Simulation.Vehicles.Vehicle;
 
 public class Stop {
     private final String name;
     private final int capacity;
-    private final IMyList<Passenger> waitingPassengers;
+    private final IQueue<Passenger> waitingPassengers;
     
     public Stop(String name, int capacity) {
         this.name = name;
         this.capacity = capacity;
-        this.waitingPassengers = new MyArrayList<Passenger>(capacity);
+        this.waitingPassengers = new Queue<Passenger>();
     }
     
     public String getName() {
@@ -26,26 +25,22 @@ public class Stop {
         return waitingPassengers.size() < capacity;
     }
     
-    public void enter(Passenger passenger) {
+    public void putPassenger(Passenger passenger) {
         if (!hasSpace()) {
             throw new IllegalStateException("No space left");
         }
-        waitingPassengers.add(passenger);
+        waitingPassengers.enqueue(passenger);
     }
 
-    public int tryBoardPassengers(Vehicle vehicle, IEventQueue eventQueue, ILogReporter reporter, int time) {
-        int boardCount = 0;
-        for (int i = 0; i < waitingPassengers.size(); i++) {
-            if (!vehicle.hasSpaceLeft()) {
-                break;
-            }
-            Passenger passenger = waitingPassengers.get(i);
-            passenger.board(vehicle, time, reporter);
-            waitingPassengers.removeAt(i);
-            i--;
-            boardCount++;
+    public boolean hasPassengers(){
+        return !waitingPassengers.isEmpty();
+    }
+    
+    public Passenger passengerLeave() {
+        if (waitingPassengers.isEmpty()) {
+            throw new IllegalStateException("No passengers left");
         }
-        return boardCount;
+        return waitingPassengers.dequeue();
     }
 
     @Override

@@ -26,6 +26,7 @@ public class PassengerLeaveVehicleOnDesiredStopLog extends Log {
     public void updateStatistic(IStatistic statistic) {
         super.updateStatistic(statistic);
         statistic.addPassengerArriveAtDestination(passenger,vehicle,tripDuration);
+        statistic.addPassengerWait(passenger,stop);
     }
 
     @Override

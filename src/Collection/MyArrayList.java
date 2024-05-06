@@ -132,6 +132,20 @@ public class MyArrayList<T> implements IMyList<T> {
     }
 
     @Override
+    public void removeRange(int count) {
+        if(count == 0)
+            return;
+        if(count <0 || count> size){
+            throw new IllegalArgumentException();
+        }
+        for(int i = 0; i < count; i++){
+            array[i] = null;
+        }
+        System.arraycopy(array, count, array, 0, size-count);
+        size-=count;
+    }
+
+    @Override
     public Iterator<T> iterator() {
         return new MyIterator<T>(array, size);
     }

@@ -1,35 +1,19 @@
 package Simulation.Logs;
 
-import Simulation.Events.Event;
+import Simulation.Common.Stop;
 import Simulation.Passengers.Passenger;
 import Simulation.Vehicles.Vehicle;
 
 public class Statistic implements IStatistic{
-    private final Stat tripsCount;
-
-    private final Stat tripsDuration;
-
-    private final Stat waitingCount;
-
-    private final Stat waitingDuration;
-
-    private final Stat successfulTripsCount;
-
-    private final Stat forcedEndedTripsCount;
-
-    private final Stat didNotTravelPassengersCount;
-
-    private final Stat routesCount;
+    private final Stats stats;
 
     public Statistic(){
-        tripsCount = new Stat();
-        tripsDuration = new Stat();
-        waitingCount = new Stat();
-        waitingDuration = new Stat();
-        successfulTripsCount = new Stat();
-        didNotTravelPassengersCount=new Stat();
-        forcedEndedTripsCount = new Stat();
-        routesCount = new Stat();
+        stats = new Stats();
+    }
+    
+    @Override
+    public void addPassengerWait(Passenger passenger, Stop stop){
+        stats.getWaitingCount().increment();
     }
 
     @Override
@@ -37,37 +21,51 @@ public class Statistic implements IStatistic{
         if(waitedFor <0){
             throw new IllegalArgumentException("Could not wait negative time");
         }
-        waitingDuration.increaseBy(waitedFor);
-        tripsDuration.increment();
+        stats.getWaitingDuration().increaseBy(waitedFor);
+        stats.getTripsCount().increment();
     }
 
     @Override
     public void addPassengerArriveAtDestination(Passenger passenger, Vehicle vehicle, int tripDuration) {
-        successfulTripsCount.increment();
+        stats.getSuccessfulTripsCount().increment();
+        stats.getTripsDuration().increaseBy(tripDuration);
     }
 
     @Override
     public void addPassengerDidNotTravelThisDay(Passenger passenger) {
-        didNotTravelPassengersCount.increment();
+        stats.getDidNotTravelPassengersCount().increment();
     }
 
     @Override
-    public void addPassengerLeaveForcefully(Passenger passenger, Vehicle vehicle) {
-        forcedEndedTripsCount.increment();
+    public void addPassengerLeaveForcefully(Passenger passenger, Vehicle vehicle, int traveledFor) {
+        stats.getForcedEndedTripsCount().increment();
+        stats.getTripsDuration().increaseBy(traveledFor);
     }
 
     @Override
     public void addVehicleStartRoute(Vehicle vehicle, int time) {
-        routesCount.increment();
+        stats.getRoutesCount().increment();
     }
 
     @Override
     public Stats generateStatistic() {
-        return new Stats();
+        return new Stats(stats);
+    }
+
+    @Override
+    public void resetLocal() {
+        stats.getTripsCount().resetLocal();
+        stats.getTripsDuration().resetLocal();
+        stats.getWaitingCount().resetLocal();
+        stats.getWaitingDuration().resetLocal();
+        stats.getSuccessfulTripsCount().resetLocal();
+        stats.getForcedEndedTripsCount().resetLocal();
+        stats.getDidNotTravelPassengersCount().resetLocal();
+        stats.getRoutesCount().resetLocal();
     }
 
     @Override
     public void addPassengerStoppedWaiting(int duration) {
-        waitingDuration.increaseBy(duration);
+        stats.getWaitingDuration().increaseBy(duration);
     }
 }

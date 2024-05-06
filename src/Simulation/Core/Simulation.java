@@ -38,10 +38,12 @@ public class Simulation {
         eventQueue.clear();
         IStatistic statistic = new Statistic();
         for (int day = 1; day <= daysCount; day++) {
+            statistic.resetLocal();
             eventReporter.prepareLogging(day,statistic);
             prepareVehiclesForDay(day);
             preparePassengersForDay();
             simulateDay();
+            System.out.println(statistic.generateStatistic().toString());
         }
     }
 

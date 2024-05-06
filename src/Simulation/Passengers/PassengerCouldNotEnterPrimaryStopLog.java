@@ -1,14 +1,18 @@
 package Simulation.Passengers;
 
+import Simulation.Common.Stop;
 import Simulation.Logs.IStatistic;
 import Simulation.Logs.Log;
 
 public class PassengerCouldNotEnterPrimaryStopLog extends Log {
     private final Passenger passenger;
+    
+    private final Stop stop;
 
-    public PassengerCouldNotEnterPrimaryStopLog(int time, Passenger passenger) {
+    public PassengerCouldNotEnterPrimaryStopLog(int time, Passenger passenger, Stop stop) {
         super(time);
         this.passenger = passenger;
+        this.stop=stop;
     }
 
     @Override
@@ -20,6 +24,6 @@ public class PassengerCouldNotEnterPrimaryStopLog extends Log {
     @Override
     public String toString() {
         return String.format("Passenger %s could not enter his primary stop %s",
-                passenger.toString(), passenger.getPrimaryStop().toString());
+                passenger.toString(), stop.toString());
     }
 }

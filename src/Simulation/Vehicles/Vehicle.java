@@ -1,7 +1,9 @@
 package Simulation.Vehicles;
 
 import Collection.IMyList;
+import Collection.IQueue;
 import Collection.MyArrayList;
+import Collection.Queue;
 import Simulation.Common.Line;
 import Simulation.Common.Segment;
 import Simulation.Common.Stop;
@@ -13,7 +15,7 @@ public abstract class Vehicle {
     private final int sideNo;
     private final int capacity;
     protected Line line;
-    protected IMyList<Passenger> passengers;
+    protected IQueue<Passenger> passengers;
     protected int currentStopIndex;
     protected IMyList<Segment> route;
     
@@ -21,7 +23,7 @@ public abstract class Vehicle {
         this.line=line;
         this.sideNo = sideNo;
         this.capacity=capacity;
-        this.passengers= new MyArrayList<Passenger>(capacity);
+        this.passengers= new Queue<Passenger>();
         this.route= null;
     }
     
@@ -40,7 +42,7 @@ public abstract class Vehicle {
     public void board(Passenger passenger){
         if(!hasSpaceLeft())
             throw new IllegalStateException("No space left");
-        passengers.add(passenger);
+        passengers.enqueue(passenger);
     }
 
     public Stop getFirstStop(){
@@ -65,26 +67,20 @@ public abstract class Vehicle {
         }
         return stopsLeft;
     }
-
-    // TODO: should passenger enter the same vehicle they've just left?
+    
     public void stop(int stopIndex, IEventQueue eventQueue, ILogReporter eventReporter, int time) {
         this.currentStopIndex=stopIndex;
         eventReporter.log(new VehicleArriveAtStopLog(time, this, route.get(stopIndex).getStop()));
         
         Stop currentStop = route.get(stopIndex).getStop();
-        int passengersGetOffCount = getOffPassengers(currentStop, time);
+        int passengersGetOffCount = getOffPassengers(eventQueue, eventReporter, currentStop, time);
         int passengersBoardCount = 0;
         if(!isOnFinalStop()){
-            passengersBoardCount = currentStop.tryBoardPassengers(this, eventQueue, eventReporter, time);
+            passengersBoardCount = boardPassengers(eventQueue, eventReporter, currentStop, time);
         }
         
         eventReporter.log(new VehicleLeavesStopLog(time, this, currentStop, passengersBoardCount, passengersGetOffCount));
         scheduleNextAction(eventQueue, eventReporter, time);
-    }
-    
-    public String toString(){
-        return String.format("%s no. %d of line %d",
-                getName(), getSideNo(), getLine().getId());
     }
     
     public void enterLoop(IEventQueue eventQueue, ILogReporter eventReporter, int time, Stop stop){
@@ -93,7 +89,7 @@ public abstract class Vehicle {
     
     public void endDay(IEventQueue eventQueue, ILogReporter eventReporter, int time){
         eventReporter.log(new VehicleEndsDayLog(time, this));
-        kickOutPassengers(time, eventQueue, eventReporter);
+        kickOutPassengers(eventQueue, eventReporter,time);
     }
 
     protected boolean isOnFinalStop(){
@@ -101,6 +97,11 @@ public abstract class Vehicle {
     }
     
     protected abstract String getName();
+
+    public String toString(){
+        return String.format("%s no. %d of line %d",
+                getName(), getSideNo(), getLine().getId());
+    }
     
     private int getStopsLeftCount() {
         return route.size()-currentStopIndex -1;
@@ -118,29 +119,36 @@ public abstract class Vehicle {
         }
     }
     
-    private int getOffPassengers(Stop currentStop, int time) {
+    private int getOffPassengers(IEventQueue eventQueue, ILogReporter logReporter,Stop currentStop, int time) {
         int passengersGetOffCount = 0;
         for (int i = 0; i < passengers.size(); i++) {
             if(!currentStop.hasSpace())
                 break;
-            Passenger passenger = passengers.get(i);
-            if (passenger.getDesiredStop() == currentStop) {
-                if(passenger.tryEnterStop(currentStop,time)) {
-                    passengers.removeAt(i);
-                    i--;
-                    passengersGetOffCount++;
-                }
+            Passenger passenger = passengers.dequeue();
+            if (passenger.getDesiredStop() != currentStop) {
+                continue;
             }
+            passenger.leaveVehicle(eventQueue,logReporter, currentStop, time);
+            passengersGetOffCount++;
         }
         return passengersGetOffCount;
     }
     
-    private void kickOutPassengers(int time, IEventQueue eventQueue, ILogReporter eventReporter) {
+    private void kickOutPassengers(IEventQueue eventQueue, ILogReporter eventReporter, int time) {
         for (int i = 0; i < passengers.size(); i++) {
-            Passenger passenger = passengers.get(i);
+            Passenger passenger = passengers.dequeue();
             passenger.forceGetOutOfVehicle(eventQueue, eventReporter, this,time);
-            passengers.removeAt(i);
             i--;
         }
+    }
+    
+    private int boardPassengers(IEventQueue eventQueue, ILogReporter eventReporter,Stop stop, int time){
+        int passengersBoardCount = 0;
+        while(stop.hasPassengers() && hasSpaceLeft()){
+            Passenger passenger = stop.passengerLeave();
+            passenger.enter(this,time, eventReporter);
+            passengersBoardCount++;
+        }
+        return passengersBoardCount;
     }
 }

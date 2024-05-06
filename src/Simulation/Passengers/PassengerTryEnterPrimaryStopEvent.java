@@ -1,5 +1,6 @@
 package Simulation.Passengers;
 
+import Simulation.Common.Stop;
 import Simulation.Events.Event;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
@@ -14,12 +15,13 @@ public class PassengerTryEnterPrimaryStopEvent extends Event {
 
     @Override
     public void process(IEventQueue queue, ILogReporter reporter) {
-        boolean didEnter = passenger.tryEnterStop(passenger.getPrimaryStop(), time);
-        if(didEnter){
-            reporter.log(new PassengerEnteredPrimaryStopLog(time, passenger));
+        boolean canEnter = passenger.getPrimaryStop().hasSpace();
+        if(canEnter){
+            passenger.enter(passenger.getPrimaryStop(), time, reporter);
+            reporter.log(new PassengerEnteredPrimaryStopLog(time, passenger, passenger.getPrimaryStop()));
         }
         else{
-            reporter.log(new PassengerCouldNotEnterPrimaryStopLog(time,passenger));
+            reporter.log(new PassengerCouldNotEnterPrimaryStopLog(time,passenger, passenger.getPrimaryStop()));
         }
     }
 }

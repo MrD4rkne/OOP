@@ -3,7 +3,6 @@ package Simulation.Passengers;
 import Simulation.Common.Stop;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
-import Simulation.Logs.IStatistic;
 import Simulation.Vehicles.Vehicle;
 import Simulation.Core.RandomNumberGenerator;
 
@@ -11,13 +10,14 @@ public class Passenger {
     private final int id;
     private final Stop primaryStop;
     private Stop desiredStop;
-    private int drivesTaken;
     private int timeOfLastAction;
+    
+    private Stop currentStop;
+    private Vehicle vehicle;
     
     public Passenger(int id, Stop primaryStop) {
         this.id = id;
         this.primaryStop = primaryStop;
-        this.drivesTaken=0;
         this.desiredStop =null;
         this.timeOfLastAction =-1;
     }
@@ -30,49 +30,56 @@ public class Passenger {
         return desiredStop;
     }
     
-    public int getDrivesTaken() {
-        return drivesTaken;
-    }
-    
     public Stop getPrimaryStop() {
         return primaryStop;
     }
     
-    public boolean tryEnterStop(Stop stop, int time) {
-        if(stop.hasSpace()){
-            stop.enter(this);
-            timeOfLastAction = time;
-            desiredStop=null;
-            return true;
-        }
-        return false;
+    public void enter(Stop stop, int time, ILogReporter reporter) {
+        stop.putPassenger(this);
+        currentStop = stop;
+        timeOfLastAction = time;
+        desiredStop=null;
+        vehicle=null;
     }
     
-    public void board(Vehicle vehicle, int time, ILogReporter reporter) {
+    public void enter(Vehicle vehicle, int time, ILogReporter reporter) {
         Stop[] stops = vehicle.getStopsLeft();
         desiredStop = stops[RandomNumberGenerator.random(0, stops.length)];
         vehicle.board(this);
+        this.vehicle = vehicle;
         reporter.log(new PassengerBoardVehicleLog(time,this,vehicle, desiredStop, timeFromLastAction(time)));
-        drivesTaken++;
+        this.currentStop=null;
         this.timeOfLastAction =time;
     }
     
     public void reset(){
-        drivesTaken=0;
         desiredStop=null;
         timeOfLastAction =-1;
+        currentStop=null;
+        vehicle=null;
     }
 
-    public boolean leaveVehicle(IEventQueue eventQueue, ILogReporter reporter, Vehicle vehicle, Stop stop, int time){
-        boolean didLeave=tryEnterStop(stop,time);
-        if(!didLeave)
-            return false;
+    public void leaveVehicle(IEventQueue eventQueue, ILogReporter reporter,Stop stop, int time){
+        if(vehicle==null)
+            throw new IllegalStateException("Passenger is not in vehicle");
+        stop.putPassenger(this);
         reporter.log(new PassengerLeaveVehicleOnDesiredStopLog(time,this,vehicle,stop, timeFromLastAction(time)));
-        return true;
+        this.currentStop = stop;
+        this.vehicle = null;
+    }
+    
+    public void abortWaitForVehicle(IEventQueue eventQueue, ILogReporter reporter, int time){
+        if(currentStop==null)
+            throw new IllegalStateException("Passenger is not waiting for vehicle");
+        reporter.log(new PassengerAbortedWaitForVehicle(time,this, timeFromLastAction(time)));
+        this.currentStop=null;
     }
 
     public void forceGetOutOfVehicle(IEventQueue eventQueue, ILogReporter reporter, Vehicle vehicle,int time) {
-        reporter.log(new PassengerLeftVehicleDueToEndOfDay(time, this, vehicle));
+        if(this.vehicle!=vehicle)
+            throw new IllegalStateException("Passenger is not in vehicle");
+        reporter.log(new PassengerLeftVehicleDueToEndOfDay(time, this, vehicle, timeFromLastAction(time)));
+        this.vehicle = null;
     }
 
     @Override

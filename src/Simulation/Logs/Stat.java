@@ -1,17 +1,18 @@
-﻿package Simulation.Logs;
+package Simulation.Logs;
 
 public class Stat {
-    private static final int DEFAULT_VALUE=0;
+    private int defaultValue = 0;
     private int local;
     private int total;
 
     public Stat(){
-        this(DEFAULT_VALUE);
+        this(0);
     }
 
     public Stat(int defaultValue){
-        local=defaultValue;
-        total=defaultValue;
+        this.defaultValue =defaultValue;
+        local = defaultValue;
+        total = defaultValue;
     }
 
     public void increment(){
@@ -29,5 +30,9 @@ public class Stat {
 
     public int getTotal(){
         return total;
+    }
+    
+    public void resetLocal(){
+        local= defaultValue;
     }
 }

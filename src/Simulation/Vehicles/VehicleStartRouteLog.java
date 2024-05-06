@@ -1,6 +1,7 @@
 package Simulation.Vehicles;
 
 import Simulation.Common.Stop;
+import Simulation.Logs.IStatistic;
 import Simulation.Logs.Log;
 
 public class VehicleStartRouteLog extends Log {
@@ -13,6 +14,12 @@ public class VehicleStartRouteLog extends Log {
         this.vehicle = vehicle;
         this.firstStop = firstStop;
         this.lastStop = lastStop;
+    }
+
+    @Override
+    public void updateStatistic(IStatistic statistic) {
+        super.updateStatistic(statistic);
+        statistic.addVehicleStartRoute(vehicle,time);
     }
 
     @Override
