@@ -1,10 +1,10 @@
-package Collection;
+package Collection.Queue;
 
 public class Queue<T> implements IQueue<T> {
 
-    private Node<T> head;
-    private Node<T> tail;
-    private int size;
+    Node<T> head;
+    Node<T> tail;
+    int size;
     
     public Queue() {
         head = null;
@@ -18,6 +18,7 @@ public class Queue<T> implements IQueue<T> {
         if (head == null) {
             head = newNode;
         } else {
+            newNode.previous=tail;
             tail.next = newNode;
         }
         tail = newNode;
@@ -31,6 +32,12 @@ public class Queue<T> implements IQueue<T> {
         }
         T data = head.data;
         head = head.next;
+        if (head == null) {
+            tail = null;
+        }
+        else{
+            head.previous= null;
+        }
         size--;
         return data;
     }
@@ -45,7 +52,7 @@ public class Queue<T> implements IQueue<T> {
 
     @Override
     public boolean isEmpty() {
-        return size==0;
+        return size()==0;
     }
 
     @Override
@@ -59,14 +66,16 @@ public class Queue<T> implements IQueue<T> {
         tail = null;
         size = 0;
     }
-    
-    private class Node<T> {
+
+    private static class Node<T> {
         private final T data;
         private Node<T> next;
-        
+        private Node<T> previous;
+
         public Node(T data) {
             this.data = data;
             this.next = null;
+            this.previous = null;
         }
     }
 }

@@ -75,35 +75,33 @@ public class Stats {
         return new Stats(this);
     }
     
-    public int getLocalAverageTripsDuration(){
-        if(tripsCount.getLocal() == 0)
-            return 0;
-        return tripsDuration.getLocal() / tripsCount.getLocal();
+    public float getLocalAverageTripsDuration(){
+        return calcAverage(tripsDuration.getLocal(), tripsCount.getLocal());
     }
 
-    public int getTotalAverageTripsDuration(){
-        if(tripsCount.getTotal() == 0)
-            return 0;
-        return tripsDuration.getTotal() / tripsCount.getTotal();
+    public float getTotalAverageTripsDuration(){
+        return calcAverage(tripsDuration.getTotal(), tripsCount.getTotal());
     }
     
-    public int getLocalAverageWaitingDuration(){
-        if(waitingCount.getLocal() == 0)
-            return 0;
-        return waitingDuration.getLocal() / waitingCount.getLocal();
+    public float getLocalAverageWaitingDuration(){
+        return calcAverage(waitingDuration.getLocal(), waitingCount.getLocal());
     }
 
-    public int getTotalAverageWaitingDuration(){
-        if(waitingCount.getTotal() == 0)
+    public float getTotalAverageWaitingDuration(){
+        return calcAverage(waitingDuration.getTotal(), waitingCount.getTotal());
+    }
+
+    private float calcAverage(float nominator, float denominator){
+        if(denominator == 0)
             return 0;
-        return waitingDuration.getTotal() / waitingCount.getTotal();
+        return (float)nominator/denominator;
     }
     
     @Override
     public String toString() {
-        String local =  String.format("Day: Trips: %d, Successful trips: %d, Forced ended trips: %d, Did not travel: %d, Routes: %d, Waiting: %d, Total waiting duration: %d, Average waiting: %d, Total trips duration: %d, Average trips duration: %d",
+        String local =  String.format("Day: Trips: %d, Successful trips: %d, Forced ended trips: %d, Did not travel: %d, Routes: %d, Waiting: %d, Total waiting duration: %d, Average waiting: %f, Total trips duration: %d, Average trips duration: %f",
                 tripsCount.getLocal(), successfulTripsCount.getLocal(), forcedEndedTripsCount.getLocal(), didNotTravelPassengersCount.getLocal(), routesCount.getLocal(), waitingCount.getLocal(), waitingDuration.getLocal(), getLocalAverageWaitingDuration(), tripsDuration.getLocal(), getLocalAverageTripsDuration());
-        String total =  String.format("Total: Trips: %d, Successful trips: %d, Forced ended trips: %d, Did not travel: %d, Routes: %d, Waiting: %d, Total waiting duration: %d, Average waiting: %d, Total trips duration: %d, Average trips duration: %d",
+        String total =  String.format("Total: Trips: %d, Successful trips: %d, Forced ended trips: %d, Did not travel: %d, Routes: %d, Waiting: %d, Total waiting duration: %d, Average waiting: %f, Total trips duration: %d, Average trips duration: %f",
                 tripsCount.getTotal(), successfulTripsCount.getTotal(), forcedEndedTripsCount.getTotal(), didNotTravelPassengersCount.getTotal(), routesCount.getTotal(), waitingCount.getTotal(), waitingDuration.getTotal(), getTotalAverageWaitingDuration(), tripsDuration.getTotal(), getTotalAverageTripsDuration());
         return local + "\n" + total;
     }

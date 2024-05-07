@@ -4,15 +4,15 @@ import Simulation.Common.Stop;
 import Simulation.Logs.IStatistic;
 import Simulation.Logs.Log;
 
-public class PassengerEnteredPrimaryStopLog extends Log {
+public class PassengerEnterStopLog extends Log {
     private final Passenger passenger;
     
     private final Stop stop;
     
-    public PassengerEnteredPrimaryStopLog(int time, Passenger passenger, Stop primaryStop) {
+    public PassengerEnterStopLog(int time, Passenger passenger, Stop stop) {
         super(time);
         this.passenger = passenger;
-        this.stop = primaryStop;
+        this.stop = stop;
     }
 
     @Override
@@ -23,7 +23,7 @@ public class PassengerEnteredPrimaryStopLog extends Log {
 
     @Override
     public String toString() {
-        return String.format("Passenger %s entered his primary stop %s",
+        return String.format("Passenger %s entered stop %s",
                 passenger.toString(), stop.toString());
     }
 }

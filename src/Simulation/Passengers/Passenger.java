@@ -4,14 +4,13 @@ import Simulation.Common.Stop;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
 import Simulation.Vehicles.Vehicle;
-import Simulation.Core.RandomNumberGenerator;
+import Simulation.Core.Losowanie;
 
 public class Passenger {
     private final int id;
     private final Stop primaryStop;
     private Stop desiredStop;
     private int timeOfLastAction;
-    
     private Stop currentStop;
     private Vehicle vehicle;
     
@@ -36,6 +35,7 @@ public class Passenger {
     
     public void enter(Stop stop, int time, ILogReporter reporter) {
         stop.putPassenger(this);
+        reporter.log(new PassengerEnterStopLog(time,this,stop));
         currentStop = stop;
         timeOfLastAction = time;
         desiredStop=null;
@@ -44,9 +44,9 @@ public class Passenger {
     
     public void enter(Vehicle vehicle, int time, ILogReporter reporter) {
         Stop[] stops = vehicle.getStopsLeft();
-        desiredStop = stops[RandomNumberGenerator.random(0, stops.length)];
-        vehicle.board(this);
+        desiredStop = stops[Losowanie.losuj(0, stops.length)];
         this.vehicle = vehicle;
+        vehicle.board(this);
         reporter.log(new PassengerBoardVehicleLog(time,this,vehicle, desiredStop, timeFromLastAction(time)));
         this.currentStop=null;
         this.timeOfLastAction =time;
@@ -62,17 +62,16 @@ public class Passenger {
     public void leaveVehicle(IEventQueue eventQueue, ILogReporter reporter,Stop stop, int time){
         if(vehicle==null)
             throw new IllegalStateException("Passenger is not in vehicle");
-        stop.putPassenger(this);
         reporter.log(new PassengerLeaveVehicleOnDesiredStopLog(time,this,vehicle,stop, timeFromLastAction(time)));
-        this.currentStop = stop;
-        this.vehicle = null;
+        enter(stop, time, reporter);
     }
     
-    public void abortWaitForVehicle(IEventQueue eventQueue, ILogReporter reporter, int time){
-        if(currentStop==null)
-            throw new IllegalStateException("Passenger is not waiting for vehicle");
+    public void abortWaitForVehicle(ILogReporter reporter, int time){
+        if(currentStop == null)
+            return;
         reporter.log(new PassengerAbortedWaitForVehicle(time,this, timeFromLastAction(time)));
         this.currentStop=null;
+        this.timeOfLastAction = time;
     }
 
     public void forceGetOutOfVehicle(IEventQueue eventQueue, ILogReporter reporter, Vehicle vehicle,int time) {
@@ -80,6 +79,7 @@ public class Passenger {
             throw new IllegalStateException("Passenger is not in vehicle");
         reporter.log(new PassengerLeftVehicleDueToEndOfDay(time, this, vehicle, timeFromLastAction(time)));
         this.vehicle = null;
+        this.timeOfLastAction=time;
     }
 
     @Override

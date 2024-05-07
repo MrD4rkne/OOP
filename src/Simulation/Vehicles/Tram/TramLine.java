@@ -28,6 +28,9 @@ public class TramLine extends Line {
         for (int i = 0; i < getVehicleCount(); i++) {
             vehicles.add(new Tram(this, vehicleStartingNo + i, tramsCapacity));
             int departureTime = currentTime + (i/2)*interval;
+            if(departureTime > TRAM_LAST_DEPARTURE_MINUTE){
+                break;
+            }
             VehicleStartRouteEvent startRouteEvent = new VehicleStartRouteEvent(departureTime, vehicles.get(i), createRoute(shouldStartLeft));
             shouldStartLeft = !shouldStartLeft;
             eventQueue.add(startRouteEvent);
@@ -38,7 +41,7 @@ public class TramLine extends Line {
     @Override
     public void notifyEndOfRoute(Vehicle vehicle, IEventQueue eventQueue, ILogReporter eventReporter, int currentTime) {
         eventReporter.log(new VehicleEndsRouteLog(currentTime, vehicle, vehicle.getFinalStop()));
-        if(currentTime > TRAM_LAST_DEPARTURE_MINUTE){
+        if(vehicle.isOnStartingStop() && currentTime > TRAM_LAST_DEPARTURE_MINUTE){
             vehicle.endDay(eventQueue,eventReporter,currentTime);
             return;
         }

@@ -5,8 +5,6 @@ public interface IMyList<T> extends Iterable<T> {
 
     void addRange(T[] elems);
     
-    void remove(T elem);
-    
     void removeAt(int index);
     
     T get(int index);
@@ -19,15 +17,5 @@ public interface IMyList<T> extends Iterable<T> {
 
     void set(int index, T elem);
 
-    IMyList<T> sub(int index);
-
-    IMyList<T> sub(int index, int length);
-
-    T[] subArray(int index);
-
-    T[] subArray(int index, int length);
-
     void clear();
-
-    void removeRange(int count);
 }

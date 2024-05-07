@@ -42,17 +42,6 @@ public class MyArrayList<T> implements IMyList<T> {
     }
 
     @Override
-    public void remove(T elem) {
-        for(int i = 0; i < size; i++){
-            if(array[i].equals(elem)){
-                System.arraycopy(array, i+1, array, i, size-i-1);
-                size--;
-                return;
-            }
-        }
-    }
-
-    @Override
     public void removeAt(int index) {
         if(index < 0 || index >= size){
             throw new IndexOutOfBoundsException();
@@ -98,56 +87,14 @@ public class MyArrayList<T> implements IMyList<T> {
     }
 
     @Override
-    public IMyList<T> sub(int index) {
-        return new MyArrayList<T>(subArray(index));
-    }
-
-    @Override
-    public IMyList<T> sub(int index, int length) {
-        return new MyArrayList<T>(subArray(index,length));
-    }
-
-    @Override
-    public T[] subArray(int index) {
-        return subArray(index, size-index);
-    }
-
-    @Override
-    public T[] subArray(int index, int length) {
-        if(index < 0 || index > size){
-            throw new IndexOutOfBoundsException();
-        }
-        if(length <=0 || index + length - 1 > size){
-            throw new IllegalArgumentException();
-        }
-        @SuppressWarnings("unchecked") T[] subArray = (T[]) Array.newInstance(array.getClass().getComponentType(), length);
-        System.arraycopy(array, index, subArray, 0, length);
-        return subArray;
-    }
-
-    @Override
     public void clear() {
         array =(T[]) Array.newInstance(array.getClass().getComponentType(), DEFAULT_CAPACITY);
         size=0;
     }
 
     @Override
-    public void removeRange(int count) {
-        if(count == 0)
-            return;
-        if(count <0 || count> size){
-            throw new IllegalArgumentException();
-        }
-        for(int i = 0; i < count; i++){
-            array[i] = null;
-        }
-        System.arraycopy(array, count, array, 0, size-count);
-        size-=count;
-    }
-
-    @Override
     public Iterator<T> iterator() {
-        return new MyIterator<T>(array, size);
+        return new MyListIterator<T>(array, size);
     }
 
     private void resize(int minDesiredSize){

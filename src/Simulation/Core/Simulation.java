@@ -37,12 +37,13 @@ public class Simulation {
     public void simulate() {
         eventQueue.clear();
         IStatistic statistic = new Statistic();
-        for (int day = 1; day <= daysCount; day++) {
+        for (int day = 0; day < daysCount; day++) {
             statistic.resetLocal();
             eventReporter.prepareLogging(day,statistic);
             prepareVehiclesForDay(day);
             preparePassengersForDay();
             simulateDay();
+            finishDay();
             System.out.println(statistic.generateStatistic().toString());
         }
     }
@@ -57,9 +58,15 @@ public class Simulation {
     private void preparePassengersForDay() {
         for (Passenger passenger : passengers) {
             passenger.reset();
-            int time = RandomNumberGenerator.random(SIMULATION_START_MINUTE, PASSENGER_GET_OUT_LAST_MINUTE);
+            int time = Losowanie.losuj(SIMULATION_START_MINUTE, PASSENGER_GET_OUT_LAST_MINUTE);
             PassengerTryEnterPrimaryStopEvent event = new PassengerTryEnterPrimaryStopEvent(passenger, time);
             eventQueue.add(event);
+        }
+    }
+    
+    private void finishDay() {
+        for(Stop stop : stops) {
+            stop.kickOutAllPassengers(eventReporter, MINUTES_PER_DAY);
         }
     }
 
@@ -74,7 +81,7 @@ public class Simulation {
     private Passenger[] generatePassengers() {
         Passenger[] passengers = new Passenger[passengersCount];
         for (int i = 0; i < passengersCount; i++) {
-            passengers[i] = new Passenger(i, stops[RandomNumberGenerator.random(0, stops.length)]);
+            passengers[i] = new Passenger(i, stops[Losowanie.losuj(0, stops.length)]);
         }
         return passengers;
     }

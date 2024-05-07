@@ -1,4 +1,6 @@
-package Collection;
+package Collection.Queue;
+
+import Collection.IMyList;
 
 public interface IQueue<T> {
     void enqueue(T elem);
