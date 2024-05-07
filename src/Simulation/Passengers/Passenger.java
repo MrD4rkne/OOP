@@ -11,7 +11,6 @@ public class Passenger {
     private final Stop primaryStop;
     private Stop desiredStop;
     private int timeOfLastAction;
-    
     private Stop currentStop;
     private Vehicle vehicle;
     
@@ -45,8 +44,8 @@ public class Passenger {
     public void enter(Vehicle vehicle, int time, ILogReporter reporter) {
         Stop[] stops = vehicle.getStopsLeft();
         desiredStop = stops[RandomNumberGenerator.random(0, stops.length)];
-        vehicle.board(this);
         this.vehicle = vehicle;
+        vehicle.board(this);
         reporter.log(new PassengerBoardVehicleLog(time,this,vehicle, desiredStop, timeFromLastAction(time)));
         this.currentStop=null;
         this.timeOfLastAction =time;
@@ -66,13 +65,15 @@ public class Passenger {
         reporter.log(new PassengerLeaveVehicleOnDesiredStopLog(time,this,vehicle,stop, timeFromLastAction(time)));
         this.currentStop = stop;
         this.vehicle = null;
+        this.timeOfLastAction = time;
     }
     
-    public void abortWaitForVehicle(IEventQueue eventQueue, ILogReporter reporter, int time){
-        if(currentStop==null)
-            throw new IllegalStateException("Passenger is not waiting for vehicle");
+    public void abortWaitForVehicle(ILogReporter reporter, int time){
+        if(currentStop == null)
+            return;
         reporter.log(new PassengerAbortedWaitForVehicle(time,this, timeFromLastAction(time)));
         this.currentStop=null;
+        this.timeOfLastAction = time;
     }
 
     public void forceGetOutOfVehicle(IEventQueue eventQueue, ILogReporter reporter, Vehicle vehicle,int time) {
@@ -80,6 +81,7 @@ public class Passenger {
             throw new IllegalStateException("Passenger is not in vehicle");
         reporter.log(new PassengerLeftVehicleDueToEndOfDay(time, this, vehicle, timeFromLastAction(time)));
         this.vehicle = null;
+        this.timeOfLastAction=time;
     }
 
     @Override

@@ -43,6 +43,7 @@ public class Simulation {
             prepareVehiclesForDay(day);
             preparePassengersForDay();
             simulateDay();
+            finishDay();
             System.out.println(statistic.generateStatistic().toString());
         }
     }
@@ -60,6 +61,12 @@ public class Simulation {
             int time = RandomNumberGenerator.random(SIMULATION_START_MINUTE, PASSENGER_GET_OUT_LAST_MINUTE);
             PassengerTryEnterPrimaryStopEvent event = new PassengerTryEnterPrimaryStopEvent(passenger, time);
             eventQueue.add(event);
+        }
+    }
+    
+    private void finishDay() {
+        for(Stop stop : stops) {
+            stop.kickOutAllPassengers(eventReporter, MINUTES_PER_DAY);
         }
     }
 

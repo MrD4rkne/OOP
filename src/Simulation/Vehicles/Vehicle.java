@@ -1,9 +1,9 @@
 package Simulation.Vehicles;
 
 import Collection.IMyList;
-import Collection.IQueue;
+import Collection.Queue.IQueue;
 import Collection.MyArrayList;
-import Collection.Queue;
+import Collection.Queue.Queue;
 import Simulation.Common.Line;
 import Simulation.Common.Segment;
 import Simulation.Common.Stop;
@@ -14,6 +14,7 @@ import Simulation.Passengers.Passenger;
 public abstract class Vehicle {
     private final int sideNo;
     private final int capacity;
+    private Stop firstStop;
     protected Line line;
     protected IQueue<Passenger> passengers;
     protected int currentStopIndex;
@@ -45,6 +46,16 @@ public abstract class Vehicle {
         passengers.enqueue(passenger);
     }
 
+    public boolean isOnStartingStop(){
+        return isOnStartingStop(route.get(currentStopIndex).getStop());
+    }
+    
+    public boolean isOnStartingStop(Stop stop){
+        if(firstStop==null)
+            throw new IllegalStateException("Vehicle has not started route yet");
+        return firstStop==stop;
+    }
+
     public Stop getFirstStop(){
         return route.get(0).getStop();
     }
@@ -54,6 +65,8 @@ public abstract class Vehicle {
     }
     
     public void startRoute(Segment[] route, IEventQueue eventQueue, ILogReporter eventReporter, int time){
+        if(firstStop== null)
+            firstStop=route[0].getStop();
         this.route=new MyArrayList<Segment>(route);
         currentStopIndex=0;
         eventReporter.log(new VehicleStartRouteLog(time, this, getFirstStop(),getFinalStop()));
@@ -71,7 +84,6 @@ public abstract class Vehicle {
     public void stop(int stopIndex, IEventQueue eventQueue, ILogReporter eventReporter, int time) {
         this.currentStopIndex=stopIndex;
         eventReporter.log(new VehicleArriveAtStopLog(time, this, route.get(stopIndex).getStop()));
-        
         Stop currentStop = route.get(stopIndex).getStop();
         int passengersGetOffCount = getOffPassengers(eventQueue, eventReporter, currentStop, time);
         int passengersBoardCount = 0;
@@ -121,24 +133,30 @@ public abstract class Vehicle {
     
     private int getOffPassengers(IEventQueue eventQueue, ILogReporter logReporter,Stop currentStop, int time) {
         int passengersGetOffCount = 0;
-        for (int i = 0; i < passengers.size(); i++) {
+        IQueue<Passenger> passengersAfterStop = new Queue<Passenger>();
+        while(!passengers.isEmpty()){
             if(!currentStop.hasSpace())
+            {
+                while(!passengers.isEmpty())
+                    passengersAfterStop.enqueue(passengers.dequeue());
                 break;
+            }
             Passenger passenger = passengers.dequeue();
             if (passenger.getDesiredStop() != currentStop) {
+                passengersAfterStop.enqueue(passenger);
                 continue;
             }
             passenger.leaveVehicle(eventQueue,logReporter, currentStop, time);
             passengersGetOffCount++;
         }
+        passengers = passengersAfterStop;
         return passengersGetOffCount;
     }
     
     private void kickOutPassengers(IEventQueue eventQueue, ILogReporter eventReporter, int time) {
-        for (int i = 0; i < passengers.size(); i++) {
+        while(!passengers.isEmpty()){
             Passenger passenger = passengers.dequeue();
             passenger.forceGetOutOfVehicle(eventQueue, eventReporter, this,time);
-            i--;
         }
     }
     

@@ -9,13 +9,10 @@ public class PassengerAbortedWaitForVehicle extends Log {
     
     private final int waitedFor;
     
-    private final int time;
-    
     public PassengerAbortedWaitForVehicle(int time, Passenger passenger, int waitedFor) {
         super(time);
         this.passenger = passenger;
         this.waitedFor = waitedFor;
-        this.time = time;
     }
     
     @Override

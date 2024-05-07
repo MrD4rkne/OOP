@@ -1,9 +1,9 @@
 package Simulation.Common;
 
-import Collection.IMyList;
-import Collection.IQueue;
-import Collection.MyArrayList;
-import Collection.Queue;
+import Collection.Queue.IQueue;
+import Collection.Queue.Queue;
+import Simulation.Events.IEventQueue;
+import Simulation.Logs.ILogReporter;
 import Simulation.Passengers.Passenger;
 
 public class Stop {
@@ -41,6 +41,13 @@ public class Stop {
             throw new IllegalStateException("No passengers left");
         }
         return waitingPassengers.dequeue();
+    }
+    
+    public void kickOutAllPassengers(ILogReporter reporter, int time) {
+        while(!waitingPassengers.isEmpty()) {
+            Passenger passenger = waitingPassengers.dequeue();
+            passenger.abortWaitForVehicle(reporter,time);
+        }
     }
 
     @Override
