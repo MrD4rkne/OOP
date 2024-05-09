@@ -40,13 +40,16 @@ public class Simulation {
         eventQueue.clear();
         IStatistic statistic = new Statistic();
         IMyList<String> stats = new MyArrayList<String>(daysCount);
+        
         for (int day = 0; day < daysCount; day++) {
             statistic.resetLocal();
             eventReporter.prepareLogging(day,statistic);
             prepareVehiclesForDay(day);
             preparePassengersForDay();
+            
             simulateDay();
             finishDay();
+            
             System.out.println("\nDaily stats:");
             String dailyStats = statistic.generateLocalStatistic();
             System.out.println(dailyStats);

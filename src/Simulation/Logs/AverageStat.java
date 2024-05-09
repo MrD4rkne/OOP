@@ -1,8 +1,8 @@
 package Simulation.Logs;
 
 public class AverageStat extends Stat{
-    private SumStat sum;
-    private SumStat count;
+    private final SumStat sum;
+    private final SumStat count;
     
     public AverageStat(String name){
         super(name);

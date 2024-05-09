@@ -30,6 +30,7 @@ public class TramLine extends Line {
             if(departureTime > TRAM_LAST_DEPARTURE_MINUTE){
                 break;
             }
+            
             VehicleStartRouteEvent startRouteEvent = new VehicleStartRouteEvent(departureTime, vehicles.get(i), createRoute(shouldStartLeft));
             shouldStartLeft = !shouldStartLeft;
             eventQueue.add(startRouteEvent);
@@ -48,6 +49,7 @@ public class TramLine extends Line {
         vehicle.enterLoop(eventQueue,eventReporter,currentTime, vehicle.getFinalStop());
         int nextDeparture = currentTime + getLoopStopDuration();
         boolean shouldStartLeft = !isGoingRight(vehicle);
+        
         VehicleStartRouteEvent startRouteEvent = new VehicleStartRouteEvent(nextDeparture, vehicle, createRoute(shouldStartLeft));
         eventQueue.add(startRouteEvent);
     }
