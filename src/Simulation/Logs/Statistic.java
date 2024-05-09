@@ -13,7 +13,7 @@ public class Statistic implements IStatistic{
     
     @Override
     public void addPassengerWait(Passenger passenger, Stop stop){
-        stats.getWaitingCount().increment();
+        stats.getWaiting().incrementCount();
     }
 
     @Override
@@ -21,14 +21,14 @@ public class Statistic implements IStatistic{
         if(waitedFor <0){
             throw new IllegalArgumentException("Could not wait negative time");
         }
-        stats.getWaitingDuration().increaseBy(waitedFor);
-        stats.getTripsCount().increment();
+        stats.getWaiting().increaseSumBy(waitedFor);
+        stats.getTrips().incrementCount();
     }
 
     @Override
     public void addPassengerArriveAtDestination(Passenger passenger, Vehicle vehicle, int tripDuration) {
         stats.getSuccessfulTripsCount().increment();
-        stats.getTripsDuration().increaseBy(tripDuration);
+        stats.getTrips().increaseSumBy(tripDuration);
     }
 
     @Override
@@ -39,7 +39,7 @@ public class Statistic implements IStatistic{
     @Override
     public void addPassengerLeaveForcefully(Passenger passenger, Vehicle vehicle, int traveledFor) {
         stats.getForcedEndedTripsCount().increment();
-        stats.getTripsDuration().increaseBy(traveledFor);
+        stats.getTrips().increaseSumBy(traveledFor);
     }
 
     @Override
@@ -48,24 +48,27 @@ public class Statistic implements IStatistic{
     }
 
     @Override
-    public Stats generateStatistic() {
-        return new Stats(stats);
+    public String generateLocalStatistic() {
+        return stats.toStringLocal();
+    }
+
+    @Override
+    public String generateTotalStatistic() {
+        return stats.toStringTotal();
+    }
+
+    @Override
+    public String toString() {
+        return stats.toString();
     }
 
     @Override
     public void resetLocal() {
-        stats.getTripsCount().resetLocal();
-        stats.getTripsDuration().resetLocal();
-        stats.getWaitingCount().resetLocal();
-        stats.getWaitingDuration().resetLocal();
-        stats.getSuccessfulTripsCount().resetLocal();
-        stats.getForcedEndedTripsCount().resetLocal();
-        stats.getDidNotTravelPassengersCount().resetLocal();
-        stats.getRoutesCount().resetLocal();
+        stats.resetLocal();
     }
 
     @Override
     public void addPassengerStoppedWaiting(int duration) {
-        stats.getWaitingDuration().increaseBy(duration);
+        stats.getWaiting().increaseSumBy(duration);
     }
 }

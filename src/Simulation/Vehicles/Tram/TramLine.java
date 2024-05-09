@@ -7,7 +7,6 @@ import Simulation.Vehicles.Vehicle;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
 import Simulation.Vehicles.VehicleStartRouteEvent;
-import Simulation.Vehicles.VehicleEndsDayLog;
 import Simulation.Vehicles.VehicleEndsRouteLog;
 
 public class TramLine extends Line {

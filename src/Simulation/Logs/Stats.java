@@ -1,108 +1,95 @@
 package Simulation.Logs;
 
+import java.security.PrivateKey;
+
 public class Stats {
-    private final Stat tripsCount;
-
-    private final Stat tripsDuration;
-
-    private final Stat waitingCount;
-
-    private final Stat waitingDuration;
-
-    private final Stat successfulTripsCount;
-
-    private final Stat forcedEndedTripsCount;
-
-    private final Stat didNotTravelPassengersCount;
-
-    private final Stat routesCount;
+    private final AverageStat trips;
     
-    public Stats(Stats stats) {
-        this(stats.getTripsCount(), stats.getTripsDuration(),
-                stats.getWaitingCount(), stats.getWaitingDuration(),
-                stats.getSuccessfulTripsCount(), stats.getForcedEndedTripsCount(),
-                stats.getDidNotTravelPassengersCount(), stats.getRoutesCount());
-    }
+    private final AverageStat waiting;
+
+    private final SumStat successfulTripsCount;
+
+    private final SumStat forcedEndedTripsCount;
+
+    private final SumStat didNotTravelPassengersCount;
+
+    private final SumStat routesCount;
+    
+    private final Stat[] stats;
 
     public Stats(){
-        this(new Stat(), new Stat(), new Stat(), new Stat(), new Stat(), new Stat(), new Stat(), new Stat());
+        this(new AverageStat("Trips"), new AverageStat("Waiting"),
+                new SumStat("Successful trips"), new SumStat("Forced ended trips"),
+                new SumStat("Did not travel"), new SumStat("Routes"));
     }
     
-    public Stats(Stat tripsCount, Stat tripsDuration, Stat waitingCount, Stat waitingDuration, Stat successfulTripsCount, Stat forcedEndedTripsCount, Stat didNotTravelPassengersCount, Stat routesCount) {
-        this.tripsCount = tripsCount;
-        this.tripsDuration = tripsDuration;
-        this.waitingCount = waitingCount;
-        this.waitingDuration = waitingDuration;
+    public Stats(AverageStat trips, AverageStat waiting, SumStat successfulTripsCount, SumStat forcedEndedTripsCount, SumStat didNotTravelPassengersCount, SumStat routesCount) {
+        this.trips = trips;
+        this.waiting = waiting;
         this.successfulTripsCount = successfulTripsCount;
         this.forcedEndedTripsCount = forcedEndedTripsCount;
         this.didNotTravelPassengersCount = didNotTravelPassengersCount;
         this.routesCount = routesCount;
+        stats = new Stat[]{trips, waiting, successfulTripsCount, forcedEndedTripsCount, didNotTravelPassengersCount, routesCount};
     }
     
-    public Stat getTripsCount() {
-        return tripsCount;
+    public AverageStat getTrips() {
+        return trips;
     }
     
-    public Stat getTripsDuration() {
-        return tripsDuration;
+    public AverageStat getWaiting() {
+        return waiting;
     }
     
-    public Stat getWaitingCount() {
-        return waitingCount;
-    }
-    
-    public Stat getWaitingDuration() {
-        return waitingDuration;
-    }
-    
-    public Stat getSuccessfulTripsCount() {
+    public SumStat getSuccessfulTripsCount() {
         return successfulTripsCount;
     }
     
-    public Stat getForcedEndedTripsCount() {
+    public SumStat getForcedEndedTripsCount() {
         return forcedEndedTripsCount;
     }
     
-    public Stat getDidNotTravelPassengersCount() {
+    public SumStat getDidNotTravelPassengersCount() {
         return didNotTravelPassengersCount;
     }
     
-    public Stat getRoutesCount() {
+    public SumStat getRoutesCount() {
         return routesCount;
     }
     
-    public Stats copy(){
-        return new Stats(this);
+    public void resetLocal(){
+        for(Stat stat : stats){
+            stat.resetLocal();
+        }
     }
     
-    public float getLocalAverageTripsDuration(){
-        return calcAverage(tripsDuration.getLocal(), tripsCount.getLocal());
-    }
-
-    public float getTotalAverageTripsDuration(){
-        return calcAverage(tripsDuration.getTotal(), tripsCount.getTotal());
+    public String toStringLocal(){
+        StringBuilder sb = new StringBuilder();
+        for(Stat stat : stats){
+            sb.append(stat.toStringLocal());
+            sb.append("\n");
+        }
+        return sb.toString();
     }
     
-    public float getLocalAverageWaitingDuration(){
-        return calcAverage(waitingDuration.getLocal(), waitingCount.getLocal());
-    }
-
-    public float getTotalAverageWaitingDuration(){
-        return calcAverage(waitingDuration.getTotal(), waitingCount.getTotal());
-    }
-
-    private float calcAverage(float nominator, float denominator){
-        if(denominator == 0)
-            return 0;
-        return (float)nominator/denominator;
+    public String toStringTotal(){
+        StringBuilder sb = new StringBuilder();
+        for(Stat stat : stats){
+            sb.append(stat.toStringTotal());
+            sb.append("\n");
+        }
+        return sb.toString();
     }
     
     @Override
     public String toString() {
-        String local =  String.format("Day: Trips: %d, Successful trips: %d, Forced ended trips: %d, Did not travel: %d, Routes: %d, Waiting: %d, Total waiting duration: %d, Average waiting: %f, Total trips duration: %d, Average trips duration: %f",
-                tripsCount.getLocal(), successfulTripsCount.getLocal(), forcedEndedTripsCount.getLocal(), didNotTravelPassengersCount.getLocal(), routesCount.getLocal(), waitingCount.getLocal(), waitingDuration.getLocal(), getLocalAverageWaitingDuration(), tripsDuration.getLocal(), getLocalAverageTripsDuration());
-        String total =  String.format("Total: Trips: %d, Successful trips: %d, Forced ended trips: %d, Did not travel: %d, Routes: %d, Waiting: %d, Total waiting duration: %d, Average waiting: %f, Total trips duration: %d, Average trips duration: %f",
-                tripsCount.getTotal(), successfulTripsCount.getTotal(), forcedEndedTripsCount.getTotal(), didNotTravelPassengersCount.getTotal(), routesCount.getTotal(), waitingCount.getTotal(), waitingDuration.getTotal(), getTotalAverageWaitingDuration(), tripsDuration.getTotal(), getTotalAverageTripsDuration());
-        return local + "\n" + total;
+        StringBuilder sb = new StringBuilder();
+        for(Stat stat : stats){
+            sb.append(stat.toString());
+            sb.append("\n");
+        }
+        return sb.toString();
     }
+    
+    
 }

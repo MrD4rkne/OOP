@@ -18,8 +18,10 @@ public interface IStatistic {
     void addVehicleStartRoute(Vehicle vehicle, int time);
 
     void addPassengerStoppedWaiting(int duration);
-
-    Stats generateStatistic();
+    
+    String generateLocalStatistic();
+    
+    String generateTotalStatistic();
     
     void resetLocal();
 }

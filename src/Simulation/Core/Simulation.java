@@ -1,5 +1,7 @@
 package Simulation.Core;
 
+import Collection.IMyList;
+import Collection.MyArrayList;
 import Simulation.Logs.IStatistic;
 import Simulation.Logs.Statistic;
 import Simulation.Passengers.Passenger;
@@ -37,6 +39,7 @@ public class Simulation {
     public void simulate() {
         eventQueue.clear();
         IStatistic statistic = new Statistic();
+        IMyList<String> stats = new MyArrayList<String>(daysCount);
         for (int day = 0; day < daysCount; day++) {
             statistic.resetLocal();
             eventReporter.prepareLogging(day,statistic);
@@ -44,8 +47,18 @@ public class Simulation {
             preparePassengersForDay();
             simulateDay();
             finishDay();
-            System.out.println(statistic.generateStatistic().toString());
+            System.out.println("\nDaily stats:");
+            String dailyStats = statistic.generateLocalStatistic();
+            System.out.println(dailyStats);
+            stats.add("Day " + day + ":\n" + dailyStats);
         }
+        
+        for(String stat : stats){
+            System.out.println(stat);
+        }
+
+        System.out.println("Total stats:");
+        System.out.println(statistic.generateTotalStatistic());
     }
 
     private void simulateDay() {
