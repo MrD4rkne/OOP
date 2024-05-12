@@ -1,5 +1,7 @@
 package Simulation.Logs;
 
+import Simulation.Statistic.IStatisticService;
+
 public abstract class Log {
     protected final int time;
     
@@ -11,7 +13,7 @@ public abstract class Log {
         return time;
     }
 
-    public void updateStatistic(IStatistic statistic){
+    public void updateStatistic(IStatisticService statistic){
         
     }
     

@@ -14,7 +14,7 @@ public class Queue<T> implements IQueue<T> {
     
     @Override
     public void enqueue(T elem) {
-        Node<T> newNode = new Node<T>(elem);
+        Node<T> newNode = new Node<>(elem);
         if (head == null) {
             head = newNode;
         } else {

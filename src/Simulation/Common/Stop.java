@@ -2,7 +2,6 @@ package Simulation.Common;
 
 import Collection.Queue.IQueue;
 import Collection.Queue.Queue;
-import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
 import Simulation.Passengers.Passenger;
 
@@ -14,7 +13,7 @@ public class Stop {
     public Stop(String name, int capacity) {
         this.name = name;
         this.capacity = capacity;
-        this.waitingPassengers = new Queue<Passenger>();
+        this.waitingPassengers = new Queue<>();
     }
     
     public String getName() {

@@ -7,7 +7,7 @@ class EventQueue implements IEventQueue {
     private final Heap<Event> heap;
 
     public EventQueue() {
-        heap = new Heap<Event>();
+        heap = new Heap<>();
     }
 
     @Override
@@ -17,7 +17,9 @@ class EventQueue implements IEventQueue {
 
     @Override
     public Event pop() {
-        assert(!heap.isEmpty());
+        if(heap.isEmpty()){
+            throw new IllegalStateException("Event queue is empty");
+        }
         return heap.popMin();
     }
 

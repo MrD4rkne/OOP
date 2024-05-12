@@ -1,10 +1,10 @@
 package Simulation.Passengers;
 
 import Simulation.Common.Stop;
+import Simulation.Core.IRandomProvider;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
 import Simulation.Vehicles.Vehicle;
-import Simulation.Core.Losowanie;
 
 public class Passenger {
     private final int id;
@@ -42,9 +42,9 @@ public class Passenger {
         vehicle=null;
     }
     
-    public void enter(Vehicle vehicle, int time, ILogReporter reporter) {
+    public void enter(Vehicle vehicle, int time, ILogReporter reporter, IRandomProvider randomProvider) {
         Stop[] stops = vehicle.getStopsLeft();
-        desiredStop = stops[Losowanie.losuj(0, stops.length)];
+        desiredStop = stops[randomProvider.next(0, stops.length)];
         this.vehicle = vehicle;
         vehicle.board(this);
         reporter.log(new PassengerBoardVehicleLog(time,this,vehicle, desiredStop, timeFromLastAction(time)));

@@ -1,4 +1,4 @@
-package Simulation.Core;
+package Simulation.Client;
 
 import java.util.Random;
 

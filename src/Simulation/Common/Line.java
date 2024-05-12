@@ -1,7 +1,7 @@
 package Simulation.Common;
 
-import Collection.IMyList;
-import Collection.MyArrayList;
+import Collection.MyList.IMyList;
+import Collection.MyList.MyArrayList;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
 import Simulation.Vehicles.Vehicle;
@@ -10,14 +10,12 @@ public abstract class Line  {
     protected final int id;
     protected final Stop[] stops;
     protected final int[] segmentDurations;
-
-    protected int vehiclesCount;
-
+    protected final int vehiclesCount;
     protected final IMyList<Vehicle> vehicles;
     
     public Line(int id, int vehicleCount, Stop[] stops, int[] segmentDurations) {
         this.id = id;
-        this.vehicles = new MyArrayList<Vehicle>(vehicleCount);
+        this.vehicles = new MyArrayList<>(vehicleCount);
         this.vehiclesCount=vehicleCount;
         this.stops = new Stop[stops.length];
         System.arraycopy(stops, 0, this.stops, 0, stops.length);
@@ -39,5 +37,22 @@ public abstract class Line  {
 
     protected int getLoopStopDuration(){
         return segmentDurations[segmentDurations.length-1];
+    }
+    
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("Line ").append(id).append(":\n");
+        sb.append("Stops: ");
+        for(Stop stop: stops){
+            sb.append(stop.getName()).append(" ");
+        }
+        sb.append("\n");
+        sb.append("Segment durations: ");
+        for(int duration: segmentDurations){
+            sb.append(duration).append(" ");
+        }
+        sb.append("\n");
+        sb.append("Vehicles count: ").append(vehiclesCount).append("\n");
+        return sb.toString();
     }
 }

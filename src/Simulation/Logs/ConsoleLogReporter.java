@@ -1,7 +1,9 @@
 package Simulation.Logs;
 
+import Simulation.Statistic.IStatisticService;
+
 public class ConsoleLogReporter implements ILogReporter {
-    private IStatistic statistic;
+    private IStatisticService statistic;
     private int dayNo;
     
     public ConsoleLogReporter() {
@@ -9,7 +11,7 @@ public class ConsoleLogReporter implements ILogReporter {
     }
 
     @Override
-    public void prepareLogging(int dayNo, IStatistic statistic) {
+    public void prepareLogging(int dayNo, IStatisticService statistic) {
 
         this.dayNo=dayNo;
         this.statistic=statistic;

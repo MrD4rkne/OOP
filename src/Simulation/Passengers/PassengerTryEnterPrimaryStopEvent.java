@@ -1,5 +1,6 @@
 package Simulation.Passengers;
 
+import Simulation.Core.IRandomProvider;
 import Simulation.Events.Event;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
@@ -13,7 +14,7 @@ public class PassengerTryEnterPrimaryStopEvent extends Event {
     }
 
     @Override
-    public void process(IEventQueue queue, ILogReporter reporter) {
+    public void process(IEventQueue queue, ILogReporter reporter, IRandomProvider randomProvider) {
         boolean canEnter = passenger.getPrimaryStop().hasSpace();
         if(canEnter){
             passenger.enter(passenger.getPrimaryStop(), time, reporter);

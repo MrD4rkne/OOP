@@ -1,4 +1,4 @@
-package Collection;
+package Collection.MyList;
 
 import java.lang.reflect.Array;
 import java.util.Iterator;
@@ -21,7 +21,9 @@ public class MyArrayList<T> implements IMyList<T> {
     
     @SuppressWarnings("unchecked")
     public MyArrayList(int capacity){
-        assert(capacity> 0);
+        if(capacity < 0){
+            throw new IllegalArgumentException("Capacity must be greater than 0");
+        }
         array = (T[])new Object[capacity];
         size = 0;
     }
@@ -94,7 +96,7 @@ public class MyArrayList<T> implements IMyList<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return new MyListIterator<T>(array, size);
+        return new MyListIterator<>(array, size);
     }
 
     private void resize(int minDesiredSize){

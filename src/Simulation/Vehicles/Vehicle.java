@@ -1,12 +1,13 @@
 package Simulation.Vehicles;
 
-import Collection.IMyList;
+import Collection.MyList.IMyList;
 import Collection.Queue.IQueue;
-import Collection.MyArrayList;
+import Collection.MyList.MyArrayList;
 import Collection.Queue.Queue;
 import Simulation.Common.Line;
 import Simulation.Common.Segment;
 import Simulation.Common.Stop;
+import Simulation.Core.IRandomProvider;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
 import Simulation.Passengers.Passenger;
@@ -15,7 +16,7 @@ public abstract class Vehicle {
     private final int sideNo;
     private final int capacity;
     private Stop firstStop;
-    protected Line line;
+    protected final Line line;
     protected IQueue<Passenger> passengers;
     protected int currentStopIndex;
     protected IMyList<Segment> route;
@@ -24,7 +25,7 @@ public abstract class Vehicle {
         this.line=line;
         this.sideNo = sideNo;
         this.capacity=capacity;
-        this.passengers= new Queue<Passenger>();
+        this.passengers= new Queue<>();
         this.route= null;
     }
     
@@ -67,7 +68,7 @@ public abstract class Vehicle {
     public void startRoute(Segment[] route, IEventQueue eventQueue, ILogReporter eventReporter, int time){
         if(firstStop== null)
             firstStop=route[0].getStop();
-        this.route=new MyArrayList<Segment>(route);
+        this.route= new MyArrayList<>(route);
         currentStopIndex=0;
         eventReporter.log(new VehicleStartRouteLog(time, this, getFirstStop(),getFinalStop()));
         eventQueue.add(new VehicleArrivesAtStopEvent(time, this, 0));
@@ -81,14 +82,14 @@ public abstract class Vehicle {
         return stopsLeft;
     }
     
-    public void stop(int stopIndex, IEventQueue eventQueue, ILogReporter eventReporter, int time) {
+    public void stop(int stopIndex, IEventQueue eventQueue, ILogReporter eventReporter, IRandomProvider randomProvider, int time) {
         this.currentStopIndex=stopIndex;
         eventReporter.log(new VehicleArriveAtStopLog(time, this, route.get(stopIndex).getStop()));
         Stop currentStop = route.get(stopIndex).getStop();
         int passengersGetOffCount = getOffPassengers(eventQueue, eventReporter, currentStop, time);
         int passengersBoardCount = 0;
         if(!isOnFinalStop()){
-            passengersBoardCount = boardPassengers(eventQueue, eventReporter, currentStop, time);
+            passengersBoardCount = boardPassengers(eventQueue, eventReporter, randomProvider,currentStop, time);
         }
         
         eventReporter.log(new VehicleLeavesStopLog(time, this, currentStop, passengersBoardCount, passengersGetOffCount));
@@ -101,7 +102,7 @@ public abstract class Vehicle {
     
     public void endDay(IEventQueue eventQueue, ILogReporter eventReporter, int time){
         eventReporter.log(new VehicleEndsDayLog(time, this));
-        kickOutPassengers(eventQueue, eventReporter,time);
+        kickOutPassengers(eventQueue, eventReporter,route.get(currentStopIndex).getStop(),time);
     }
 
     protected boolean isOnFinalStop(){
@@ -133,7 +134,7 @@ public abstract class Vehicle {
     
     private int getOffPassengers(IEventQueue eventQueue, ILogReporter logReporter,Stop currentStop, int time) {
         int passengersGetOffCount = 0;
-        IQueue<Passenger> passengersAfterStop = new Queue<Passenger>();
+        IQueue<Passenger> passengersAfterStop = new Queue<>();
         while(!passengers.isEmpty()){
             if(!currentStop.hasSpace())
             {
@@ -153,18 +154,19 @@ public abstract class Vehicle {
         return passengersGetOffCount;
     }
     
-    private void kickOutPassengers(IEventQueue eventQueue, ILogReporter eventReporter, int time) {
+    private void kickOutPassengers(IEventQueue eventQueue, ILogReporter eventReporter, Stop stop, int time) {
+        getOffPassengers(eventQueue, eventReporter, stop, time);
         while(!passengers.isEmpty()){
             Passenger passenger = passengers.dequeue();
             passenger.forceGetOutOfVehicle(eventQueue, eventReporter, this,time);
         }
     }
     
-    private int boardPassengers(IEventQueue eventQueue, ILogReporter eventReporter,Stop stop, int time){
+    private int boardPassengers(IEventQueue eventQueue, ILogReporter eventReporter, IRandomProvider randomProvider, Stop stop, int time){
         int passengersBoardCount = 0;
         while(stop.hasPassengers() && hasSpaceLeft()){
             Passenger passenger = stop.passengerLeave();
-            passenger.enter(this,time, eventReporter);
+            passenger.enter(this,time, eventReporter,randomProvider);
             passengersBoardCount++;
         }
         return passengersBoardCount;

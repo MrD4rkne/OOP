@@ -82,4 +82,12 @@ public class TramLine extends Line {
         }
         return 2*oneWayFull;
     }
+    
+    @Override
+    public String toString(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(super.toString());
+        sb.append("Trams capacity: ").append(tramsCapacity).append("\n");
+        return sb.toString();
+    }
 }

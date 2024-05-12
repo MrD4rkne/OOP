@@ -1,6 +1,7 @@
 package Simulation.Vehicles;
 
 import Simulation.Common.Segment;
+import Simulation.Core.IRandomProvider;
 import Simulation.Events.Event;
 import Simulation.Events.IEventQueue;
 import Simulation.Logs.ILogReporter;
@@ -17,7 +18,7 @@ public class VehicleStartRouteEvent extends Event {
     }
 
     @Override
-    public void process(IEventQueue queue, ILogReporter reporter) {
+    public void process(IEventQueue queue, ILogReporter reporter, IRandomProvider randomProvider) {
         vehicle.startRoute(route, queue, reporter, time);
     }
 }

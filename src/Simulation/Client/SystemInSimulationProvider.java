@@ -1,32 +1,33 @@
-package Simulation.Core;
+package Simulation.Client;
 
 import Simulation.Common.Line;
 import Simulation.Common.Stop;
-import Simulation.Logs.ConsoleLogReporter;
+import Simulation.Core.IRandomProvider;
+import Simulation.Core.Simulation;
 import Simulation.Logs.ILogReporter;
 import Simulation.Vehicles.Tram.TramLine;
 
-import java.util.Objects;
 import java.util.Scanner;
 
-public class Main {
-    public static void main(String [] args)
-    {
-        Simulation simulation = processInput();
-        simulation.simulate();
+public class SystemInSimulationProvider implements ISimulationProvider {
+    private final Scanner scanner;
+    
+    public SystemInSimulationProvider(Scanner scanner){
+        this.scanner = scanner;
     }
-
-    private static Simulation processInput(){
-        Scanner scanner = new Scanner(System.in);
+    
+    @Override
+    public Simulation create(ILogReporter logReporter, IRandomProvider randomProvider) {
         int numberOfDays = scanner.nextInt();
-        Stop[] stops = getStops(scanner);
+        int stopCapacity = scanner.nextInt();
+        Stop[] stops = getStops(stopCapacity);
         int passengersCount = scanner.nextInt();
-        Line[] lines = getTramLines(scanner,stops);
-        return new Simulation(numberOfDays, passengersCount,stops,lines, new ConsoleLogReporter());
+        int tramCapacity = scanner.nextInt();
+        Line[] lines = getTramLines(stops, tramCapacity);
+        return new Simulation(numberOfDays, passengersCount,stopCapacity, tramCapacity,stops,lines, logReporter, randomProvider);
     }
 
-    private static Stop[] getStops(Scanner scanner){
-        int stopCapacity = scanner.nextInt();
+    private Stop[] getStops(int stopCapacity){
         int numberOfStops = scanner.nextInt();
         Stop[] stops = new Stop[numberOfStops];
         for(int i = 0; i<numberOfStops; i++){
@@ -36,17 +37,16 @@ public class Main {
         return stops;
     }
 
-    private static Line[] getTramLines(Scanner scanner,Stop[] stops){
-        int tramCapacity = scanner.nextInt();
+    private Line[] getTramLines(Stop[] stops, int tramCapacity){
         int tramLinesCount = scanner.nextInt();
         Line[] lines = new Line[tramLinesCount];
         for(int i = 0; i<tramLinesCount; i++){
-            lines[i] = getTramLine(i,scanner,stops,tramCapacity);
+            lines[i] = getTramLine(i,stops,tramCapacity);
         }
         return lines;
     }
 
-    private static Line getTramLine(int no,Scanner scanner, Stop[] stops, int tramsCapacity){
+    private Line getTramLine(int no,Stop[] stops, int tramsCapacity){
         int tramsCount = scanner.nextInt();
         int stopsCount = scanner.nextInt();
         Stop[] lineStops = new Stop[stopsCount];
@@ -58,11 +58,11 @@ public class Main {
         return new TramLine(no,tramsCount,lineStops,stopsIntervals,tramsCapacity);
     }
 
-    private static Stop getStopWithName(Stop[] stops, String name){
+    private Stop getStopWithName(Stop[] stops, String name){
         for (Stop stop : stops) {
             if (name.equals(stop.getName()))
                 return stop;
         }
-        return null;
+        throw new IllegalArgumentException("Stop with name " + name + " not found");
     }
 }

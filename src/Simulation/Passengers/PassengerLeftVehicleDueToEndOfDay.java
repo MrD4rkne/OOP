@@ -1,6 +1,6 @@
 package Simulation.Passengers;
 
-import Simulation.Logs.IStatistic;
+import Simulation.Statistic.IStatisticService;
 import Simulation.Logs.Log;
 import Simulation.Vehicles.Vehicle;
 
@@ -19,9 +19,9 @@ public class PassengerLeftVehicleDueToEndOfDay extends Log {
     }
     
     @Override
-    public void updateStatistic(IStatistic statistic) {
+    public void updateStatistic(IStatisticService statistic) {
         super.updateStatistic(statistic);
-        statistic.addPassengerLeaveForcefully(passenger,vehicle,tripDuration);
+        statistic.registerPassengerLeaveForcefully(passenger,vehicle,tripDuration);
     }
 
     @Override

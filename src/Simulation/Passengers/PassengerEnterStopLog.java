@@ -1,7 +1,7 @@
 package Simulation.Passengers;
 
 import Simulation.Common.Stop;
-import Simulation.Logs.IStatistic;
+import Simulation.Statistic.IStatisticService;
 import Simulation.Logs.Log;
 
 public class PassengerEnterStopLog extends Log {
@@ -16,9 +16,9 @@ public class PassengerEnterStopLog extends Log {
     }
 
     @Override
-    public void updateStatistic(IStatistic statistic) {
+    public void updateStatistic(IStatisticService statistic) {
         super.updateStatistic(statistic);
-        statistic.addPassengerWait(passenger,stop);
+        statistic.registerPassengerWait(passenger,stop);
     }
 
     @Override

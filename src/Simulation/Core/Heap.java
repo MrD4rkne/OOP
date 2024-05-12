@@ -1,7 +1,7 @@
 package Simulation.Core;
 
-import Collection.IMyList;
-import Collection.MyArrayList;
+import Collection.MyList.IMyList;
+import Collection.MyList.MyArrayList;
 
 import java.math.BigInteger;
 
@@ -11,12 +11,12 @@ class Heap<T extends Comparable<T>> {
     private BigInteger index;
 
     public Heap() {
-        heap = new MyArrayList<Node<T>>();
+        heap = new MyArrayList<>();
         index = BigInteger.ZERO;
     }
 
     public void insert(T element) {
-        heap.add(new Node<T>(element,index));
+        heap.add(new Node<>(element, index));
         index = index.add(BigInteger.valueOf(1));
         int index = heap.size() - 1;
         heapifyUp(index);
@@ -79,7 +79,7 @@ class Heap<T extends Comparable<T>> {
         heap.set(j, temp);
     }
 
-    private class Node<T extends Comparable<T>> implements Comparable<Node<T>>{
+    private static class Node<T extends Comparable<T>> implements Comparable<Node<T>>{
         private final T val;
         private final BigInteger no;
 

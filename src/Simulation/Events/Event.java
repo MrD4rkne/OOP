@@ -1,7 +1,7 @@
 package Simulation.Events;
 
+import Simulation.Core.IRandomProvider;
 import Simulation.Logs.ILogReporter;
-import Simulation.Logs.IStatistic;
 
 public abstract class Event implements Comparable<Event>{
     protected final int time;
@@ -14,7 +14,7 @@ public abstract class Event implements Comparable<Event>{
         return time;
     }
     
-    public abstract void process(IEventQueue queue, ILogReporter reporter);
+    public abstract void process(IEventQueue queue, ILogReporter reporter, IRandomProvider randomProvider);
     
     @Override
     public int compareTo(Event other) {
