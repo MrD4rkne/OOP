@@ -3,7 +3,9 @@ package StockExchange.Orders;
 import StockExchange.Investors.Investor;
 
 public abstract class Order implements Comparable<Order> {
-    private final StockExchange.Orders.OrderType type;
+    private final int id;
+
+    private final OrderType type;
     
     private int amount;
     
@@ -15,7 +17,7 @@ public abstract class Order implements Comparable<Order> {
     
     private final Investor investor;
     
-    public Order(StockExchange.Orders.OrderType type, Investor investor, int stockId, int amount, int limit, int firstRoundNo) {
+    public Order(int id, OrderType type, Investor investor, int stockId, int amount, int limit, int firstRoundNo) {
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
@@ -29,6 +31,7 @@ public abstract class Order implements Comparable<Order> {
             throw new IllegalArgumentException("First round number cannot be negative");
         }
 
+        this.id = id;
         this.type = type;
         this.amount = amount;
         this.limit=limit;
@@ -62,6 +65,14 @@ public abstract class Order implements Comparable<Order> {
     public boolean isExpired(int roundNo){
         return amount==0;
     }
+
+    public boolean doNeedToBeProcessedFullyAtOnce(){
+        return false;
+    }
+
+    public int getId() {
+        return id;
+    }
     
     public void complete(int roundNo, int amount){
         if(amount <= 0) {
@@ -78,37 +89,39 @@ public abstract class Order implements Comparable<Order> {
     
     /**
      * Compare orders based on the following criteria:
-     * <p>
-     * 1. Buy orders are smaller than sell orders;
      * <p> 
-     * 2. Firstly compare based on the limit;
+     * 1. Firstly compare based on the limit if the order type is the same;
      * a) buy: larger limit is better,
      * b) sell: smaller limit is better;
      * <p>
-     * 4. Older orders are better;
+     * 2. Then compare based on the round number; o1.roundNo < o2.roundNo => o1 < o2
+     * <p>
+     * 3. Finally, compare based on the order id.
      */
     @Override
     public int compareTo(Order o) {
-        if(this.getType() != o.getType()){
-                        
-            return this.getType() == OrderType.BUY ? -1 : 1;
-        }
-        
-        int limitComparison;
-        if(this.getType() == OrderType.BUY){
-            // Larger limit is better
-            limitComparison = Integer.compare(o.getLimit(), this.getLimit());
-        }
-        else{
-            // Smaller limit is better
-            limitComparison = Integer.compare(this.getLimit(), o.getLimit());
-        }
-        
-        if(limitComparison != 0){
-            return limitComparison;
+        if(this.getType() == o.getType()) {
+
+            int limitComparison;
+            if (this.getType() == OrderType.BUY) {
+                // Larger limit is better
+                limitComparison = Integer.compare(o.getLimit(), this.getLimit());
+            } else {
+                // Smaller limit is better
+                limitComparison = Integer.compare(this.getLimit(), o.getLimit());
+            }
+
+            if (limitComparison != 0) {
+                return limitComparison;
+            }
         }
 
         // Older order is better
-        return Integer.compare(this.getFirstRoundNo(), o.getFirstRoundNo());
+        int roundComparison = Integer.compare(this.getFirstRoundNo(), o.getFirstRoundNo());
+        if(roundComparison != 0){
+            return roundComparison;
+        }
+
+        return Integer.compare(this.getId(), o.getId());
     }
 }

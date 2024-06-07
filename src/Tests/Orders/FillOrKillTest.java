@@ -1,6 +1,8 @@
 package Tests.Orders;
 
+import StockExchange.Investors.Investor;
 import StockExchange.Orders.FillOrKillOrder;
+import StockExchange.Orders.OrderType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +11,8 @@ public class FillOrKillTest {
     void complete() {
         // Arrange
         final int ammount = 10;
-        FillOrKillOrder fillOrKillOrder = new FillOrKillOrder(null, null, 0, ammount, 1, 0);
+        final Investor investor = new Investor(0);
+        FillOrKillOrder fillOrKillOrder = new FillOrKillOrder(0, OrderType.SALE, investor, 0, ammount, 1, 0);
 
 
         // Act

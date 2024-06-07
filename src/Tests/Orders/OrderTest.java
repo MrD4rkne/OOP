@@ -120,7 +120,7 @@ public class OrderTest {
     // This class is used to test the abstract class Order
     private static class ConcreteOrder extends Order {
         public ConcreteOrder(OrderType type, Investor investor, int stockId, int amount, int limit, int firstRoundNo) {
-            super(type, investor, stockId, amount, limit, firstRoundNo);
+            super(0,type, investor, stockId, amount, limit, firstRoundNo);
         }
     }
 }
