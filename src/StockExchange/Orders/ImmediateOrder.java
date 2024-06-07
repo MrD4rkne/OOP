@@ -16,8 +16,11 @@ public class ImmediateOrder extends Order{
         if(super.isExpired(roundNo)) {
             return true;
         }
-        
-        return !wasModified;
+
+        if(roundNo > getFirstRoundNo()) {
+            return !wasModified;
+        }
+        return false;
     }
     
     @Override
