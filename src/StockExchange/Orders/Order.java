@@ -73,10 +73,14 @@ public abstract class Order implements Comparable<Order> {
     public int getId() {
         return id;
     }
+
+    public void complete(int roundNo){
+        complete(roundNo, amount);
+    }
     
     public void complete(int roundNo, int amount){
         if(amount <= 0) {
-            throw new IllegalArgumentException("Amount cannot be negative");
+            throw new IllegalArgumentException("Amount cannot be non-positive");
         }
         if(amount > this.amount) {
             throw new IllegalArgumentException("Amount cannot be greater than order amount");
@@ -123,5 +127,18 @@ public abstract class Order implements Comparable<Order> {
         }
 
         return Integer.compare(this.getId(), o.getId());
+    }
+
+    @Override
+    public String toString() {
+        return "Order{" +
+                "id=" + id +
+                ", type=" + type +
+                ", amount=" + amount +
+                ", stockId=" + stockId +
+                ", firstRoundNo=" + firstRoundNo +
+                ", limit=" + limit +
+                ", investor=" + investor +
+                '}';
     }
 }
