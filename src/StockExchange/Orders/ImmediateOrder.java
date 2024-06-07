@@ -24,8 +24,8 @@ public class ImmediateOrder extends Order{
     }
     
     @Override
-    public void complete(int amount) {
-        super.complete(amount);
+    public void complete(int roundNo, int amount) {
+        super.complete(roundNo,amount);
         wasModified = true;
     }
 }

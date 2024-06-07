@@ -15,12 +15,12 @@ public class FillOrKillTest {
         // Act
         boolean isExpiredBefore = fillOrKillOrder.isExpired(0);
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            fillOrKillOrder.complete(ammount-1);
+            fillOrKillOrder.complete(0,ammount-1);
         });
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            fillOrKillOrder.complete(ammount-2);
+            fillOrKillOrder.complete(0,ammount-2);
         });
-        fillOrKillOrder.complete(ammount);
+        fillOrKillOrder.complete(0,ammount);
         boolean isExpiredAfter = fillOrKillOrder.isExpired(0);
 
         // Assert

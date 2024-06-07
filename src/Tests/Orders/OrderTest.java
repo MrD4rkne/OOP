@@ -89,31 +89,31 @@ public class OrderTest {
 
         // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(-1);
+            order.complete(0,-1);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(0);
+            order.complete(0,0);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(ammount+1);
+            order.complete(0,ammount+1);
         });
 
         Assertions.assertDoesNotThrow(() -> {
-            order.complete(1);
+            order.complete(0,1);
         });
 
         Assertions.assertDoesNotThrow(() -> {
-            order.complete(ammount-1);
+            order.complete(0,ammount-1);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(ammount);
+            order.complete(0,ammount);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(1);
+            order.complete(0,1);
         });
     }
 

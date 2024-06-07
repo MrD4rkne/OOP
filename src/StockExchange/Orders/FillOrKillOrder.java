@@ -8,10 +8,10 @@ public class FillOrKillOrder extends ImmediateOrder {
     }
 
     @Override
-    public void complete(int amount) {
+    public void complete(int roundNo, int amount) {
         if (amount < this.getAmount()) {
             throw new IllegalArgumentException("Amount cannot be less than order amount");
         }
-        super.complete(amount);
+        super.complete(roundNo,amount);
     }
 }

@@ -63,13 +63,16 @@ public abstract class Order implements Comparable<Order> {
         return amount==0;
     }
     
-    public void complete(int amount){
+    public void complete(int roundNo, int amount){
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be negative");
         }
         if(amount > this.amount) {
             throw new IllegalArgumentException("Amount cannot be greater than order amount");
         }
+        if(isExpired(roundNo))
+            throw new IllegalStateException("Order is expired");
+
         this.amount -= amount;
     }
     

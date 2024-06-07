@@ -19,11 +19,11 @@ public class GoodTillCancelledorderTest {
 
         // Act
         boolean isExpiredBefore = goodTillCancelledOrder.isExpired(0);
-        goodTillCancelledOrder.complete(firstComplete);
+        goodTillCancelledOrder.complete(0,firstComplete);
         boolean isExpiredAfter = goodTillCancelledOrder.isExpired(0);
-        goodTillCancelledOrder.complete(secondComplete);
+        goodTillCancelledOrder.complete(0,secondComplete);
         boolean isExpiredAfter2 = goodTillCancelledOrder.isExpired(0);
-        goodTillCancelledOrder.complete(finalComplete);
+        goodTillCancelledOrder.complete(0,finalComplete);
         boolean isExpiredAfter3 = goodTillCancelledOrder.isExpired(0);
 
         // Assert
