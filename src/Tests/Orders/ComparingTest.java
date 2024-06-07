@@ -7,7 +7,7 @@ import StockExchange.Orders.OrderType;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class Comparing {
+public class ComparingTest {
     
     @Test
     public void buyOrderByLimit() {

@@ -16,6 +16,19 @@ public abstract class Order implements Comparable<Order> {
     private final Investor investor;
     
     public Order(StockExchange.Orders.OrderType type, Investor investor, int stockId, int amount, int limit, int firstRoundNo) {
+        if(amount <= 0) {
+            throw new IllegalArgumentException("Amount cannot be non-positive");
+        }
+        if(limit <= 0) {
+            throw new IllegalArgumentException("Limit cannot be non-positive");
+        }
+        if(stockId < 0) {
+            throw new IllegalArgumentException("Stock ID cannot be negative");
+        }
+        if(firstRoundNo < 0) {
+            throw new IllegalArgumentException("First round number cannot be negative");
+        }
+
         this.type = type;
         this.amount = amount;
         this.limit=limit;
@@ -51,7 +64,7 @@ public abstract class Order implements Comparable<Order> {
     }
     
     public void complete(int amount){
-        if(amount < 0) {
+        if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be negative");
         }
         if(amount > this.amount) {
