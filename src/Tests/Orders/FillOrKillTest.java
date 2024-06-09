@@ -11,7 +11,7 @@ public class FillOrKillTest {
     void complete() {
         // Arrange
         final int ammount = 10;
-        final Investor investor = new Investor(0);
+        final Investor investor = new Investor(0){};
         FillOrKillOrder fillOrKillOrder = new FillOrKillOrder(0, OrderType.SALE, investor, 0, ammount, 1, 0);
 
 

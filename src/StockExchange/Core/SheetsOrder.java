@@ -1,5 +1,6 @@
 package StockExchange.Core;
 
+import StockExchange.Investors.IInvestorService;
 import StockExchange.Orders.Order;
 import StockExchange.Orders.OrderType;
 
@@ -11,10 +12,15 @@ public class SheetsOrder {
     private final int stockId;
     
     private final List<Order> orders;
+
+    private final IInvestorService investorService;
+
+    private List<TemporaryWallet> temporaryWallets;
     
-    public SheetsOrder(int stockId) {
+    public SheetsOrder(int stockId, IInvestorService investorService) {
         this.stockId = stockId;
         this.orders = new ArrayList<>();
+        this.investorService = investorService;
     }
     
     public int getStockId() {
@@ -26,13 +32,17 @@ public class SheetsOrder {
     }
     
     public void processOrders(int roundNo){
+        prepareTemporaryWallets();
+
         List<Order> buyOrders = getSorted(OrderType.BUY);
         List<Order> saleOrders = getSorted(OrderType.SALE);
+
+        int i = 0;
 
         while(!buyOrders.isEmpty() || !saleOrders.isEmpty()){
             Order orderToProcess = getNextOrderToProcess(buyOrders, saleOrders);
 
-            if(!tryProcess(orderToProcess, buyOrders.iterator(), saleOrders.iterator(), roundNo)){
+            if(!tryProcess(orderToProcess, buyOrders.iterator(), saleOrders.iterator(), roundNo,i++)){
                 if(orderToProcess.getType() == OrderType.BUY) {
                     buyOrders.remove(orderToProcess);
                 }else {
@@ -42,13 +52,12 @@ public class SheetsOrder {
         }
     }
 
-    private boolean tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo){
+    private boolean tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
         if(orderToProcess.isExpired(roundNo)){
             return false;
         }
 
-        List<Order> ordersToRemove = new ArrayList<>();
-        ordersToRemove.add(orderToProcess);
+        List<TransactionInfo> transactions = new ArrayList<>();
         int currentDemand = orderToProcess.getAmount();
         Order currentOrder = orderToProcess;
 
@@ -61,39 +70,92 @@ public class SheetsOrder {
                 if(possibleOrder.isExpired(roundNo)){
                     continue;
                 }
-                if (!doOrdersMatch(currentOrder, possibleOrder)) {
+
+                TransactionInfo possibleTransaction = tryInitTransaction(currentOrder, currentDemand, roundNo, processId, possibleOrder);
+                if(possibleTransaction == null)
                     break;
+
+                if(currentDemand < possibleOrder.getAmount()){
+                    currentDemand = possibleOrder.getAmount()-possibleTransaction.amount();
+                    currentOrder = possibleOrder;
+                }else{
+                    currentDemand -= possibleTransaction.amount();
                 }
 
-                if(currentDemand >= possibleOrder.getAmount()){
-                    currentDemand -= possibleOrder.getAmount();
-                }else {
-                    currentDemand = possibleOrder.getAmount() - currentDemand;
-                    currentOrder = possibleOrder;
-                }
-                ordersToRemove.add(possibleOrder);
+                transactions.add(possibleTransaction);
 
             }catch (NoSuchElementException e){
                 break;
             }
         }
 
-        Order order = ordersToRemove.get(ordersToRemove.size()-1);
-        if(!wasProperlyProcessed(order, currentDemand))
+        if(!wasProperlyProcessed(currentOrder, currentDemand))
             return false;
-        order.complete(roundNo, order.getAmount() - currentDemand);
 
-        for(int i = ordersToRemove.size()-1-1; i >=0; i--){
-            Order orderToRemove = ordersToRemove.get(i);
-            orderToRemove.complete(roundNo);
-        }
-
-        // DEBUG
-        for(Order orderToRemove : ordersToRemove){
-            System.out.println(orderToRemove + " was removed");
-        }
+        transactions.forEach(this::finalizeTransaction);
 
         return true;
+    }
+
+    private void finalizeTransaction(TransactionInfo transaction){
+        int buyerId = transaction.buyOrder().getInvestor().getId();
+        int sellerId = transaction.sellOrder().getInvestor().getId();
+
+        transaction.buyOrder().complete(transaction.roundNo(), transaction.amount());
+        transaction.sellOrder().complete(transaction.roundNo(), transaction.amount());
+
+        investorService.addStock(buyerId, stockId, transaction.amount());
+        investorService.removeStock(sellerId, stockId, transaction.amount());
+
+        investorService.removeFunds(buyerId, transaction.getTotalValue());
+        investorService.addFunds(sellerId, transaction.getTotalValue());
+    }
+
+    private TransactionInfo tryInitTransaction(Order currentOrder, int currentDemand, int roundNo, int processId, Order possibleOrder)
+    {
+        if (!doOrdersMatch(currentOrder, possibleOrder)) {
+            return null;
+        }
+
+        Order buyOrder = currentOrder.getType() == OrderType.BUY ? currentOrder : possibleOrder;
+        Order sellOrder = currentOrder.getType() == OrderType.SALE ? currentOrder : possibleOrder;
+
+        TemporaryWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestor().getId(), processId);
+        TemporaryWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestor().getId(), processId);
+
+        int transactionRate = getTransactionRate(buyOrder, sellOrder);
+        int amountPossibleForBuyer = (int)(buyersWallet.getFunds() / transactionRate);
+        int possibleAmount = Math.min(currentDemand, Math.min(amountPossibleForBuyer, sellersWallet.getStockAmount()));
+        if(possibleAmount == 0)
+            return null;
+
+        // Orders need to be processed in order
+        if(currentDemand< possibleAmount && possibleAmount < possibleOrder.getAmount()){
+            return null;
+        }
+
+        int transactionFunds = possibleAmount * transactionRate;
+        buyersWallet.removeFunds(transactionFunds);
+        buyersWallet.addStock(possibleAmount);
+        sellersWallet.removeStock(possibleAmount);
+        sellersWallet.addFunds(transactionFunds);
+        return new TransactionInfo(buyOrder, sellOrder, possibleAmount, transactionRate, roundNo);
+    }
+
+    private TemporaryWallet updateWalletIfNecessary(int investorId, int processId){
+        TemporaryWallet wallet = temporaryWallets.get(investorId);
+        if(wallet.getProcessCounter() != processId) {
+            int stockAmount = investorService.getStockAmount(investorId, stockId);
+            int funds = investorService.getFunds(investorId);
+            wallet.setProcessInfo(processId, funds, stockAmount);
+        }
+        return wallet;
+    }
+
+    private int getTransactionRate(Order orderA, Order orderB){
+        if(!doOrdersMatch(orderA, orderB))
+            throw new IllegalArgumentException("Orders do not match");
+        return orderA.compareTo(orderB) < 0 ? orderA.getLimit() : orderB.getLimit();
     }
 
     private boolean wasProperlyProcessed(Order order, int currentDemand){
@@ -125,6 +187,14 @@ public class SheetsOrder {
         Order sellOrder = sellOrders.get(0);
 
         return buyOrder.compareTo(sellOrder) < 0 ? buyOrder : sellOrder;
+    }
+
+    private void prepareTemporaryWallets(){
+        int investorsCount = investorService.count();
+        temporaryWallets = new ArrayList<>(investorsCount);
+        for(int i = 0; i < investorsCount; i++){
+            temporaryWallets.add(new TemporaryWallet(i,0,0));
+        }
     }
     
     private List<Order> getSorted(OrderType type){

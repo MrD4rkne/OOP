@@ -12,7 +12,7 @@ public class OrderTest {
     @DisplayName("constructor - invalid amount")
     void amount(){
         // Arrange
-        Investor investor = new Investor(1000);
+        Investor investor = new Investor(1000){};
 
         // Act $ Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -31,7 +31,7 @@ public class OrderTest {
     @DisplayName("constructor - invalid limit")
     void limit(){
         // Arrange
-        Investor investor = new Investor(1000);
+        Investor investor = new Investor(1000){};
 
         // Act $ Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -51,7 +51,7 @@ public class OrderTest {
     @DisplayName("constructor - invalid firstRoundNo")
     void firstRoundNo(){
         // Arranges
-        Investor investor = new Investor(1000);
+        Investor investor = new Investor(1000){};
 
         // Act $ Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -67,7 +67,7 @@ public class OrderTest {
     @DisplayName("constructor - invalid stockId")
     void stockId(){
         //Arrange
-        Investor investor = new Investor(1000);
+        Investor investor = new Investor(1000){};
 
         // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -83,9 +83,9 @@ public class OrderTest {
     @DisplayName("complete - invalid amount")
     void complete(){
         // Arrange
-        final int ammount = 10;
-        Investor investor = new Investor(1000);
-        Order order = new ConcreteOrder(OrderType.BUY, investor, 0, ammount, 2, 0);
+        final int amount = 10;
+        Investor investor = new Investor(1000){};
+        Order order = new ConcreteOrder(OrderType.BUY, investor, 0, amount, 2, 0);
 
         // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
@@ -97,7 +97,7 @@ public class OrderTest {
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(0,ammount+1);
+            order.complete(0,amount+1);
         });
 
         Assertions.assertDoesNotThrow(() -> {
@@ -105,11 +105,11 @@ public class OrderTest {
         });
 
         Assertions.assertDoesNotThrow(() -> {
-            order.complete(0,ammount-1);
+            order.complete(0,amount-1);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(0,ammount);
+            order.complete(0,amount);
         });
 
         Assertions.assertThrows(IllegalArgumentException.class, () -> {

@@ -12,7 +12,7 @@ public class ComparingTest {
     @Test
     public void buyOrderByLimit() {
         // Arrange
-        Investor investor = new Investor(1000);
+        Investor investor = new Investor(1000){};
         Order biggestLimit = new ImmediateOrder(0,OrderType.BUY, investor, 1, 2, 100,1);
         Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.BUY, investor, 1, 2, 99,1);
         Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.BUY, investor, 1, 2, 99,2);
@@ -37,15 +37,15 @@ public class ComparingTest {
     @Test
     public void buyOrderByRound(){
         // Arrange
-        Investor investor = new Investor(1000);
+        Investor investor = new Investor(1000){};
         Order roundOne = new ImmediateOrder(0,OrderType.BUY, investor, 1, 2, 100,1);
         Order roundTwo = new ImmediateOrder(1,OrderType.BUY, investor, 1, 2, 100,2);
-        Order roundTwoDouble = new ImmediateOrder(2,OrderType.BUY, investor, 1, 2, 100,2);
+        Order roundTwoint = new ImmediateOrder(2,OrderType.BUY, investor, 1, 2, 100,2);
         
         // Act
         int resultsRoundOneRoundTwo = roundOne.compareTo(roundTwo);
         int resultsRoundTwoRoundOne = roundTwo.compareTo(roundOne);
-        int resultsRoundTwoRoundTwo = roundTwo.compareTo(roundTwoDouble);
+        int resultsRoundTwoRoundTwo = roundTwo.compareTo(roundTwoint);
         
         // Assert
         Assertions.assertEquals(-1, resultsRoundOneRoundTwo);
@@ -56,7 +56,7 @@ public class ComparingTest {
     @Test
     public void sellOrderByLimit() {
         // Arrange
-        Investor investor = new Investor(1000);
+        Investor investor = new Investor(1000){};
         Order biggestLimit = new ImmediateOrder(0,OrderType.SALE, investor, 1, 2, 100,1);
         Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.SALE, investor, 1, 2, 99,1);
         Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.SALE, investor, 1, 2, 99,2);
@@ -81,15 +81,15 @@ public class ComparingTest {
     @Test
     public void sellOrderByRound(){
         // Arrange
-        Investor investor = new Investor(1000);
+        Investor investor = new Investor(1000){};
         Order roundOne = new ImmediateOrder(0,OrderType.SALE, investor, 1, 2, 100,1);
         Order roundTwo = new ImmediateOrder(1,OrderType.SALE, investor, 1, 2, 100,2);
-        Order roundTwoDouble = new ImmediateOrder(2,OrderType.SALE, investor, 1, 2, 100,2);
+        Order roundTwoint = new ImmediateOrder(2,OrderType.SALE, investor, 1, 2, 100,2);
         
         // Act
         int resultsRoundOneRoundTwo = roundOne.compareTo(roundTwo);
         int resultsRoundTwoRoundOne = roundTwo.compareTo(roundOne);
-        int resultsRoundTwoRoundTwo = roundTwo.compareTo(roundTwoDouble);
+        int resultsRoundTwoRoundTwo = roundTwo.compareTo(roundTwoint);
         
         // Assert
         Assertions.assertEquals(-1, resultsRoundOneRoundTwo);
