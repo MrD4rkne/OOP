@@ -1,5 +1,6 @@
 package StockExchange.Core;
-
+// TODO: validate round number
+// TODO: round number is inner property
 public class Stock {
     private final int stockId;
 

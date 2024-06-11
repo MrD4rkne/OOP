@@ -61,13 +61,13 @@ public class SheetsOrder {
             transactionsForThisRound.addAll(transactions);
         }
 
-        orders.removeIf(order->order.isExpired(roundNo));
+        orders.removeIf(order->order.isExpired(roundNo+1));
         transactions.addAll(transactionsForThisRound);
         return transactionsForThisRound;
     }
 
-    public List<TransactionInfo> getTransactions() {
-        return new ArrayList<>(transactions);
+    public int getOrdersCount(){
+        return orders.size();
     }
 
     private List<TransactionInfo> tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
@@ -141,7 +141,7 @@ public class SheetsOrder {
         TemporaryWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestorId(), processId);
         TemporaryWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestorId(), processId);
 
-        int stockAmountForWholeTransaction = Math.min(buyOrder.getAmount(), sellOrder.getAmount());
+        int stockAmountForWholeTransaction = Math.min(currentDemand,Math.min(buyOrder.getAmount(), sellOrder.getAmount()));
         int transactionRate = getTransactionRate(buyOrder, sellOrder);
         int amountPossibleForBuyer = buyersWallet.getFunds() / transactionRate;
         int amountPossibleForSeller = sellersWallet.getStockAmount();

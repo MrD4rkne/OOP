@@ -11,22 +11,23 @@ public class FillOrKillTest {
     void complete() {
         // Arrange
         final int amount = 10;
-        FillOrKillOrder fillOrKillOrder = new FillOrKillOrder(0, OrderType.SALE, 0, 0, amount, 1, 0);
+        FillOrKillOrder completedOrder = new FillOrKillOrder(0, OrderType.SALE, 0, 0, amount, 1, 0);
+        FillOrKillOrder notCompletedOrder = new FillOrKillOrder(1, OrderType.SALE, 0, 0, amount, 1, 0);
 
 
         // Act
-        boolean isExpiredBefore = fillOrKillOrder.isExpired(0);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            fillOrKillOrder.complete(0,amount-1);
-        });
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            fillOrKillOrder.complete(0,amount-2);
-        });
-        fillOrKillOrder.complete(0,amount);
-        boolean isExpiredAfter = fillOrKillOrder.isExpired(0);
+        boolean completedIsExpiredBefore = completedOrder.isExpired(0);
+        completedOrder.complete(0,amount);
+        boolean completedIsExpiredAfter = completedOrder.isExpired(1);
+        
+        boolean notCompletedIsExpiredBefore = notCompletedOrder.isExpired(0);
+        notCompletedOrder.complete(0,amount-1);
+        boolean notCompletedIsExpiredAfter = notCompletedOrder.isExpired(1);
 
         // Assert
-        Assertions.assertFalse(isExpiredBefore);
-        Assertions.assertTrue(isExpiredAfter);
+        Assertions.assertFalse(completedIsExpiredBefore);
+        Assertions.assertTrue(completedIsExpiredAfter);
+        Assertions.assertFalse(notCompletedIsExpiredBefore);
+        Assertions.assertTrue(notCompletedIsExpiredAfter);
     }
 }
