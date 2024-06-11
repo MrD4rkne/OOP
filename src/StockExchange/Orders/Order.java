@@ -16,6 +16,8 @@ public abstract class Order implements Comparable<Order> {
     private final int limit;
     
     private final Investor investor;
+
+    private boolean isCancelled;
     
     public Order(int id, OrderType type, Investor investor, int stockId, int amount, int limit, int firstRoundNo) {
         if(amount <= 0) {
@@ -38,6 +40,7 @@ public abstract class Order implements Comparable<Order> {
         this.stockId = stockId;
         this.firstRoundNo = firstRoundNo;
         this.investor = investor;
+        this.isCancelled = false;
     }
     
     public OrderType getType() {
@@ -63,7 +66,13 @@ public abstract class Order implements Comparable<Order> {
     }
     
     public boolean isExpired(int roundNo){
+        if(isCancelled)
+            return true;
         return amount==0;
+    }
+
+    public void cancel(){
+        isCancelled = true;
     }
 
     public boolean doNeedToBeProcessedFullyAtOnce(){

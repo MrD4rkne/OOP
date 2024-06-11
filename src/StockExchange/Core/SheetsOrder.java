@@ -15,12 +15,15 @@ public class SheetsOrder {
 
     private final IInvestorService investorService;
 
+    private final List<TransactionInfo> transactions;
+
     private List<TemporaryWallet> temporaryWallets;
     
     public SheetsOrder(int stockId, IInvestorService investorService) {
         this.stockId = stockId;
         this.orders = new ArrayList<>();
         this.investorService = investorService;
+        this.transactions = new ArrayList<>();
     }
     
     public int getStockId() {
@@ -43,13 +46,15 @@ public class SheetsOrder {
             Order orderToProcess = getNextOrderToProcess(buyOrders, saleOrders);
 
             if(!tryProcess(orderToProcess, buyOrders.iterator(), saleOrders.iterator(), roundNo,i++)){
-                if(orderToProcess.getType() == OrderType.BUY) {
-                    buyOrders.remove(orderToProcess);
-                }else {
-                    saleOrders.remove(orderToProcess);
-                }
+                orderToProcess.cancel();
             }
         }
+
+        orders.removeIf(order->order.isExpired(roundNo));
+    }
+
+    public List<TransactionInfo> getTransactions() {
+        return new ArrayList<>(transactions);
     }
 
     private boolean tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
@@ -84,7 +89,7 @@ public class SheetsOrder {
 
                 transactions.add(possibleTransaction);
 
-            }catch (NoSuchElementException e){
+            }catch (NoSuchElementException ignored){
                 break;
             }
         }
@@ -109,6 +114,8 @@ public class SheetsOrder {
 
         investorService.removeFunds(buyerId, transaction.getTotalValue());
         investorService.addFunds(sellerId, transaction.getTotalValue());
+
+        transactions.add(transaction);
     }
 
     private TransactionInfo tryInitTransaction(Order currentOrder, int currentDemand, int roundNo, int processId, Order possibleOrder)
@@ -123,14 +130,21 @@ public class SheetsOrder {
         TemporaryWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestor().getId(), processId);
         TemporaryWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestor().getId(), processId);
 
+        int stockAmountForWholeTransaction = Math.min(buyOrder.getAmount(), sellOrder.getAmount());
         int transactionRate = getTransactionRate(buyOrder, sellOrder);
-        int amountPossibleForBuyer = (int)(buyersWallet.getFunds() / transactionRate);
-        int possibleAmount = Math.min(currentDemand, Math.min(amountPossibleForBuyer, sellersWallet.getStockAmount()));
-        if(possibleAmount == 0)
-            return null;
+        int amountPossibleForBuyer = buyersWallet.getFunds() / transactionRate;
+        int amountPossibleForSeller = sellersWallet.getStockAmount();
 
-        // Orders need to be processed in order
-        if(currentDemand< possibleAmount && possibleAmount < possibleOrder.getAmount()){
+        int possibleAmount = Math.min(currentDemand, Math.min(amountPossibleForBuyer, amountPossibleForSeller));
+
+        if(possibleAmount < stockAmountForWholeTransaction){
+            // Found matching transaction, but not enough funds or stock in wallet
+            if(amountPossibleForBuyer < stockAmountForWholeTransaction){
+                buyOrder.cancel();
+            }
+            if(amountPossibleForSeller < stockAmountForWholeTransaction){
+                sellOrder.cancel();
+            }
             return null;
         }
 

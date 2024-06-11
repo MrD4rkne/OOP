@@ -6,8 +6,8 @@ public class Stock {
     private int amount;
 
     public Stock(int stockId, int amount) {
-        if(amount <= 0) {
-            throw new IllegalArgumentException("Amount cannot be non-positive");
+        if(amount < 0) {
+            throw new IllegalArgumentException("Amount cannot be negative");
         }
         if(stockId < 0) {
             throw new IllegalArgumentException("Stock ID cannot be negative");

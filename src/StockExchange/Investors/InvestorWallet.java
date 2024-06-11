@@ -3,19 +3,20 @@ package StockExchange.Investors;
 import StockExchange.Core.Stock;
 import StockExchange.Core.Wallet;
 
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 public class InvestorWallet extends Wallet {
-    private final Map<Integer, Stock> Stocks;
+    private final List<Stock> stocks;
 
-    public InvestorWallet(int investorId) {
-        this(investorId, 0);
+    public InvestorWallet(int investorId, int stocksCount) {
+        this(investorId, stocksCount,0);
     }
 
-    public InvestorWallet(int investorId, int funds) {
+    public InvestorWallet(int investorId, int stocksCount, int funds) {
         super(investorId, funds);
-        this.Stocks = new TreeMap<>();
+        this.stocks = new TreeMap<>();
     }
 
     public boolean hasStocks(int stockId, int amount) {
@@ -23,7 +24,7 @@ public class InvestorWallet extends Wallet {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
 
-        return Stocks.getOrDefault(stockId, new Stock(stockId, 0)).getAmount() >= amount;
+        return stocks.getOrDefault(stockId, new Stock(stockId, 0)).getAmount() >= amount;
     }
 
     public void addStocks(int stockId, int amount) {
@@ -31,8 +32,8 @@ public class InvestorWallet extends Wallet {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
 
-        Stocks.put(stockId, Stocks.getOrDefault(stockId, new Stock(stockId, 0)));
-        Stocks.get(stockId).addAmount(amount);
+        stocks.put(stockId, stocks.getOrDefault(stockId, new Stock(stockId, 0)));
+        stocks.get(stockId).addAmount(amount);
     }
 
     public void removeStocks(int stockId, int amount) {
@@ -43,10 +44,10 @@ public class InvestorWallet extends Wallet {
             throw new IllegalArgumentException("Not enough Stocks");
         }
 
-        Stocks.get(stockId).removeAmount(amount);
+        stocks.get(stockId).removeAmount(amount);
     }
 
     public int getStocksAmount(int stockId) {
-        return Stocks.getOrDefault(stockId, new Stock(stockId, 0)).getAmount();
+        return stocks.getOrDefault(stockId, new Stock(stockId, 0)).getAmount();
     }
 }

@@ -7,14 +7,17 @@ import java.util.Optional;
 public class InvestorService implements IInvestorService{
     private final List<InvestorWallet> wallets;
 
-    public InvestorService() {
+    private final int stocksCount;
+
+    public InvestorService(int stocksCount) {
         this.wallets = new ArrayList<>();
+        this.stocksCount = stocksCount;
     }
 
     @Override
     public int registerInvestor() {
         int id = wallets.size();
-        wallets.add(new InvestorWallet(id));
+        wallets.add(new InvestorWallet(id, stocksCount));
         return id;
     }
 
