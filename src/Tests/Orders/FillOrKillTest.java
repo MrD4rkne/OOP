@@ -10,20 +10,19 @@ public class FillOrKillTest {
     @Test
     void complete() {
         // Arrange
-        final int ammount = 10;
-        final Investor investor = new Investor(0){};
-        FillOrKillOrder fillOrKillOrder = new FillOrKillOrder(0, OrderType.SALE, investor, 0, ammount, 1, 0);
+        final int amount = 10;
+        FillOrKillOrder fillOrKillOrder = new FillOrKillOrder(0, OrderType.SALE, 0, 0, amount, 1, 0);
 
 
         // Act
         boolean isExpiredBefore = fillOrKillOrder.isExpired(0);
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            fillOrKillOrder.complete(0,ammount-1);
+            fillOrKillOrder.complete(0,amount-1);
         });
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            fillOrKillOrder.complete(0,ammount-2);
+            fillOrKillOrder.complete(0,amount-2);
         });
-        fillOrKillOrder.complete(0,ammount);
+        fillOrKillOrder.complete(0,amount);
         boolean isExpiredAfter = fillOrKillOrder.isExpired(0);
 
         // Assert

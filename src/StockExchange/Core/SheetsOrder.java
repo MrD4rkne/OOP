@@ -34,32 +34,45 @@ public class SheetsOrder {
         orders.add(order);
     }
     
-    public void processOrders(int roundNo){
+    public List<TransactionInfo> processOrders(int roundNo){
         prepareTemporaryWallets();
 
         List<Order> buyOrders = getSorted(OrderType.BUY);
         List<Order> saleOrders = getSorted(OrderType.SALE);
 
         int i = 0;
+        
+        List<TransactionInfo> transactionsForThisRound = new ArrayList<>();
 
         while(!buyOrders.isEmpty() || !saleOrders.isEmpty()){
-            Order orderToProcess = getNextOrderToProcess(buyOrders, saleOrders);
-
-            if(!tryProcess(orderToProcess, buyOrders.iterator(), saleOrders.iterator(), roundNo,i++)){
-                orderToProcess.cancel();
+            Order orderToProcess = getNextOrderToProcess(buyOrders, saleOrders, roundNo);
+            if(orderToProcess == null)
+                break;
+            
+            List<TransactionInfo> transactions = tryProcess(orderToProcess, buyOrders.iterator(), saleOrders.iterator(), roundNo,i++);
+            if(transactions.isEmpty()){
+                if(orderToProcess.getType() == OrderType.BUY){
+                    buyOrders.remove(orderToProcess);
+                }
+                else {
+                    saleOrders.remove(orderToProcess);
+                }
             }
+            transactionsForThisRound.addAll(transactions);
         }
 
         orders.removeIf(order->order.isExpired(roundNo));
+        transactions.addAll(transactionsForThisRound);
+        return transactionsForThisRound;
     }
 
     public List<TransactionInfo> getTransactions() {
         return new ArrayList<>(transactions);
     }
 
-    private boolean tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
+    private List<TransactionInfo> tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
         if(orderToProcess.isExpired(roundNo)){
-            return false;
+            return Collections.emptyList();
         }
 
         List<TransactionInfo> transactions = new ArrayList<>();
@@ -95,16 +108,16 @@ public class SheetsOrder {
         }
 
         if(!wasProperlyProcessed(currentOrder, currentDemand))
-            return false;
+            return Collections.emptyList();
 
         transactions.forEach(this::finalizeTransaction);
 
-        return true;
+        return transactions;
     }
 
     private void finalizeTransaction(TransactionInfo transaction){
-        int buyerId = transaction.buyOrder().getInvestor().getId();
-        int sellerId = transaction.sellOrder().getInvestor().getId();
+        int buyerId = transaction.buyOrder().getInvestorId();
+        int sellerId = transaction.sellOrder().getInvestorId();
 
         transaction.buyOrder().complete(transaction.roundNo(), transaction.amount());
         transaction.sellOrder().complete(transaction.roundNo(), transaction.amount());
@@ -114,8 +127,6 @@ public class SheetsOrder {
 
         investorService.removeFunds(buyerId, transaction.getTotalValue());
         investorService.addFunds(sellerId, transaction.getTotalValue());
-
-        transactions.add(transaction);
     }
 
     private TransactionInfo tryInitTransaction(Order currentOrder, int currentDemand, int roundNo, int processId, Order possibleOrder)
@@ -127,8 +138,8 @@ public class SheetsOrder {
         Order buyOrder = currentOrder.getType() == OrderType.BUY ? currentOrder : possibleOrder;
         Order sellOrder = currentOrder.getType() == OrderType.SALE ? currentOrder : possibleOrder;
 
-        TemporaryWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestor().getId(), processId);
-        TemporaryWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestor().getId(), processId);
+        TemporaryWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestorId(), processId);
+        TemporaryWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestorId(), processId);
 
         int stockAmountForWholeTransaction = Math.min(buyOrder.getAmount(), sellOrder.getAmount());
         int transactionRate = getTransactionRate(buyOrder, sellOrder);
@@ -187,20 +198,27 @@ public class SheetsOrder {
         return buyOrder.getLimit() >= sellOrder.getLimit();
     }
 
-    private Order getNextOrderToProcess(List<Order> buyOrders, List<Order> sellOrders){
-        if(buyOrders.isEmpty() && sellOrders.isEmpty()){
-            throw new IllegalArgumentException("There are no orders to process");
-        }
-
-        if(buyOrders.isEmpty())
-            return sellOrders.get(0);
-        if(sellOrders.isEmpty())
-            return buyOrders.get(0);
-
-        Order buyOrder = buyOrders.get(0);
-        Order sellOrder = sellOrders.get(0);
+    private Order getNextOrderToProcess(List<Order> buyOrders, List<Order> sellOrders, int roundNo){
+        Order buyOrder = getFirstNonExpiredOrder(buyOrders, roundNo);
+        Order sellOrder = getFirstNonExpiredOrder(sellOrders, roundNo);
+        
+        if(buyOrder == null && sellOrder == null)
+            return null;
+        
+        if(buyOrder == null)
+            return sellOrder;
+        
+        if(sellOrder == null)
+            return buyOrder;
 
         return buyOrder.compareTo(sellOrder) < 0 ? buyOrder : sellOrder;
+    }
+    
+    private Order getFirstNonExpiredOrder(List<Order> orders, int roundNo){
+        return orders.stream()
+                .filter(order -> !order.isExpired(roundNo))
+                .findFirst()
+                .orElse(null);
     }
 
     private void prepareTemporaryWallets(){

@@ -25,4 +25,24 @@ public record TransactionInfo(Order buyOrder, Order sellOrder, int amount, int r
     public int getTotalValue() {
         return amount * rate;
     }
+    
+    @Override
+    public int hashCode() {
+        return buyOrder.hashCode() + sellOrder.hashCode() + amount + rate + roundNo;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if(hashCode() != obj.hashCode()) {
+            return false;
+        }
+        
+        if (!(obj instanceof TransactionInfo other)) {
+            return false;
+        }
+        return buyOrder.equals(other.buyOrder) && sellOrder.equals(other.sellOrder) && amount == other.amount && rate == other.rate && roundNo == other.roundNo;
+    }
 }

@@ -15,11 +15,11 @@ public abstract class Order implements Comparable<Order> {
     
     private final int limit;
     
-    private final Investor investor;
+    private final int investorId;
 
     private boolean isCancelled;
     
-    public Order(int id, OrderType type, Investor investor, int stockId, int amount, int limit, int firstRoundNo) {
+    public Order(int id, OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo) {
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
@@ -32,6 +32,9 @@ public abstract class Order implements Comparable<Order> {
         if(firstRoundNo < 0) {
             throw new IllegalArgumentException("First round number cannot be negative");
         }
+        if(investorId < 0) {
+            throw new IllegalArgumentException("Investor ID cannot be negative");
+        }
 
         this.id = id;
         this.type = type;
@@ -39,8 +42,12 @@ public abstract class Order implements Comparable<Order> {
         this.limit=limit;
         this.stockId = stockId;
         this.firstRoundNo = firstRoundNo;
-        this.investor = investor;
+        this.investorId = investorId;
         this.isCancelled = false;
+    }
+    
+    public int getInvestorId() {
+        return investorId;
     }
     
     public OrderType getType() {
@@ -59,10 +66,6 @@ public abstract class Order implements Comparable<Order> {
     
     public int getFirstRoundNo() {
         return firstRoundNo;
-    }
-    
-    public Investor getInvestor() {
-        return investor;
     }
     
     public boolean isExpired(int roundNo){
@@ -137,6 +140,25 @@ public abstract class Order implements Comparable<Order> {
 
         return Integer.compare(this.getId(), o.getId());
     }
+    
+    @Override
+    public int hashCode() {
+        return id;
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Order other)) {
+            return false;
+        }
+        return id== other.getId() && type == other.getType() && amount == other.getAmount() 
+                && stockId == other.getStockId() && firstRoundNo == other.getFirstRoundNo()
+                && limit == other.getLimit()
+                && investorId == other.getInvestorId();
+    }
 
     @Override
     public String toString() {
@@ -147,7 +169,8 @@ public abstract class Order implements Comparable<Order> {
                 ", stockId=" + stockId +
                 ", firstRoundNo=" + firstRoundNo +
                 ", limit=" + limit +
-                ", investor=" + investor +
+                ", investorId=" + investorId +
+                ", isCancelled=" + isCancelled +
                 '}';
     }
 }

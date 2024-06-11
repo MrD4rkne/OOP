@@ -6,8 +6,8 @@ public class ImmediateOrder extends Order{
     
     private boolean wasModified;
     
-    public ImmediateOrder(int id,OrderType type, Investor investor, int stockId, int amount, int limit, int firstRoundNo) {
-        super(id,type, investor, stockId, amount, limit, firstRoundNo);
+    public ImmediateOrder(int id,OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo) {
+        super(id,type, investorId, stockId, amount, limit, firstRoundNo);
         wasModified = false;
     }
     

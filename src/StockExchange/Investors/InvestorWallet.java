@@ -3,9 +3,8 @@ package StockExchange.Investors;
 import StockExchange.Core.Stock;
 import StockExchange.Core.Wallet;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 public class InvestorWallet extends Wallet {
     private final List<Stock> stocks;
@@ -16,23 +15,25 @@ public class InvestorWallet extends Wallet {
 
     public InvestorWallet(int investorId, int stocksCount, int funds) {
         super(investorId, funds);
-        this.stocks = new TreeMap<>();
+        this.stocks = new ArrayList<>(stocksCount);
+        seedStocks(stocksCount);
     }
 
     public boolean hasStocks(int stockId, int amount) {
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
+        validateStockId(stockId);
 
-        return stocks.getOrDefault(stockId, new Stock(stockId, 0)).getAmount() >= amount;
+        return stocks.get(stockId).getAmount() >= amount;
     }
 
     public void addStocks(int stockId, int amount) {
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
-
-        stocks.put(stockId, stocks.getOrDefault(stockId, new Stock(stockId, 0)));
+        validateStockId(stockId);
+        
         stocks.get(stockId).addAmount(amount);
     }
 
@@ -48,6 +49,19 @@ public class InvestorWallet extends Wallet {
     }
 
     public int getStocksAmount(int stockId) {
-        return stocks.getOrDefault(stockId, new Stock(stockId, 0)).getAmount();
+        validateStockId(stockId);
+        return stocks.get(stockId).getAmount();
+    }
+    
+    private void validateStockId(int stockId) {
+        if(stockId < 0 || stockId >= stocks.size()) {
+            throw new IllegalArgumentException("StockId is invalid");
+        }
+    }
+    
+    private void seedStocks(int stocksCount) {
+        for (int i = 0; i < stocksCount; i++) {
+            stocks.add(new Stock(i, 0));
+        }
     }
 }

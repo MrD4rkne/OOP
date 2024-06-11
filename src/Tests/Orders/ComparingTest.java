@@ -12,10 +12,9 @@ public class ComparingTest {
     @Test
     public void buyOrderByLimit() {
         // Arrange
-        Investor investor = new Investor(1000){};
-        Order biggestLimit = new ImmediateOrder(0,OrderType.BUY, investor, 1, 2, 100,1);
-        Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.BUY, investor, 1, 2, 99,1);
-        Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.BUY, investor, 1, 2, 99,2);
+        Order biggestLimit = new ImmediateOrder(0,OrderType.BUY, 0, 1, 2, 100,1);
+        Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.BUY, 1, 1, 2, 99,1);
+        Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.BUY, 2, 1, 2, 99,2);
         
         // Act
         int resultsBiggestSmallerOne = biggestLimit.compareTo(smallerLimitRoundOne);
@@ -38,9 +37,9 @@ public class ComparingTest {
     public void buyOrderByRound(){
         // Arrange
         Investor investor = new Investor(1000){};
-        Order roundOne = new ImmediateOrder(0,OrderType.BUY, investor, 1, 2, 100,1);
-        Order roundTwo = new ImmediateOrder(1,OrderType.BUY, investor, 1, 2, 100,2);
-        Order roundTwoint = new ImmediateOrder(2,OrderType.BUY, investor, 1, 2, 100,2);
+        Order roundOne = new ImmediateOrder(0,OrderType.BUY, 0, 1, 2, 100,1);
+        Order roundTwo = new ImmediateOrder(1,OrderType.BUY, 1, 1, 2, 100,2);
+        Order roundTwoint = new ImmediateOrder(2,OrderType.BUY, 2, 1, 2, 100,2);
         
         // Act
         int resultsRoundOneRoundTwo = roundOne.compareTo(roundTwo);
@@ -57,9 +56,9 @@ public class ComparingTest {
     public void sellOrderByLimit() {
         // Arrange
         Investor investor = new Investor(1000){};
-        Order biggestLimit = new ImmediateOrder(0,OrderType.SALE, investor, 1, 2, 100,1);
-        Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.SALE, investor, 1, 2, 99,1);
-        Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.SALE, investor, 1, 2, 99,2);
+        Order biggestLimit = new ImmediateOrder(0,OrderType.SALE, 0, 1, 2, 100,1);
+        Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.SALE, 1, 1, 2, 99,1);
+        Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.SALE, 2, 1, 2, 99,2);
 
         // Act
         int resultsBiggestSmallerOne = biggestLimit.compareTo(smallerLimitRoundOne);
@@ -82,9 +81,9 @@ public class ComparingTest {
     public void sellOrderByRound(){
         // Arrange
         Investor investor = new Investor(1000){};
-        Order roundOne = new ImmediateOrder(0,OrderType.SALE, investor, 1, 2, 100,1);
-        Order roundTwo = new ImmediateOrder(1,OrderType.SALE, investor, 1, 2, 100,2);
-        Order roundTwoint = new ImmediateOrder(2,OrderType.SALE, investor, 1, 2, 100,2);
+        Order roundOne = new ImmediateOrder(0,OrderType.SALE, 0, 1, 2, 100,1);
+        Order roundTwo = new ImmediateOrder(1,OrderType.SALE, 1, 1, 2, 100,2);
+        Order roundTwoint = new ImmediateOrder(2,OrderType.SALE, 2, 1, 2, 100,2);
         
         // Act
         int resultsRoundOneRoundTwo = roundOne.compareTo(roundTwo);

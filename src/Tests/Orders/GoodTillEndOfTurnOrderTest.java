@@ -14,8 +14,7 @@ class GoodTillEndOfTurnOrderTest {
         // Arrange
         final int amount = 10;
         final int orderRound = 10;
-        Investor investor = new Investor(1000){};
-        GoodTillEndOfTurnOrder goodTillEndOfTurnOrder = new GoodTillEndOfTurnOrder(0,OrderType.SALE, investor, 0, amount, 1, 0, orderRound);
+        GoodTillEndOfTurnOrder goodTillEndOfTurnOrder = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, 0, amount, 1, 0, orderRound);
 
         // Act & Assert
         for(int i = 0; i <= orderRound + 10; i++){
@@ -35,8 +34,7 @@ class GoodTillEndOfTurnOrderTest {
         // Arrange
         final int amount = 10;
         final int orderRound = 1;
-        Investor investor = new Investor(1000){};
-        GoodTillEndOfTurnOrder orderExpiryByAmmountBeforeRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, investor, 0, amount, 1, 0, orderRound);
+        GoodTillEndOfTurnOrder orderExpiryByAmmountBeforeRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, 0, amount, 1, 0, orderRound);
 
         // Act
         boolean isExpiredBefore = orderExpiryByAmmountBeforeRound.isExpired(0);
@@ -56,8 +54,7 @@ class GoodTillEndOfTurnOrderTest {
         // Arrange
         final int amount = 10;
         final int orderRound = 0;
-        Investor investor = new Investor(1000){};
-        GoodTillEndOfTurnOrder orderExpiryByRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, investor, 0, amount, 1, 0, orderRound);
+        GoodTillEndOfTurnOrder orderExpiryByRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, 0, amount, 1, 0, orderRound);
 
         // Act
         boolean isExpiredBefore = orderExpiryByRound.isExpired(0);
