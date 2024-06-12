@@ -1,12 +1,13 @@
-package StockExchange.Core;
+package StockExchange.Sheet;
 
+import StockExchange.Core.TransactionInfo;
 import StockExchange.Investors.IInvestorService;
 import StockExchange.Orders.Order;
 import StockExchange.Orders.OrderType;
 
 import java.util.*;
 
-public class SheetsOrder {
+public class SheetsOrder implements ISheet {
     private final int stockId;
     
     private final List<Order> buyOrders;
@@ -76,6 +77,12 @@ public class SheetsOrder {
 
     public int getOrdersCount(){
         return buyOrders.size() + saleOrders.size();
+    }
+
+    public int getLatestTransactionPrice() {
+        if(transactions.isEmpty())
+            return 0;
+        return transactions.get(transactions.size()-1).rate();
     }
 
     private List<TransactionInfo> tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
@@ -260,12 +267,6 @@ public class SheetsOrder {
         for(int i = 0; i < investorsCount; i++){
             temporaryWallets.add(new SingleStockWallet(i,0,0));
         }
-    }
-
-    public int getLatestTransactionPrice() {
-        if(transactions.isEmpty())
-            return 0;
-        return transactions.get(transactions.size()-1).rate();
     }
 
     private static class InitTransactionResult{

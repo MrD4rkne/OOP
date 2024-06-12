@@ -1,7 +1,5 @@
 package StockExchange.Investors;
 
-import StockExchange.Core.ITransactionInfoProvider;
-
 public abstract class Investor {
     private int id;
     
@@ -16,5 +14,5 @@ public abstract class Investor {
         this.id = id;
     }
 
-    public abstract void makeOrder(ITransactionInfoProvider transactionInfoProvider);
+    public abstract void makeOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet);
 }

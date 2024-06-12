@@ -1,6 +1,6 @@
 package StockExchange.sheet;
 
-import StockExchange.Core.SheetsOrder;
+import StockExchange.Sheet.SheetsOrder;
 import StockExchange.Core.TransactionInfo;
 import StockExchange.Investors.Investor;
 import StockExchange.Investors.InvestorService;

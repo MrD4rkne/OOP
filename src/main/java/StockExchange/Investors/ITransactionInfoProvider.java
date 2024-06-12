@@ -1,6 +1,5 @@
-package StockExchange.Core;
+package StockExchange.Investors;
 
-import StockExchange.Investors.Investor;
 import StockExchange.Orders.Order;
 
 public interface ITransactionInfoProvider {

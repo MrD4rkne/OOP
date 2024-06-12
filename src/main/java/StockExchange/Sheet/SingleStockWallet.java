@@ -1,6 +1,8 @@
-package StockExchange.Core;
+package StockExchange.Sheet;
 
-public class SingleStockWallet extends Wallet{
+import StockExchange.Core.Wallet;
+
+public class SingleStockWallet extends Wallet {
     private final int NEVER_ACCESSED = -1;
 
     private int stockAmount;
