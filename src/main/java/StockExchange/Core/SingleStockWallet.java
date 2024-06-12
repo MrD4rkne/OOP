@@ -1,12 +1,12 @@
 package StockExchange.Core;
 
-public class TemporaryWallet extends Wallet{
+public class SingleStockWallet extends Wallet{
     private final int NEVER_ACCESSED = -1;
 
     private int stockAmount;
     private int processCounter;
 
-    public TemporaryWallet(int investorId, int funds, int stockAmount) {
+    public SingleStockWallet(int investorId, int funds, int stockAmount) {
         super(investorId, funds);
         if(stockAmount < 0) {
             throw new IllegalArgumentException("Stock amount cannot be negative");

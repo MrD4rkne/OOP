@@ -6,22 +6,23 @@ import StockExchange.Orders.OrderType;
 
 import java.util.*;
 
-import static java.util.stream.Collectors.toList;
-
 public class SheetsOrder {
     private final int stockId;
     
-    private final List<Order> orders;
+    private final List<Order> buyOrders;
+
+    private final List<Order> saleOrders;
 
     private final IInvestorService investorService;
 
     private final List<TransactionInfo> transactions;
 
-    private List<TemporaryWallet> temporaryWallets;
+    private List<SingleStockWallet> temporaryWallets;
     
     public SheetsOrder(int stockId, IInvestorService investorService) {
         this.stockId = stockId;
-        this.orders = new ArrayList<>();
+        this.buyOrders = new ArrayList<>();
+        this.saleOrders = new ArrayList<>();
         this.investorService = investorService;
         this.transactions = new ArrayList<>();
     }
@@ -31,14 +32,20 @@ public class SheetsOrder {
     }
     
     public void insertOrder(Order order) {
-        orders.add(order);
+        switch (order.getType()) {
+            case BUY:
+                binInsert(buyOrders, order);
+                break;
+            case SALE:
+                binInsert(saleOrders, order);
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown order type");
+        }
     }
     
     public List<TransactionInfo> processOrders(int roundNo){
         prepareTemporaryWallets();
-
-        List<Order> buyOrders = getSorted(OrderType.BUY);
-        List<Order> saleOrders = getSorted(OrderType.SALE);
 
         int i = 0;
         
@@ -61,13 +68,14 @@ public class SheetsOrder {
             transactionsForThisRound.addAll(transactions);
         }
 
-        orders.removeIf(order->order.isExpired(roundNo+1));
+        buyOrders.removeIf(order->order.isExpired(roundNo+1));
+        saleOrders.removeIf(order->order.isExpired(roundNo+1));
         transactions.addAll(transactionsForThisRound);
         return transactionsForThisRound;
     }
 
     public int getOrdersCount(){
-        return orders.size();
+        return buyOrders.size() + saleOrders.size();
     }
 
     private List<TransactionInfo> tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
@@ -89,10 +97,14 @@ public class SheetsOrder {
                     continue;
                 }
 
-                TransactionInfo possibleTransaction = tryInitTransaction(currentOrder, currentDemand, roundNo, processId, possibleOrder);
-                if(possibleTransaction == null)
+                InitTransactionResult result = tryInitTransaction(currentOrder, currentDemand, roundNo, processId, possibleOrder);
+                if(result.isImpossible())
                     break;
 
+                if(result.isNotEnoughFunds())
+                    continue;
+
+                TransactionInfo possibleTransaction = result.getTransaction();
                 if(currentDemand < possibleOrder.getAmount()){
                     currentDemand = possibleOrder.getAmount()-possibleTransaction.amount();
                     currentOrder = possibleOrder;
@@ -129,17 +141,17 @@ public class SheetsOrder {
         investorService.addFunds(sellerId, transaction.getTotalValue());
     }
 
-    private TransactionInfo tryInitTransaction(Order currentOrder, int currentDemand, int roundNo, int processId, Order possibleOrder)
+    private InitTransactionResult tryInitTransaction(Order currentOrder, int currentDemand, int roundNo, int processId, Order possibleOrder)
     {
         if (!doOrdersMatch(currentOrder, possibleOrder)) {
-            return null;
+            return InitTransactionResult.failed();
         }
 
         Order buyOrder = currentOrder.getType() == OrderType.BUY ? currentOrder : possibleOrder;
         Order sellOrder = currentOrder.getType() == OrderType.SALE ? currentOrder : possibleOrder;
 
-        TemporaryWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestorId(), processId);
-        TemporaryWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestorId(), processId);
+        SingleStockWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestorId(), processId);
+        SingleStockWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestorId(), processId);
 
         int stockAmountForWholeTransaction = Math.min(currentDemand,Math.min(buyOrder.getAmount(), sellOrder.getAmount()));
         int transactionRate = getTransactionRate(buyOrder, sellOrder);
@@ -156,7 +168,7 @@ public class SheetsOrder {
             if(amountPossibleForSeller < stockAmountForWholeTransaction){
                 sellOrder.cancel();
             }
-            return null;
+            return InitTransactionResult.notEnoughFunds();
         }
 
         int transactionFunds = possibleAmount * transactionRate;
@@ -164,11 +176,11 @@ public class SheetsOrder {
         buyersWallet.addStock(possibleAmount);
         sellersWallet.removeStock(possibleAmount);
         sellersWallet.addFunds(transactionFunds);
-        return new TransactionInfo(buyOrder, sellOrder, possibleAmount, transactionRate, roundNo);
+        return InitTransactionResult.successful(new TransactionInfo(buyOrder, sellOrder, possibleAmount, transactionRate, roundNo));
     }
 
-    private TemporaryWallet updateWalletIfNecessary(int investorId, int processId){
-        TemporaryWallet wallet = temporaryWallets.get(investorId);
+    private SingleStockWallet updateWalletIfNecessary(int investorId, int processId){
+        SingleStockWallet wallet = temporaryWallets.get(investorId);
         if(wallet.getProcessCounter() != processId) {
             int stockAmount = investorService.getStockAmount(investorId, stockId);
             int funds = investorService.getFunds(investorId);
@@ -181,6 +193,27 @@ public class SheetsOrder {
         if(!doOrdersMatch(orderA, orderB))
             throw new IllegalArgumentException("Orders do not match");
         return orderA.compareTo(orderB) < 0 ? orderA.getLimit() : orderB.getLimit();
+    }
+
+    private void binInsert(List<Order> list, Order order){
+        int left = 0;
+        int right = list.size();
+        while(left < right){
+            int mid = (left+right)/2;
+            if(list.get(mid).compareTo(order) < 0){
+                left = mid+1;
+            }else{
+                right = mid;
+            }
+        }
+
+        int index = left;
+        list.add(order);
+
+        for(int i = list.size()-1; i > index; i--){
+            list.set(i, list.get(i-1));
+        }
+        list.set(index, order);
     }
 
     private boolean wasProperlyProcessed(Order order, int currentDemand){
@@ -225,13 +258,57 @@ public class SheetsOrder {
         int investorsCount = investorService.count();
         temporaryWallets = new ArrayList<>(investorsCount);
         for(int i = 0; i < investorsCount; i++){
-            temporaryWallets.add(new TemporaryWallet(i,0,0));
+            temporaryWallets.add(new SingleStockWallet(i,0,0));
         }
     }
-    
-    private List<Order> getSorted(OrderType type){
-        return orders.stream()
-                .filter(order -> order.getType() == type)
-                .collect(toList());
+
+    public int getLatestTransactionPrice() {
+        if(transactions.isEmpty())
+            return 0;
+        return transactions.get(transactions.size()-1).rate();
     }
- }
+
+    private static class InitTransactionResult{
+        private final TransactionInfo transaction;
+
+        private final boolean notEnoughFunds;
+
+        public InitTransactionResult(TransactionInfo transaction){
+            this.transaction = transaction;
+            this.notEnoughFunds = false;
+        }
+
+        public InitTransactionResult(boolean notEnoughFunds){
+            this.transaction = null;
+            this.notEnoughFunds = notEnoughFunds;
+        }
+
+        public boolean wasSuccessful(){
+            return transaction != null;
+        }
+
+        public boolean isNotEnoughFunds() {
+            return notEnoughFunds;
+        }
+
+        public TransactionInfo getTransaction(){
+            return transaction;
+        }
+
+        public boolean isImpossible(){
+            return !wasSuccessful() && !isNotEnoughFunds();
+        }
+
+        public static InitTransactionResult notEnoughFunds(){
+            return new InitTransactionResult(true);
+        }
+
+        public static InitTransactionResult successful(TransactionInfo transaction){
+            return new InitTransactionResult(transaction);
+        }
+
+        public static InitTransactionResult failed(){
+            return new InitTransactionResult(false);
+        }
+    }
+}

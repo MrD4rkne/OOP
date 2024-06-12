@@ -52,6 +52,10 @@ public class InvestorWallet extends Wallet {
         validateStockId(stockId);
         return stocks.get(stockId).getAmount();
     }
+
+    public List<Stock> getStocks() {
+        return new ArrayList<>(stocks);
+    }
     
     private void validateStockId(int stockId) {
         if(stockId < 0 || stockId >= stocks.size()) {

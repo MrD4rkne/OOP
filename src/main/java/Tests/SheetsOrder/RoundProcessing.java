@@ -334,7 +334,8 @@ class RoundProcessing {
     private Investor[] seedInvestors(InvestorService investorService, int n) {
         Investor[] investors = new Investor[n];
         for (int i = 0; i < n; i++) {
-            investors[i] = new Investor(investorService.registerInvestor()){};
+            investors[i] = investorService.registerInvestor(new Investor() {
+            });
         }
         return investors;
     }

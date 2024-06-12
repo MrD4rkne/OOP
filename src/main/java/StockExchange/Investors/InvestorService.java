@@ -1,29 +1,47 @@
 package StockExchange.Investors;
 
+import StockExchange.Core.StockVm;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 public class InvestorService implements IInvestorService{
     private final List<InvestorWallet> wallets;
 
+    private final List<Investor> investors;
+
     private final int stocksCount;
 
     public InvestorService(int stocksCount) {
         this.wallets = new ArrayList<>();
         this.stocksCount = stocksCount;
+        this.investors = new ArrayList<>();
     }
 
     @Override
-    public int registerInvestor() {
+    public Investor registerInvestor(Investor investor) {
         int id = wallets.size();
+        investor.setId(id);
+
         wallets.add(new InvestorWallet(id, stocksCount));
-        return id;
+        investors.add(investor);
+        return investor;
+    }
+
+    @Override
+    public Investor getInvestor(int investorId) {
+        if(!doesInvestorExist(investorId)){
+            throw new IllegalArgumentException("Investor with this id does not exist");
+        }
+
+        return investors.get(investorId);
     }
 
     @Override
     public int count() {
-        return wallets.size();
+        return investors.size();
     }
 
     @Override
@@ -107,6 +125,18 @@ public class InvestorService implements IInvestorService{
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
         return walletToRemoveStock.get().getStocksAmount(stockId);
+    }
+
+    @Override
+    public InvestorWalletVm getWallet(int investorId) {
+        Optional<InvestorWallet> walletToRemoveStock = getWalletByInvestorId(investorId);
+        if(walletToRemoveStock.isEmpty()){
+            throw new IllegalArgumentException("Wallet with this investor's id does not exist");
+        }
+
+        InvestorWallet wallet = walletToRemoveStock.get();
+        StockVm[] stockVms = wallet.getStocks().stream().map(stock -> new StockVm(stock.getStockId(), stock.getAmount())).toArray(StockVm[]::new);
+        return new InvestorWalletVm(wallet.getInvestorId(), wallet.getFunds(), stockVms);
     }
 
     private Optional<InvestorWallet> getWalletByInvestorId(int investorId){

@@ -1,7 +1,9 @@
 package StockExchange.Investors;
 
 public interface IInvestorService {
-    int registerInvestor();
+    Investor registerInvestor(Investor investor);
+
+    Investor getInvestor(int investorId);
 
     int count();
 
@@ -22,4 +24,6 @@ public interface IInvestorService {
     void removeStock(int investorId, int stockId, int amount);
 
     int getStockAmount(int investorId, int stockId);
+
+    InvestorWalletVm getWallet(int investorId);
 }

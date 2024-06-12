@@ -3,7 +3,7 @@ package StockExchange.Orders;
 import StockExchange.Investors.Investor;
 
 public abstract class Order implements Comparable<Order> {
-    private final int id;
+    private int id;
 
     private final OrderType type;
     
@@ -18,6 +18,10 @@ public abstract class Order implements Comparable<Order> {
     private final int investorId;
 
     private boolean isCancelled;
+
+    public Order(OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo){
+        this(-1, type, investorId, stockId, amount, limit, firstRoundNo);
+    }
     
     public Order(int id, OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo) {
         if(amount <= 0) {
@@ -86,8 +90,8 @@ public abstract class Order implements Comparable<Order> {
         return id;
     }
 
-    public void complete(int roundNo){
-        complete(roundNo, amount);
+    public void setId(int id) {
+        this.id = id;
     }
     
     public void complete(int roundNo, int amount){

@@ -36,7 +36,7 @@ public class ComparingTest {
     @Test
     public void buyOrderByRound(){
         // Arrange
-        Investor investor = new Investor(1000){};
+
         Order roundOne = new ImmediateOrder(0,OrderType.BUY, 0, 1, 2, 100,1);
         Order roundTwo = new ImmediateOrder(1,OrderType.BUY, 1, 1, 2, 100,2);
         Order roundTwoint = new ImmediateOrder(2,OrderType.BUY, 2, 1, 2, 100,2);
