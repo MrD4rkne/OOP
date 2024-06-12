@@ -1,5 +1,7 @@
 package stockMarket.core;
 
-public interface ITradingSystem {
+import stockMarket.investors.Investor;
 
+public interface ITradingSystem {
+    void nextRound();
 }

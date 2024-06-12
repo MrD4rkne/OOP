@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvestorWallet extends Wallet {
-    private final List<Share> stocks;
+    private final List<Share> shares;
 
     public InvestorWallet(int investorId, StockCompany[] stockCompanies) {
         this(investorId,0,stockCompanies);
@@ -16,57 +16,57 @@ public class InvestorWallet extends Wallet {
 
     public InvestorWallet(int investorId, int funds, StockCompany[] stockCompanies) {
         super(investorId, funds);
-        this.stocks = new ArrayList<>(stockCompanies.length);
+        this.shares = new ArrayList<>();
         seedStocks(stockCompanies);
     }
 
-    public boolean hasStocks(int stockId, int amount) {
+    public boolean hasShares(int stockId, int amount) {
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
         validateStockId(stockId);
 
-        return stocks.get(stockId).getAmount() >= amount;
+        return shares.get(stockId).getAmount() >= amount;
     }
 
-    public void addStocks(int stockId, int amount) {
+    public void addShares(int stockId, int amount) {
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
         validateStockId(stockId);
         
-        stocks.get(stockId).addAmount(amount);
+        shares.get(stockId).addAmount(amount);
     }
 
-    public void removeStocks(int stockId, int amount) {
+    public void removeShares(int stockId, int amount) {
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
-        if(!hasStocks(stockId, amount)) {
+        if(!hasShares(stockId, amount)) {
             throw new IllegalArgumentException("Not enough Stocks");
         }
 
-        stocks.get(stockId).removeAmount(amount);
+        shares.get(stockId).removeAmount(amount);
     }
 
-    public int getStocksAmount(int stockId) {
+    public int getShares(int stockId) {
         validateStockId(stockId);
-        return stocks.get(stockId).getAmount();
+        return shares.get(stockId).getAmount();
     }
 
-    public List<Share> getStocks() {
-        return new ArrayList<>(stocks);
+    public List<Share> getShares() {
+        return new ArrayList<>(shares);
     }
     
     private void validateStockId(int stockId) {
-        if(stockId < 0 || stockId >= stocks.size()) {
+        if(stockId < 0 || stockId >= shares.size()) {
             throw new IllegalArgumentException("StockId is invalid");
         }
     }
     
     private void seedStocks(StockCompany[] stockCompanies) {
-        for (int i = 0; i < stockCompanies.length; i++) {
-            stocks.set(i, new Share(stockCompanies[i], 0));
+        for (StockCompany stockCompany : stockCompanies) {
+            shares.add(new Share(stockCompany, 0));
         }
     }
 }

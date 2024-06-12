@@ -1,5 +1,6 @@
 package stockMarket.stock;
 
+import stockMarket.core.StockCompany;
 import stockMarket.core.TransactionInfo;
 import stockMarket.investors.IInvestorService;
 import stockMarket.orders.Order;
@@ -8,28 +9,33 @@ import stockMarket.orders.OrderType;
 import java.util.*;
 
 public class OrderSheet implements ISheet {
-    private final int stockId;
+    private final StockCompany stockCompany;
     
     private final List<Order> buyOrders;
 
     private final List<Order> saleOrders;
 
     private final IInvestorService investorService;
-
-    private final List<TransactionInfo> transactions;
+    
 
     private List<SingleStockWallet> temporaryWallets;
     
-    public OrderSheet(int stockId, IInvestorService investorService) {
-        this.stockId = stockId;
+    private int lastTransactionRate;
+    
+    public OrderSheet(StockCompany stockCompany, int startingTransactionRate, IInvestorService investorService) {
+        this.stockCompany = stockCompany;
         this.buyOrders = new ArrayList<>();
         this.saleOrders = new ArrayList<>();
         this.investorService = investorService;
-        this.transactions = new ArrayList<>();
+        this.lastTransactionRate = startingTransactionRate;
     }
     
     public int getStockId() {
-        return stockId;
+        return stockCompany.getId();
+    }
+    
+    public StockCompany getStockCompany() {
+        return stockCompany;
     }
     
     public void insertOrder(Order order) {
@@ -71,7 +77,6 @@ public class OrderSheet implements ISheet {
 
         buyOrders.removeIf(order->order.isExpired(roundNo+1));
         saleOrders.removeIf(order->order.isExpired(roundNo+1));
-        transactions.addAll(transactionsForThisRound);
         return transactionsForThisRound;
     }
 
@@ -80,9 +85,37 @@ public class OrderSheet implements ISheet {
     }
 
     public int getLatestTransactionPrice() {
-        if(transactions.isEmpty())
-            return 0;
-        return transactions.get(transactions.size()-1).rate();
+        return lastTransactionRate;
+    }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Stock: ");
+        sb.append(stockCompany.getName());
+        sb.append("\n");
+        
+        sb.append("Buy orders:\n");
+        if(buyOrders.isEmpty()){
+            sb.append("None \n");
+        }
+        for (Order order : buyOrders) {
+            sb.append(order);
+            sb.append("\n");
+        }
+        
+        sb.append("\n");
+        
+        sb.append("Sale orders:\n");
+        if(saleOrders.isEmpty()){
+            sb.append("None \n");
+        }
+        for (Order order : saleOrders) {
+            sb.append(order);
+            sb.append("\n");
+        }
+        
+        return sb.toString();
     }
 
     private List<TransactionInfo> tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
@@ -141,11 +174,13 @@ public class OrderSheet implements ISheet {
         transaction.buyOrder().complete(transaction.roundNo(), transaction.amount());
         transaction.sellOrder().complete(transaction.roundNo(), transaction.amount());
 
-        investorService.addStock(buyerId, stockId, transaction.amount());
-        investorService.removeStock(sellerId, stockId, transaction.amount());
+        investorService.addStock(buyerId, stockCompany.getId(), transaction.amount());
+        investorService.removeStock(sellerId, stockCompany.getId(), transaction.amount());
 
         investorService.removeFunds(buyerId, transaction.getTotalValue());
         investorService.addFunds(sellerId, transaction.getTotalValue());
+        
+        lastTransactionRate = transaction.rate();
     }
 
     private InitTransactionResult tryInitTransaction(Order currentOrder, int currentDemand, int roundNo, int processId, Order possibleOrder)
@@ -189,7 +224,7 @@ public class OrderSheet implements ISheet {
     private SingleStockWallet updateWalletIfNecessary(int investorId, int processId){
         SingleStockWallet wallet = temporaryWallets.get(investorId);
         if(wallet.getProcessCounter() != processId) {
-            int stockAmount = investorService.getStockAmount(investorId, stockId);
+            int stockAmount = investorService.getStockAmount(investorId, stockCompany.getId());
             int funds = investorService.getFunds(investorId);
             wallet.setProcessInfo(processId, funds, stockAmount);
         }

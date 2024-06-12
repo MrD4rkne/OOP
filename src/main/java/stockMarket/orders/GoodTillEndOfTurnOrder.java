@@ -3,6 +3,10 @@ package stockMarket.orders;
 public class GoodTillEndOfTurnOrder extends Order{
 
     private final int dueRoundNo;
+    
+    public GoodTillEndOfTurnOrder(OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo, int dueRoundNo) {
+        this(0,type, investorId, stockId,amount,limit, firstRoundNo,  dueRoundNo);
+    }
 
     public GoodTillEndOfTurnOrder(int id,OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo, int dueRoundNo) {
         super(id,type, investorId, stockId, amount, limit, firstRoundNo);

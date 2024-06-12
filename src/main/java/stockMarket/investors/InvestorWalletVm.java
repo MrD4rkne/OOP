@@ -1,5 +1,6 @@
 package stockMarket.investors;
 
+import stockMarket.stock.Share;
 import stockMarket.stock.ShareVm;
 
 import java.util.Arrays;
@@ -9,12 +10,12 @@ public class InvestorWalletVm {
 
     private final int funds;
 
-    private final ShareVm[] stocks;
+    private final ShareVm[] shares;
 
     public InvestorWalletVm(int investorId, int funds, ShareVm[] stocks) {
         this.investorId = investorId;
         this.funds = funds;
-        this.stocks = Arrays.copyOf(stocks, stocks.length);
+        this.shares = Arrays.copyOf(stocks, stocks.length);
     }
 
     public int getInvestorId() {
@@ -25,19 +26,31 @@ public class InvestorWalletVm {
         return funds;
     }
 
-    public ShareVm getStock(int stockId) {
-        if(stockId < 0 || stockId >= stocks.length) {
+    public ShareVm getShares(int stockId) {
+        if(stockId < 0 || stockId >= shares.length) {
             throw new IllegalArgumentException("Stock with this id does not exist");
         }
-        return stocks[stockId];
+        return shares[stockId];
+    }
+    
+    public int getStocksCount() {
+        return shares.length;
     }
 
     @Override
     public String toString() {
-        return "InvestorWallet{" +
-                "investorId=" + investorId +
-                ", funds=" + funds +
-                ", stocks=" + Arrays.toString(stocks) +
-                '}';
+        StringBuilder sb = new StringBuilder();
+        sb.append(getInvestorId());
+        sb.append(" ");
+        sb.append(getFunds());
+        sb.append(" ");
+        for(int i = 0; i < shares.length; i++) {
+            ShareVm share = this.shares[i];
+            sb.append(share.getStockCompany().getName());
+            sb.append(": ");
+            sb.append(share.getAmount());
+            if(i < shares.length - 1) sb.append(" ");
+        }
+        return sb.toString();
     }
 }

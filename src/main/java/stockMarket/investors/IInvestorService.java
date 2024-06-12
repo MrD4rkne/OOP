@@ -16,4 +16,6 @@ public interface IInvestorService extends IReadonlyInvestorService {
     boolean hasStock(int investorId, int stockId, int amount);
 
     void removeStock(int investorId, int stockId, int amount);
+    
+    String toString();
 }

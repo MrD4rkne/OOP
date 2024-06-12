@@ -96,7 +96,7 @@ public class InvestorService implements IInvestorService {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
-        walletToAddStock.get().addStocks(stockId, amount);
+        walletToAddStock.get().addShares(stockId, amount);
     }
 
     @Override
@@ -106,7 +106,7 @@ public class InvestorService implements IInvestorService {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
-        return walletToCheckStock.get().hasStocks(stockId, amount);
+        return walletToCheckStock.get().hasShares(stockId, amount);
     }
 
     @Override
@@ -116,7 +116,7 @@ public class InvestorService implements IInvestorService {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
-        walletToRemoveStock.get().removeStocks(stockId, amount);
+        walletToRemoveStock.get().removeShares(stockId, amount);
     }
 
     @Override
@@ -125,7 +125,7 @@ public class InvestorService implements IInvestorService {
         if(walletToRemoveStock.isEmpty()){
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
-        return walletToRemoveStock.get().getStocksAmount(stockId);
+        return walletToRemoveStock.get().getShares(stockId);
     }
 
     @Override
@@ -136,7 +136,7 @@ public class InvestorService implements IInvestorService {
         }
 
         InvestorWallet wallet = walletToRemoveStock.get();
-        ShareVm[] stockVms = wallet.getStocks().stream().map(stock -> new ShareVm(stock.getStockCompany(), stock.getAmount())).toArray(ShareVm[]::new);
+        ShareVm[] stockVms = wallet.getShares().stream().map(stock -> new ShareVm(stock.getStockCompany(), stock.getAmount())).toArray(ShareVm[]::new);
         return new InvestorWalletVm(wallet.getInvestorId(), wallet.getFunds(), stockVms);
     }
 

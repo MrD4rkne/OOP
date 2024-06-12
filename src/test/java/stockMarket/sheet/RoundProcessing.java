@@ -36,7 +36,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(0, investorService);
+        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[0], 1,investorService);
         Order[] orders = new Order[investorsCount];
 
         investorService.addFunds(0, 150*100);
@@ -101,7 +101,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(1, investorService);
+        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[1], 1,investorService);
         Order[] orders = new Order[investorsCount];
 
         investorService.addStock(investors[0].getId(), 1, 10);
@@ -159,7 +159,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockId, investorService);
+        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[0], 1,investorService);
         Order[] orders = new Order[investorsCount];
         
         investorService.addStock(investors[0].getId(), stockId, 100);
@@ -222,7 +222,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockId, investorService);
+        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[stockId], 1,investorService);
         Order[] orders = new Order[investorsCount];
         
         investorService.addFunds(investors[0].getId(), 100*1);
@@ -280,7 +280,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockId, investorService);
+        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[stockId], 1,investorService);
         Order[] orders = new Order[investorsCount];
 
         investorService.addFunds(investors[0].getId(), 100*1);
