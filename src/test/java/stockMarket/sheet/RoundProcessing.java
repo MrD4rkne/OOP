@@ -1,6 +1,7 @@
 package stockMarket.sheet;
 
 import stockMarket.core.StockCompany;
+import stockMarket.investors.RandomInvestor;
 import stockMarket.stock.OrderSheet;
 import stockMarket.core.TransactionInfo;
 import stockMarket.investors.Investor;
@@ -159,7 +160,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[0], 1,investorService);
+        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[stockId], 1,investorService);
         Order[] orders = new Order[investorsCount];
         
         investorService.addStock(investors[0].getId(), stockId, 100);
@@ -225,7 +226,7 @@ class RoundProcessing {
         OrderSheet sheetsOrder = new OrderSheet(stockCompanies[stockId], 1,investorService);
         Order[] orders = new Order[investorsCount];
         
-        investorService.addFunds(investors[0].getId(), 100*1);
+        investorService.addFunds(investors[stockId].getId(), 100*1);
         orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), stockCompanies[stockId],100, 1, roundNo);
         sheetsOrder.insertOrder(orders[0]);
 
@@ -345,7 +346,7 @@ class RoundProcessing {
     private Investor[] seedInvestors(InvestorService investorService, int n) {
         Investor[] investors = new Investor[n];
         for (int i = 0; i < n; i++) {
-            Investor investor = mock(Investor.class);
+            Investor investor = new RandomInvestor();
             investors[i] = investorService.registerInvestor(investor);
         }
         return investors;

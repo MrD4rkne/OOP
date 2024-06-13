@@ -1,5 +1,6 @@
 package main;
 
+import jdk.jshell.spi.ExecutionEnv;
 import stockMarket.core.ITradingSystem;
 import stockMarket.core.TradingSystem;
 import stockMarket.investors.IInvestorService;
@@ -14,6 +15,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
+        String path = System.getProperty("user.dir");
         if(args.length != 2){
             System.out.println("Usage: <roundsCount> <inputFile>");
             System.exit(1);
