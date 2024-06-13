@@ -34,7 +34,7 @@ public class Main {
             
             IInvestorService investorService = new InvestorService(simulationData.getCompanies());
             seedInvestors(investorService, simulationData);
-            ITradingSystem tradingSystem = new TradingSystem(new ConsoleLogger(), investorService, simulationData.getCompanies(),simulationData.getCompaniesStartingPrices());
+            ITradingSystem tradingSystem = new TradingSystem(new ConsoleLogger(false), investorService, simulationData.getCompanies(),simulationData.getCompaniesStartingPrices());
             
             for(int i = 0; i < roundsCount; i++){
                 tradingSystem.nextRound();

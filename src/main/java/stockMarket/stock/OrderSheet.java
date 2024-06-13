@@ -52,12 +52,14 @@ public class OrderSheet implements ISheet {
     }
     
     public List<TransactionInfo> processOrders(int roundNo){
+        buyOrders.removeIf(order->order.isExpired(roundNo));
+        saleOrders.removeIf(order->order.isExpired(roundNo));
         prepareTemporaryWallets();
 
         int i = 0;
-        
+
         List<TransactionInfo> transactionsForThisRound = new ArrayList<>();
-        
+
         List<Order> tempBuyOrders = new ArrayList<>(buyOrders);
         List<Order> tempSaleOrders = new ArrayList<>(saleOrders);
 
@@ -65,10 +67,10 @@ public class OrderSheet implements ISheet {
             Order orderToProcess = getNextOrderToProcess(tempBuyOrders, tempSaleOrders, roundNo);
             if(orderToProcess == null)
                 break;
-            
+
             if(orderToProcess.isExpired(roundNo))
                 continue;
-            
+
             List<TransactionInfo> transactions = tryProcess(orderToProcess, tempBuyOrders.iterator(), tempSaleOrders.iterator(), roundNo,i++);
             if(transactions.isEmpty()){
                 if(orderToProcess.getType() == OrderType.BUY){
@@ -80,9 +82,6 @@ public class OrderSheet implements ISheet {
             }
             transactionsForThisRound.addAll(transactions);
         }
-
-        buyOrders.removeIf(order->order.isExpired(roundNo+1));
-        saleOrders.removeIf(order->order.isExpired(roundNo+1));
         return transactionsForThisRound;
     }
 
@@ -302,10 +301,11 @@ public class OrderSheet implements ISheet {
     }
     
     private Order getFirstNonExpiredOrder(List<Order> orders, int roundNo){
-        return orders.stream()
-                .filter(order -> !order.isExpired(roundNo))
-                .findFirst()
-                .orElse(null);
+        for (Order order : orders) {
+            if(!order.isExpired(roundNo))
+                return order;
+        }
+        return null;
     }
 
     private void prepareTemporaryWallets(){
