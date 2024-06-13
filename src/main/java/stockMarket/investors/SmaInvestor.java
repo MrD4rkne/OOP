@@ -48,23 +48,7 @@ public class SmaInvestor extends Investor{
             return;
 
         OrderType orderType = sma == SMA.BUY ? OrderType.BUY : OrderType.SALE;
-        Order order = null;
-        int orderMode = random.nextInt(4);
-        StockCompany company = transactionInfoProvider.getStock(stockId);
-        order = switch (orderMode) {
-            case 0 -> new UnlimitedOrder(orderType, getId(), company, amount, limit,
-                    transactionInfoProvider.getCurrentRoundNo());
-            case 1 ->
-                    new FillOrKillOrder(orderType, getId(), company, amount, limit, transactionInfoProvider.getCurrentRoundNo());
-            case 2 -> {
-                int lastRound = transactionInfoProvider.getCurrentRoundNo() + random.nextInt(1, limit);
-                yield new GoodTillEndOfTurnOrder(orderType, getId(), company, amount, limit, transactionInfoProvider.getCurrentRoundNo(), lastRound);
-            }
-            case 3 ->
-                    new ImmediateOrder(orderType, getId(), company, amount, limit, transactionInfoProvider.getCurrentRoundNo());
-            default -> order;
-        };
-
+        Order order = InvestorHelper.createRandomTypeOrder(random, orderType, getId(), transactionInfoProvider.getStock(stockId), amount, limit, transactionInfoProvider.getCurrentRoundNo());
         transactionInfoProvider.addOrder(this,order);
     }
 

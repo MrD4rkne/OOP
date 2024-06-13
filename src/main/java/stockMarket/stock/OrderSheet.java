@@ -52,8 +52,6 @@ public class OrderSheet implements ISheet {
     }
     
     public List<TransactionInfo> processOrders(int roundNo){
-        buyOrders.removeIf(order->order.isExpired(roundNo));
-        saleOrders.removeIf(order->order.isExpired(roundNo));
         prepareTemporaryWallets();
 
         int i = 0;
@@ -82,6 +80,9 @@ public class OrderSheet implements ISheet {
             }
             transactionsForThisRound.addAll(transactions);
         }
+
+        buyOrders.removeIf(order->order.isExpired(roundNo+1));
+        saleOrders.removeIf(order->order.isExpired(roundNo+1));
         return transactionsForThisRound;
     }
 

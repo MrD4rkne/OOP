@@ -46,8 +46,8 @@ public class TradingSystem implements ITradingSystem {
     
     private void processStocks(){
         for (OrderSheet sheetsOrder : sheetsOrders) {
-            List<TransactionInfo> transactionInfos = sheetsOrder.processOrders(roundNo);
-            logger.logTransactionsForStock(sheetsOrder.getStockCompany(), transactionInfos);
+            sheetsOrder.processOrders(roundNo);
+            //logger.logTransactionsForStock(sheetsOrder.getStockCompany(), transactionInfos);
         }
         
         logger.endRound(roundNo, investorService);
