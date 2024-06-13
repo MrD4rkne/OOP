@@ -42,36 +42,38 @@ public class SmaCalculator {
                 continue;
             }
 
-            int prevBilans = calculateLongSMA(stockId) - calculateShortSMA(stockId);
+            double prevDifference = calculateLongSMA(stockId) - calculateShortSMA(stockId);
             shift(lastTenTransactionRates[stockId]);
             lastTenTransactionRates[stockId][LONG_SMA_LENGTH-1] = provider.getLastTransactionPrice(stockId);
 
-            int currBilans = calculateLongSMA(stockId) - calculateShortSMA(stockId);
-            signals[stockId] = interpret(prevBilans, currBilans);
+            double currDifference = calculateLongSMA(stockId) - calculateShortSMA(stockId);
+            signals[stockId] = interpret(prevDifference, currDifference);
         }
     }
 
-    private SMA interpret(int prevBilans, int currBilans){
-        if(prevBilans>=0 && currBilans <0){
+    private SMA interpret(double prevDifference, double currentDifference){
+        if(prevDifference>=0 && currentDifference <0){
             // Short SMA gets ahead of long SMA10.
             return SMA.BUY;
         }
-        if(prevBilans<=0 && currBilans > 0){
+        if(prevDifference<=0 && currentDifference > 0){
             return SMA.SELL;
         }
         return SMA.NONE;
     }
 
-    private int calculateLongSMA(int stockId) {return calculate(stockId, LONG_SMA_LENGTH);}
+    private double calculateLongSMA(int stockId) {return calculate(stockId, LONG_SMA_LENGTH);}
 
-    private int calculateShortSMA(int stockId) {return calculate(stockId, SHORT_SMA_LENGTH);}
+    private double calculateShortSMA(int stockId) {return calculate(stockId, SHORT_SMA_LENGTH);}
 
-    private int calculate(int stockId, int n){
+    private double calculate(int stockId, int n){
+        if(n==0)
+            return 0;
         int sum = 0;
         for(int i = 0; i<n; i++){
             sum+= lastTenTransactionRates[stockId][LONG_SMA_LENGTH-1 - i];
         }
-        return sum/n;
+        return ((double)sum)/n;
     }
 
     private void shift(int[] array){

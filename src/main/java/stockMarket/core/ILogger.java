@@ -11,8 +11,6 @@ public interface ILogger {
     
     void logSheet(OrderSheet sheetsOrder);
     
-    void logMessage(String message);
-    
     void logTransactionsForStock(StockCompany stockCompany, List<TransactionInfo> transactionInfos);
     
     void endRound(int round, IInvestorService investorService);

@@ -25,17 +25,12 @@ public class ConsoleLogger implements ILogger {
 
     @Override
     public void logSheet(OrderSheet sheetsOrder) {
-        logMessage(sheetsOrder.toString());
-    }
-
-    @Override
-    public void logMessage(String message) {
-        System.out.println(message);
+        System.out.println(sheetsOrder.toString());
     }
 
     @Override
     public void logTransactionsForStock(StockCompany stockCompany, List<TransactionInfo> transactionInfos) {
-        logMessage("Transactions for " + stockCompany+":");
+        System.out.println("Transactions for " + stockCompany+":");
         for (TransactionInfo transactionInfo : transactionInfos) {
             System.out.println(transactionInfo);
         }
@@ -44,8 +39,8 @@ public class ConsoleLogger implements ILogger {
 
     @Override
     public void endRound(int round, IInvestorService investorService) {
-        logMessage("End of round " + round);
-        logMessage("Wallets:");
+        System.out.println("End of round " + round);
+        System.out.println("Wallets:");
         for (int i = 0; i < investorService.count(); i++) {
             System.out.println(investorService.getWallet(i));
         }
