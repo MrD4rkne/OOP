@@ -2,16 +2,18 @@ package stockMarket.orders;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import stockMarket.core.StockCompany;
 
 public class GoodTillCancelledorderTest {
     @Test
     void complete() {
         // Arrange
+        StockCompany company = new StockCompany(1, "A");
         final int ammount = 10;
         final int firstComplete = (int)Math.ceil(ammount/3.0);
         final int secondComplete = (int)Math.ceil(ammount/2.0);
         final int finalComplete = ammount - firstComplete -secondComplete;
-        UnlimitedOrder goodTillCancelledOrder = new UnlimitedOrder(0,OrderType.SALE, 0, 0, ammount, 2, 0);
+        UnlimitedOrder goodTillCancelledOrder = new UnlimitedOrder(0,OrderType.SALE, 0, company, ammount, 2, 0);
 
         // Act
         boolean isExpiredBefore = goodTillCancelledOrder.isExpired(0);

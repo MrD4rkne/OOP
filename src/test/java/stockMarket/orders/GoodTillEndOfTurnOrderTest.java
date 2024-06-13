@@ -3,6 +3,7 @@ package stockMarket.orders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import stockMarket.core.StockCompany;
 
 class GoodTillEndOfTurnOrderTest {
     @Test
@@ -11,7 +12,8 @@ class GoodTillEndOfTurnOrderTest {
         // Arrange
         final int amount = 10;
         final int orderRound = 10;
-        GoodTillEndOfTurnOrder goodTillEndOfTurnOrder = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, 0, amount, 1, 0, orderRound);
+        StockCompany company = new StockCompany(1, "A");
+        GoodTillEndOfTurnOrder goodTillEndOfTurnOrder = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, company, amount, 1, 0, orderRound);
 
         // Act & Assert
         for(int i = 0; i <= orderRound + 10; i++){
@@ -31,7 +33,8 @@ class GoodTillEndOfTurnOrderTest {
         // Arrange
         final int amount = 10;
         final int orderRound = 1;
-        GoodTillEndOfTurnOrder orderExpiryByAmmountBeforeRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, 0, amount, 1, 0, orderRound);
+        StockCompany company = new StockCompany(1, "A");
+        GoodTillEndOfTurnOrder orderExpiryByAmmountBeforeRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, company, amount, 1, 0, orderRound);
 
         // Act
         boolean isExpiredBefore = orderExpiryByAmmountBeforeRound.isExpired(0);
@@ -51,7 +54,8 @@ class GoodTillEndOfTurnOrderTest {
         // Arrange
         final int amount = 10;
         final int orderRound = 0;
-        GoodTillEndOfTurnOrder orderExpiryByRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, 0, amount, 1, 0, orderRound);
+        StockCompany company = new StockCompany(1, "A");
+        GoodTillEndOfTurnOrder orderExpiryByRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, company, amount, 1, 0, orderRound);
 
         // Act
         boolean isExpiredBefore = orderExpiryByRound.isExpired(0);

@@ -32,7 +32,7 @@ class RoundProcessing {
     @Test
     void orders3() {
         final int investorsCount=5;
-        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "Company 0")};
+        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "AAA")};
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
@@ -40,23 +40,23 @@ class RoundProcessing {
         Order[] orders = new Order[investorsCount];
 
         investorService.addFunds(0, 150*100);
-        orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), 0,150, 100, 0);
+        orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), stockCompanies[0],150, 100, 0);
         sheetsOrder.insertOrder(orders[0]);
 
         investorService.addStock(1, 0, 100);
-        orders[1]=new FillOrKillOrder(1, OrderType.SALE, investors[1].getId(), 0, 100, 100, 0);
+        orders[1]=new FillOrKillOrder(1, OrderType.SALE, investors[1].getId(), stockCompanies[0], 100, 100, 0);
         sheetsOrder.insertOrder(orders[1]);
 
         investorService.addStock(2,0,100);
-        orders[2]=new FillOrKillOrder(2, OrderType.SALE, investors[2].getId(), 0, 100, 100, 0);
+        orders[2]=new FillOrKillOrder(2, OrderType.SALE, investors[2].getId(), stockCompanies[0], 100, 100, 0);
         sheetsOrder.insertOrder(orders[2]);
 
         investorService.addFunds(3, 200*100);
-        orders[3]=new FillOrKillOrder(3, OrderType.BUY, investors[3].getId(), 0, 200, 100, 0);
+        orders[3]=new FillOrKillOrder(3, OrderType.BUY, investors[3].getId(), stockCompanies[0], 200, 100, 0);
         sheetsOrder.insertOrder(orders[3]);
 
         investorService.addFunds(4, 1000*100);
-        orders[4]=new UnlimitedOrder(4, OrderType.BUY, investors[4].getId(), 0, 1000, 100, 0);
+        orders[4]=new UnlimitedOrder(4, OrderType.BUY, investors[4].getId(), stockCompanies[0], 1000, 100, 0);
         sheetsOrder.insertOrder(orders[4]);
 
         final int fundsSumBefore = sumFunds(investorService, investorsCount);
@@ -95,9 +95,9 @@ class RoundProcessing {
     @Test
     void orders1() {
         final int investorsCount=4;
-        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "Company 0"),
-                new StockCompany(1, "Company 1"),
-                new StockCompany(2, "Company 2")};
+        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "AAA"),
+                new StockCompany(1, "BBB"),
+                new StockCompany(2, "CCC")};
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
@@ -105,19 +105,19 @@ class RoundProcessing {
         Order[] orders = new Order[investorsCount];
 
         investorService.addStock(investors[0].getId(), 1, 10);
-        orders[0]=new FillOrKillOrder(0, OrderType.SALE, investors[0].getId(), 1,10, 100, 0);
+        orders[0]=new FillOrKillOrder(0, OrderType.SALE, investors[0].getId(), stockCompanies[1],10, 100, 0);
         sheetsOrder.insertOrder(orders[0]);
 
         investorService.addFunds(investors[1].getId(), 100*100);
-        orders[1]=new FillOrKillOrder(1, OrderType.BUY, investors[1].getId(), 1,100, 100, 0);
+        orders[1]=new FillOrKillOrder(1, OrderType.BUY, investors[1].getId(), stockCompanies[1],100, 100, 0);
         sheetsOrder.insertOrder(orders[1]);
 
         investorService.addFunds(investors[2].getId(), 100*100);
-        orders[2]=new FillOrKillOrder(2, OrderType.BUY, investors[2].getId(), 1,100, 100, 0);
+        orders[2]=new FillOrKillOrder(2, OrderType.BUY, investors[2].getId(), stockCompanies[1],100, 100, 0);
         sheetsOrder.insertOrder(orders[2]);
 
         investorService.addFunds(investors[3].getId(), 10*100);
-        orders[3]=new FillOrKillOrder(3, OrderType.BUY, investors[3].getId(), 1,10, 100, 0);
+        orders[3]=new FillOrKillOrder(3, OrderType.BUY, investors[3].getId(), stockCompanies[1],10, 100, 0);
         sheetsOrder.insertOrder(orders[3]);
 
         final int fundsSumBefore = sumFunds(investorService, investorsCount);
@@ -151,9 +151,9 @@ class RoundProcessing {
     @Test
     void orders2() {
         final int investorsCount=5;
-        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "Company 0"),
-                new StockCompany(1, "Company 1"),
-                new StockCompany(2, "Company 2")};
+        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "AAA"),
+                new StockCompany(1, "BBB"),
+                new StockCompany(2, "CCC")};
         final int stockId = 2;
         final int roundNo=1;
         // Arrange
@@ -163,23 +163,23 @@ class RoundProcessing {
         Order[] orders = new Order[investorsCount];
         
         investorService.addStock(investors[0].getId(), stockId, 100);
-        orders[0]=new FillOrKillOrder(0, OrderType.SALE, investors[0].getId(), stockId,100, 100, roundNo);
+        orders[0]=new FillOrKillOrder(0, OrderType.SALE, investors[0].getId(), stockCompanies[stockId],100, 100, roundNo);
         sheetsOrder.insertOrder(orders[0]);
 
         investorService.addStock(investors[1].getId(), stockId, 100);
-        orders[1]=new FillOrKillOrder(1, OrderType.SALE, investors[1].getId(), stockId,100, 100, roundNo);
+        orders[1]=new FillOrKillOrder(1, OrderType.SALE, investors[1].getId(), stockCompanies[stockId],100, 100, roundNo);
         sheetsOrder.insertOrder(orders[1]);
 
         investorService.addStock(investors[2].getId(), stockId, 99);
-        orders[2]=new FillOrKillOrder(2, OrderType.SALE, investors[2].getId(), stockId,99, 100, roundNo);
+        orders[2]=new FillOrKillOrder(2, OrderType.SALE, investors[2].getId(), stockCompanies[stockId],99, 100, roundNo);
         sheetsOrder.insertOrder(orders[2]);
         
         investorService.addFunds(investors[3].getId(), 99*100);
-        orders[3]=new FillOrKillOrder(3, OrderType.BUY, investors[3].getId(), stockId,99, 100, roundNo);
+        orders[3]=new FillOrKillOrder(3, OrderType.BUY, investors[3].getId(), stockCompanies[stockId],99, 100, roundNo);
         sheetsOrder.insertOrder(orders[3]);
         
         investorService.addFunds(investors[4].getId(), 100*100);
-        orders[4]=new FillOrKillOrder(4, OrderType.BUY, investors[4].getId(), stockId,100, 100, roundNo);
+        orders[4]=new FillOrKillOrder(4, OrderType.BUY, investors[4].getId(), stockCompanies[stockId],100, 100, roundNo);
         sheetsOrder.insertOrder(orders[4]);
         
         final int fundsSumBefore = sumFunds(investorService, investorsCount);
@@ -214,9 +214,9 @@ class RoundProcessing {
     @Test
     void example1() {
         final int investorsCount=3;
-        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "Company 0"),
-                new StockCompany(1, "Company 1"),
-                new StockCompany(2, "Company 2")};
+        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "AAA"),
+                new StockCompany(1, "BBB"),
+                new StockCompany(2, "CCC")};
         final int stockId = 0;
         final int roundNo=0;
         // Arrange
@@ -226,15 +226,15 @@ class RoundProcessing {
         Order[] orders = new Order[investorsCount];
         
         investorService.addFunds(investors[0].getId(), 100*1);
-        orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), stockId,100, 1, roundNo);
+        orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), stockCompanies[stockId],100, 1, roundNo);
         sheetsOrder.insertOrder(orders[0]);
 
         investorService.addFunds(investors[1].getId(), 100*1);
-        orders[1]=new FillOrKillOrder(1, OrderType.BUY, investors[1].getId(), stockId,100, 1, roundNo);
+        orders[1]=new FillOrKillOrder(1, OrderType.BUY, investors[1].getId(), stockCompanies[stockId],100, 1, roundNo);
         sheetsOrder.insertOrder(orders[1]);
 
         investorService.addStock(investors[2].getId(), stockId, 200);
-        orders[2]=new FillOrKillOrder(2, OrderType.SALE, investors[2].getId(), stockId,200, 1, roundNo);
+        orders[2]=new FillOrKillOrder(2, OrderType.SALE, investors[2].getId(), stockCompanies[stockId],200, 1, roundNo);
         sheetsOrder.insertOrder(orders[2]);
         
         final int fundsSumBefore = sumFunds(investorService, investorsCount);
@@ -272,9 +272,9 @@ class RoundProcessing {
     @Test
     void example2() {
         final int investorsCount=4;
-        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "Company 0"),
-                new StockCompany(1, "Company 1"),
-                new StockCompany(2, "Company 2")};
+        final StockCompany[] stockCompanies = new StockCompany[]{new StockCompany(0, "AAA"),
+                new StockCompany(1, "BBB"),
+                new StockCompany(2, "CCC")};
         final int stockId = 0;
         final int roundNo=0;
         // Arrange
@@ -284,19 +284,19 @@ class RoundProcessing {
         Order[] orders = new Order[investorsCount];
 
         investorService.addFunds(investors[0].getId(), 100*1);
-        orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), stockId,100, 1, roundNo);
+        orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), stockCompanies[stockId],100, 1, roundNo);
         sheetsOrder.insertOrder(orders[0]);
 
         investorService.addFunds(investors[1].getId(), 90*1);
-        orders[1]=new ImmediateOrder(1, OrderType.BUY, investors[1].getId(), stockId,90, 1, roundNo);
+        orders[1]=new ImmediateOrder(1, OrderType.BUY, investors[1].getId(), stockCompanies[stockId],90, 1, roundNo);
         sheetsOrder.insertOrder(orders[1]);
 
         investorService.addStock(investors[2].getId(), stockId, 90);
-        orders[2]=new FillOrKillOrder(2, OrderType.SALE, investors[2].getId(), stockId,90, 1, roundNo);
+        orders[2]=new FillOrKillOrder(2, OrderType.SALE, investors[2].getId(), stockCompanies[stockId],90, 1, roundNo);
         sheetsOrder.insertOrder(orders[2]);
         
         investorService.addStock(investors[3].getId(), stockId, 10);
-        orders[3]=new ImmediateOrder(3, OrderType.SALE, investors[3].getId(), stockId,10, 1, roundNo);
+        orders[3]=new ImmediateOrder(3, OrderType.SALE, investors[3].getId(), stockCompanies[stockId],10, 1, roundNo);
         sheetsOrder.insertOrder(orders[3]);
 
         final int fundsSumBefore = sumFunds(investorService, investorsCount);

@@ -1,5 +1,6 @@
 package stockMarket.orders;
 
+import stockMarket.core.StockCompany;
 import stockMarket.investors.Investor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -11,9 +12,10 @@ public class ComparingTest {
     @Test
     public void buyOrderByLimit() {
         // Arrange
-        Order biggestLimit = new ImmediateOrder(0,OrderType.BUY, 0, 1, 2, 100,1);
-        Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.BUY, 1, 1, 2, 99,1);
-        Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.BUY, 2, 1, 2, 99,2);
+        StockCompany company = new StockCompany(1, "A");
+        Order biggestLimit = new ImmediateOrder(0,OrderType.BUY, 0, company, 2, 100,1);
+        Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.BUY, 1, company, 2, 99,1);
+        Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.BUY, 2, company, 2, 99,2);
         
         // Act
         int resultsBiggestSmallerOne = biggestLimit.compareTo(smallerLimitRoundOne);
@@ -35,10 +37,10 @@ public class ComparingTest {
     @Test
     public void buyOrderByRound(){
         // Arrange
-
-        Order roundOne = new ImmediateOrder(0,OrderType.BUY, 0, 1, 2, 100,1);
-        Order roundTwo = new ImmediateOrder(1,OrderType.BUY, 1, 1, 2, 100,2);
-        Order roundTwoint = new ImmediateOrder(2,OrderType.BUY, 2, 1, 2, 100,2);
+        StockCompany company = new StockCompany(1, "A");
+        Order roundOne = new ImmediateOrder(0,OrderType.BUY, 0, company, 2, 100,1);
+        Order roundTwo = new ImmediateOrder(1,OrderType.BUY, 1, company, 2, 100,2);
+        Order roundTwoint = new ImmediateOrder(2,OrderType.BUY, 2, company, 2, 100,2);
         
         // Act
         int resultsRoundOneRoundTwo = roundOne.compareTo(roundTwo);
@@ -54,10 +56,11 @@ public class ComparingTest {
     @Test
     public void sellOrderByLimit() {
         // Arrange
+        StockCompany company = new StockCompany(1, "A");
         Investor investor = mock(Investor.class);
-        Order biggestLimit = new ImmediateOrder(0,OrderType.SALE, 0, 1, 2, 100,1);
-        Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.SALE, 1, 1, 2, 99,1);
-        Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.SALE, 2, 1, 2, 99,2);
+        Order biggestLimit = new ImmediateOrder(0,OrderType.SALE, 0, company, 2, 100,1);
+        Order smallerLimitRoundOne = new ImmediateOrder(1,OrderType.SALE, 1, company, 2, 99,1);
+        Order smallerLimitRoundTwo = new ImmediateOrder(2,OrderType.SALE, 2, company, 2, 99,2);
 
         // Act
         int resultsBiggestSmallerOne = biggestLimit.compareTo(smallerLimitRoundOne);
@@ -79,10 +82,11 @@ public class ComparingTest {
     @Test
     public void sellOrderByRound(){
         // Arrange
+        StockCompany company = new StockCompany(1, "A");
         Investor investor = mock(Investor.class);
-        Order roundOne = new ImmediateOrder(0,OrderType.SALE, 0, 1, 2, 100,1);
-        Order roundTwo = new ImmediateOrder(1,OrderType.SALE, 1, 1, 2, 100,2);
-        Order roundTwoint = new ImmediateOrder(2,OrderType.SALE, 2, 1, 2, 100,2);
+        Order roundOne = new ImmediateOrder(0,OrderType.SALE, 0, company, 2, 100,1);
+        Order roundTwo = new ImmediateOrder(1,OrderType.SALE, 1, company, 2, 100,2);
+        Order roundTwoint = new ImmediateOrder(2,OrderType.SALE, 2, company, 2, 100,2);
         
         // Act
         int resultsRoundOneRoundTwo = roundOne.compareTo(roundTwo);
