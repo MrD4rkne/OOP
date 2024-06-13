@@ -56,7 +56,7 @@ class RoundProcessing {
         sheetsOrder.insertOrder(orders[3]);
 
         investorService.addFunds(4, 1000*100);
-        orders[4]=new GoodTillCancelledOrder(4, OrderType.BUY, investors[4].getId(), 0, 1000, 100, 0);
+        orders[4]=new UnlimitedOrder(4, OrderType.BUY, investors[4].getId(), 0, 1000, 100, 0);
         sheetsOrder.insertOrder(orders[4]);
 
         final int fundsSumBefore = sumFunds(investorService, investorsCount);

@@ -1,5 +1,6 @@
 package stockMarket.investors;
 
+import stockMarket.core.StockCompany;
 import stockMarket.orders.Order;
 import stockMarket.orders.OrderType;
 import stockMarket.stock.IReadonlySheet;
@@ -68,6 +69,14 @@ public class OrderGatherer implements IOrderGatherer {
         validateOrder(order, investor);
         order.setId(nextOrderId++);
         ordersToAdd.add(order);
+    }
+
+    @Override
+    public StockCompany getStock(int companyId) {
+        if (companyId < 0 || companyId >= sheets.length) {
+            throw new IllegalArgumentException("Invalid stock index");
+        }
+        return sheets[companyId].getStockCompany();
     }
 
     private void validateOrder(Order order, Investor investor) {

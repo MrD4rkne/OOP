@@ -1,9 +1,9 @@
 package stockMarket.investors;
 
+import stockMarket.core.StockCompany;
 import stockMarket.orders.*;
 
 import java.util.Random;
-import java.util.logging.Logger;
 
 public class RandomInvestor extends Investor{
     private final static int PRICE_MARGIN = 10;
@@ -15,6 +15,7 @@ public class RandomInvestor extends Investor{
         this.random = new Random();
     }
     
+    // todo: max round number ?
     @Override
     public void makeOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet) {
         // Choose order type & company.
@@ -29,6 +30,8 @@ public class RandomInvestor extends Investor{
                 return;
             }
         }
+        
+        StockCompany company = transactionInfoProvider.getStock(companyId);
         
         // Calculate limit bounds.
         int minPrice = Math.max(1,transactionInfoProvider.getLastTransactionPrice(companyId) - PRICE_MARGIN);
@@ -48,16 +51,16 @@ public class RandomInvestor extends Investor{
         Order order = null;
         int orderMode = random.nextInt(4);
         order = switch (orderMode) {
-            case 0 -> new GoodTillCancelledOrder(orderType, getId(), companyId, amount, price,
+            case 0 -> new UnlimitedOrder(orderType, getId(), company, amount, price,
                     transactionInfoProvider.getCurrentRoundNo());
             case 1 ->
-                    new FillOrKillOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo());
+                    new FillOrKillOrder(orderType, getId(), company, amount, price, transactionInfoProvider.getCurrentRoundNo());
             case 2 -> {
                 int lastRound = transactionInfoProvider.getCurrentRoundNo() + random.nextInt(1, MAX_ROUND_NO);
-                yield new GoodTillEndOfTurnOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo(), lastRound);
+                yield new GoodTillEndOfTurnOrder(orderType, getId(), company, amount, price, transactionInfoProvider.getCurrentRoundNo(), lastRound);
             }
             case 3 ->
-                    new ImmediateOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo());
+                    new ImmediateOrder(orderType, getId(), company, amount, price, transactionInfoProvider.getCurrentRoundNo());
             default -> order;
         };
         

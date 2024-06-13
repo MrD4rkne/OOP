@@ -45,4 +45,9 @@ public record TransactionInfo(Order buyOrder, Order sellOrder, int amount, int r
         }
         return buyOrder.equals(other.buyOrder) && sellOrder.equals(other.sellOrder) && amount == other.amount && rate == other.rate && roundNo == other.roundNo;
     }
+    
+    @Override
+    public String toString() {
+        return "stock: " + buyOrder.getStockCompany().getName() + ", amount: " + amount + ", rate: " + rate + ", round: " + roundNo + " | sell order: " + sellOrder.getId() + " | buy order: " + buyOrder.getId();
+    }
 }

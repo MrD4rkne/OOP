@@ -57,19 +57,27 @@ public class OrderSheet implements ISheet {
         int i = 0;
         
         List<TransactionInfo> transactionsForThisRound = new ArrayList<>();
+        
+        List<Order> tempBuyOrders = new ArrayList<>(buyOrders);
+        List<Order> tempSaleOrders = new ArrayList<>(saleOrders);
 
-        while(!buyOrders.isEmpty() || !saleOrders.isEmpty()){
-            Order orderToProcess = getNextOrderToProcess(buyOrders, saleOrders, roundNo);
+        while(!tempBuyOrders.isEmpty() || !tempSaleOrders.isEmpty()){
+            Order orderToProcess = getNextOrderToProcess(tempBuyOrders, tempSaleOrders, roundNo);
             if(orderToProcess == null)
                 break;
             
-            List<TransactionInfo> transactions = tryProcess(orderToProcess, buyOrders.iterator(), saleOrders.iterator(), roundNo,i++);
+            if(orderToProcess.isExpired(roundNo))
+                continue;
+            
+            
+            
+            List<TransactionInfo> transactions = tryProcess(orderToProcess, tempBuyOrders.iterator(), tempSaleOrders.iterator(), roundNo,i++);
             if(transactions.isEmpty()){
                 if(orderToProcess.getType() == OrderType.BUY){
-                    buyOrders.remove(orderToProcess);
+                    tempBuyOrders.remove(orderToProcess);
                 }
                 else {
-                    saleOrders.remove(orderToProcess);
+                    tempSaleOrders.remove(orderToProcess);
                 }
             }
             transactionsForThisRound.addAll(transactions);
@@ -119,16 +127,16 @@ public class OrderSheet implements ISheet {
     }
 
     private List<TransactionInfo> tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
-        if(orderToProcess.isExpired(roundNo)){
-            return Collections.emptyList();
-        }
-
         List<TransactionInfo> transactions = new ArrayList<>();
         int currentDemand = orderToProcess.getAmount();
         Order currentOrder = orderToProcess;
 
         while(!wasProperlyProcessed(currentOrder, currentDemand)){
             try {
+                if(orderToProcess.isExpired(roundNo)){
+                    return Collections.emptyList();
+                }
+                
                 Order possibleOrder = currentOrder.getType() == OrderType.SALE ? buyOrders.next() : sellOrders.next();
                 if(possibleOrder == orderToProcess)
                     continue;
@@ -145,7 +153,7 @@ public class OrderSheet implements ISheet {
                     continue;
 
                 TransactionInfo possibleTransaction = result.getTransaction();
-                if(currentDemand < possibleOrder.getAmount()){
+                if(possibleTransaction.amount() < possibleOrder.getAmount()){
                     currentDemand = possibleOrder.getAmount()-possibleTransaction.amount();
                     currentOrder = possibleOrder;
                 }else{
@@ -162,25 +170,31 @@ public class OrderSheet implements ISheet {
         if(!wasProperlyProcessed(currentOrder, currentDemand))
             return Collections.emptyList();
 
-        transactions.forEach(this::finalizeTransaction);
+        for (TransactionInfo transaction : transactions) {
+            finalizeTransaction(transaction);
+        }
 
         return transactions;
     }
 
     private void finalizeTransaction(TransactionInfo transaction){
-        int buyerId = transaction.buyOrder().getInvestorId();
-        int sellerId = transaction.sellOrder().getInvestorId();
+        try {
+            int buyerId = transaction.buyOrder().getInvestorId();
+            int sellerId = transaction.sellOrder().getInvestorId();
 
-        transaction.buyOrder().complete(transaction.roundNo(), transaction.amount());
-        transaction.sellOrder().complete(transaction.roundNo(), transaction.amount());
+            transaction.buyOrder().complete(transaction.roundNo(), transaction.amount());
+            transaction.sellOrder().complete(transaction.roundNo(), transaction.amount());
 
-        investorService.addStock(buyerId, stockCompany.getId(), transaction.amount());
-        investorService.removeStock(sellerId, stockCompany.getId(), transaction.amount());
+            investorService.addStock(buyerId, stockCompany.getId(), transaction.amount());
+            investorService.removeStock(sellerId, stockCompany.getId(), transaction.amount());
 
-        investorService.removeFunds(buyerId, transaction.getTotalValue());
-        investorService.addFunds(sellerId, transaction.getTotalValue());
-        
-        lastTransactionRate = transaction.rate();
+            investorService.removeFunds(buyerId, transaction.getTotalValue());
+            investorService.addFunds(sellerId, transaction.getTotalValue());
+
+            lastTransactionRate = transaction.rate();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     private InitTransactionResult tryInitTransaction(Order currentOrder, int currentDemand, int roundNo, int processId, Order possibleOrder)

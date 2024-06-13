@@ -1,13 +1,15 @@
 package stockMarket.orders;
 
+import stockMarket.core.StockCompany;
+
 public class FillOrKillOrder extends Order{
     
-    public FillOrKillOrder(OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo) {
-        this(0,type, investorId, stockId, amount, limit, firstRoundNo);
+    public FillOrKillOrder(OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo) {
+        this(0,type, investorId, stockCompany, amount, limit, firstRoundNo);
     }
     
-    public FillOrKillOrder(int id,OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo) {
-        super(id,type, investorId, stockId, amount, limit, firstRoundNo);
+    public FillOrKillOrder(int id,OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo) {
+        super(id,type, investorId, stockCompany, amount, limit, firstRoundNo);
     }
 
     @Override
@@ -22,5 +24,10 @@ public class FillOrKillOrder extends Order{
         }
         
         return roundNo>getFirstRoundNo();
+    }
+
+    @Override
+    protected String acronim(){
+        return "FK";
     }
 }

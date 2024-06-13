@@ -1,5 +1,7 @@
 package stockMarket.investors;
 
+import stockMarket.core.StockCompany;
+
 public interface IInvestorService extends IReadonlyInvestorService {
     Investor registerInvestor(Investor investor);
 
@@ -16,6 +18,10 @@ public interface IInvestorService extends IReadonlyInvestorService {
     boolean hasStock(int investorId, int stockId, int amount);
 
     void removeStock(int investorId, int stockId, int amount);
+    
+    StockCompany[] getStockCompanies();
+    
+    StockCompany getStockCompany(int stockId);
     
     String toString();
 }

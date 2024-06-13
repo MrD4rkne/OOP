@@ -1,15 +1,17 @@
 package stockMarket.orders;
 
+import stockMarket.core.StockCompany;
+
 public class GoodTillEndOfTurnOrder extends Order{
 
     private final int dueRoundNo;
     
-    public GoodTillEndOfTurnOrder(OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo, int dueRoundNo) {
-        this(0,type, investorId, stockId,amount,limit, firstRoundNo,  dueRoundNo);
+    public GoodTillEndOfTurnOrder(OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo, int dueRoundNo) {
+        this(0,type, investorId, stockCompany,amount,limit, firstRoundNo,  dueRoundNo);
     }
 
-    public GoodTillEndOfTurnOrder(int id,OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo, int dueRoundNo) {
-        super(id,type, investorId, stockId, amount, limit, firstRoundNo);
+    public GoodTillEndOfTurnOrder(int id,OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo, int dueRoundNo) {
+        super(id,type, investorId, stockCompany, amount, limit, firstRoundNo);
         if(dueRoundNo < 0) {
             throw new IllegalArgumentException("Due round number cannot be negative");
         }
@@ -25,5 +27,15 @@ public class GoodTillEndOfTurnOrder extends Order{
             return true;
         }
         return super.isExpired(roundNo);
+    }
+
+    @Override
+    protected String acronim(){
+        return "TR";
+    }
+    
+    @Override
+    public String toString() {
+        return super.toString() + ", due round: " + dueRoundNo;
     }
 }

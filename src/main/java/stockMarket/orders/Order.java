@@ -1,5 +1,9 @@
 package stockMarket.orders;
 
+import stockMarket.core.StockCompany;
+
+import javax.swing.*;
+
 public abstract class Order implements Comparable<Order> {
     private int id;
 
@@ -7,7 +11,7 @@ public abstract class Order implements Comparable<Order> {
     
     private int amount;
     
-    private final int stockId;
+    private final StockCompany stockCompany;
     
     private final int firstRoundNo;
     
@@ -17,19 +21,16 @@ public abstract class Order implements Comparable<Order> {
 
     private boolean isCancelled;
 
-    public Order(OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo){
-        this(-1, type, investorId, stockId, amount, limit, firstRoundNo);
+    public Order(OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo){
+        this(-1, type, investorId, stockCompany, amount, limit, firstRoundNo);
     }
     
-    public Order(int id, OrderType type, int investorId, int stockId, int amount, int limit, int firstRoundNo) {
+    public Order(int id, OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo) {
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
         if(limit <= 0) {
             throw new IllegalArgumentException("Limit cannot be non-positive");
-        }
-        if(stockId < 0) {
-            throw new IllegalArgumentException("Stock ID cannot be negative");
         }
         if(firstRoundNo < 0) {
             throw new IllegalArgumentException("First round number cannot be negative");
@@ -42,7 +43,7 @@ public abstract class Order implements Comparable<Order> {
         this.type = type;
         this.amount = amount;
         this.limit=limit;
-        this.stockId = stockId;
+        this.stockCompany = stockCompany;
         this.firstRoundNo = firstRoundNo;
         this.investorId = investorId;
         this.isCancelled = false;
@@ -62,8 +63,12 @@ public abstract class Order implements Comparable<Order> {
     
     public int getLimit() { return limit; }
     
+    public StockCompany getStockCompany() {
+        return stockCompany;
+    }
+    
     public int getStockId() {
-        return stockId;
+        return stockCompany.getId();
     }
     
     public int getFirstRoundNo() {
@@ -100,7 +105,7 @@ public abstract class Order implements Comparable<Order> {
             throw new IllegalArgumentException("Amount cannot be greater than order amount");
         }
         if(isExpired(roundNo))
-            throw new IllegalStateException("Order is expired");
+            throw new IllegalStateException("Order is expired: " + this);
 
         this.amount -= amount;
     }
@@ -157,22 +162,16 @@ public abstract class Order implements Comparable<Order> {
             return false;
         }
         return id== other.getId() && type == other.getType() && amount == other.getAmount() 
-                && stockId == other.getStockId() && firstRoundNo == other.getFirstRoundNo()
+                && getStockCompany().equals(other.getStockCompany()) && firstRoundNo == other.getFirstRoundNo()
                 && limit == other.getLimit()
                 && investorId == other.getInvestorId();
     }
+    
+    protected abstract String acronim();
 
     @Override
     public String toString() {
-        return "Order{" +
-                "id=" + id +
-                ", type=" + type +
-                ", amount=" + amount +
-                ", stockId=" + stockId +
-                ", firstRoundNo=" + firstRoundNo +
-                ", limit=" + limit +
-                ", investorId=" + investorId +
-                ", isCancelled=" + isCancelled +
-                '}';
+        return acronim() + " id=" + id + ", type=" + type + ", amount=" + amount + ", company=" + stockCompany.getName() + ", firstRoundNo="
+                + firstRoundNo + ", limit=" + limit + ", investorId=" + investorId;
     }
 }

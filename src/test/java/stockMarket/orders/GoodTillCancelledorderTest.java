@@ -11,7 +11,7 @@ public class GoodTillCancelledorderTest {
         final int firstComplete = (int)Math.ceil(ammount/3.0);
         final int secondComplete = (int)Math.ceil(ammount/2.0);
         final int finalComplete = ammount - firstComplete -secondComplete;
-        GoodTillCancelledOrder goodTillCancelledOrder = new GoodTillCancelledOrder(0,OrderType.SALE, 0, 0, ammount, 2, 0);
+        UnlimitedOrder goodTillCancelledOrder = new UnlimitedOrder(0,OrderType.SALE, 0, 0, ammount, 2, 0);
 
         // Act
         boolean isExpiredBefore = goodTillCancelledOrder.isExpired(0);

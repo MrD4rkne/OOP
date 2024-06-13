@@ -120,6 +120,20 @@ public class InvestorService implements IInvestorService {
     }
 
     @Override
+    public StockCompany[] getStockCompanies() {
+        return Arrays.copyOf(stockCompanies, stockCompanies.length);
+    }
+
+    @Override
+    public StockCompany getStockCompany(int stockId) {
+        if(stockId<0 || stockId>=stockCompanies.length){
+            throw new IllegalArgumentException("Stock with this id does not exist");
+        }
+        
+        return stockCompanies[stockId];
+    }
+
+    @Override
     public int getStockAmount(int investorId, int stockId) {
         Optional<InvestorWallet> walletToRemoveStock = getWalletByInvestorId(investorId);
         if(walletToRemoveStock.isEmpty()){
