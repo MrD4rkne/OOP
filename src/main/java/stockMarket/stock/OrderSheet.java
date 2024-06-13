@@ -69,8 +69,6 @@ public class OrderSheet implements ISheet {
             if(orderToProcess.isExpired(roundNo))
                 continue;
             
-            
-            
             List<TransactionInfo> transactions = tryProcess(orderToProcess, tempBuyOrders.iterator(), tempSaleOrders.iterator(), roundNo,i++);
             if(transactions.isEmpty()){
                 if(orderToProcess.getType() == OrderType.BUY){

@@ -36,9 +36,9 @@ public class TradingSystem implements ITradingSystem {
         logger.startRound(roundNo);
         askInvestorsForOrders();
         
-//        for(OrderSheet sheetsOrder : sheetsOrders){
-//            logger.logSheet(sheetsOrder);
-//        }
+        for(OrderSheet sheetsOrder : sheetsOrders){
+            logger.logSheet(sheetsOrder);
+        }
         
         processStocks();
         roundNo++;
