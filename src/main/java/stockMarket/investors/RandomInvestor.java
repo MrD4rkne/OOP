@@ -3,6 +3,7 @@ package stockMarket.investors;
 import stockMarket.orders.*;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class RandomInvestor extends Investor{
     private final static int PRICE_MARGIN = 10;
@@ -16,37 +17,49 @@ public class RandomInvestor extends Investor{
     
     @Override
     public void makeOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet) {
+        // Choose order type & company.
         OrderType orderType = random.nextInt(2) == 0 ? OrderType.BUY : OrderType.SALE;
         int companyId = chooseStock(wallet, transactionInfoProvider, orderType);
         if(companyId == -1) {
-            // cannot make any order
-            return;
+            // try other order type.
+            orderType = orderType == OrderType.BUY ? OrderType.SALE : OrderType.BUY;
+            companyId = chooseStock(wallet, transactionInfoProvider, orderType);
+            // Both types are impossible.
+            if(companyId == -1) {
+                return;
+            }
         }
         
-        int minPrice = transactionInfoProvider.getLastTransactionPrice(companyId) - PRICE_MARGIN;
+        // Calculate limit bounds.
+        int minPrice = Math.max(1,transactionInfoProvider.getLastTransactionPrice(companyId) - PRICE_MARGIN);
         int maxPrice = transactionInfoProvider.getLastTransactionPrice(companyId) + PRICE_MARGIN;
         
-        int amount = random.nextInt(1, Math.min(wallet.getShares(companyId).getAmount(), wallet.getFunds() / minPrice));
-        int price = random.nextInt(minPrice, Math.min(maxPrice,wallet.getFunds() / amount));
+        int maxAmount = orderType == OrderType.BUY ? wallet.getFunds() / minPrice : wallet.getShares(companyId).getAmount();
+        
+        int amount = random.nextInt(1, maxAmount+1);
+        if(orderType == OrderType.BUY) {
+            int maxPriceForAmount = wallet.getFunds() / amount;
+            maxPrice = Math.min(maxPrice, maxPriceForAmount);
+        }
+        
+        int price = random.nextInt(minPrice, maxPrice+1);
 
+        // Create order.
         Order order = null;
         int orderMode = random.nextInt(4);
-        switch (orderMode) {
-            case 0:
-                order = new GoodTillCancelledOrder(orderType,getId(), companyId, amount, price,
-                        transactionInfoProvider.getCurrentRoundNo());
-                break;
-            case 1:
-                order = new FillOrKillOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo());
-                break;
-            case 2:
+        order = switch (orderMode) {
+            case 0 -> new GoodTillCancelledOrder(orderType, getId(), companyId, amount, price,
+                    transactionInfoProvider.getCurrentRoundNo());
+            case 1 ->
+                    new FillOrKillOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo());
+            case 2 -> {
                 int lastRound = transactionInfoProvider.getCurrentRoundNo() + random.nextInt(1, MAX_ROUND_NO);
-                order = new GoodTillEndOfTurnOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo(), lastRound);
-                break;
-            case 3:
-                order = new ImmediateOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo());
-                break;
-        }
+                yield new GoodTillEndOfTurnOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo(), lastRound);
+            }
+            case 3 ->
+                    new ImmediateOrder(orderType, getId(), companyId, amount, price, transactionInfoProvider.getCurrentRoundNo());
+            default -> order;
+        };
         
         transactionInfoProvider.addOrder(this,order);
     }
@@ -64,7 +77,7 @@ public class RandomInvestor extends Investor{
             toBeChecked--;
             
             if(orderType == OrderType.BUY) {
-                if(wallet.getFunds() <=transactionInfoProvider.getLastTransactionPrice(stock)-PRICE_MARGIN) {
+                if(wallet.getFunds() <transactionInfoProvider.getLastTransactionPrice(stock)-PRICE_MARGIN) {
                     continue;
                 }
             } else {

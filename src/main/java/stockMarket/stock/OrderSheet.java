@@ -213,12 +213,12 @@ public class OrderSheet implements ISheet {
             return InitTransactionResult.notEnoughFunds();
         }
 
-        int transactionFunds = possibleAmount * transactionRate;
+        int transactionFunds = stockAmountForWholeTransaction * transactionRate;
         buyersWallet.removeFunds(transactionFunds);
-        buyersWallet.addStock(possibleAmount);
-        sellersWallet.removeStock(possibleAmount);
+        buyersWallet.addStock(stockAmountForWholeTransaction);
+        sellersWallet.removeStock(stockAmountForWholeTransaction);
         sellersWallet.addFunds(transactionFunds);
-        return InitTransactionResult.successful(new TransactionInfo(buyOrder, sellOrder, possibleAmount, transactionRate, roundNo));
+        return InitTransactionResult.successful(new TransactionInfo(buyOrder, sellOrder, stockAmountForWholeTransaction, transactionRate, roundNo));
     }
 
     private SingleStockWallet updateWalletIfNecessary(int investorId, int processId){
