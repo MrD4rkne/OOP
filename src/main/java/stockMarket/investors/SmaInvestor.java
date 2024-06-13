@@ -4,6 +4,7 @@ import stockMarket.core.StockCompany;
 import stockMarket.orders.*;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class SmaInvestor extends Investor{
     private final int RATE_INTERVAL = 10;
@@ -49,7 +50,16 @@ public class SmaInvestor extends Investor{
 
         OrderType orderType = sma == SMA.BUY ? OrderType.BUY : OrderType.SALE;
         Order order = InvestorHelper.createRandomTypeOrder(random, orderType, getId(), transactionInfoProvider.getStock(stockId), amount, limit, transactionInfoProvider.getCurrentRoundNo());
-        transactionInfoProvider.addOrder(this,order);
+        try{
+            transactionInfoProvider.addOrder(this,order);
+        }catch(Exception e){
+            Logger.getGlobal().severe("Error while adding order." + e.getMessage());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return getId() + ": SMA Investor";
     }
 
     private boolean hasEnoughMoney(InvestorWalletVm wallet, ITransactionInfoProvider transactionInfoProvider, int stockId){

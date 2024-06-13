@@ -153,6 +153,18 @@ public class InvestorService implements IInvestorService {
         ShareVm[] stockVms = wallet.getShares().stream().map(stock -> new ShareVm(stock.getStockCompany(), stock.getAmount())).toArray(ShareVm[]::new);
         return new InvestorWalletVm(wallet.getInvestorId(), wallet.getFunds(), stockVms);
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i<investors.size(); i++){
+            sb.append(investors.get(i).toString());
+            sb.append(": ");
+            sb.append(wallets.get(i).toString());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
 
     private Optional<InvestorWallet> getWalletByInvestorId(int investorId){
         return wallets.stream().filter(wallet -> wallet.getInvestorId() == investorId).findFirst();

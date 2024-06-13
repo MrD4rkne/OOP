@@ -12,25 +12,27 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String path = System.getProperty("user.dir");
         if(args.length != 2){
-            System.out.println("Usage: <roundsCount> <inputFile>");
+            System.out.println("Usage: <inputFile> <roundsCount>");
+            System.exit(1);
+            return;
+        }
+
+        Integer roundsCount = ScannerHelper.tryParseInt(args[1]);
+        if(roundsCount == null || roundsCount <= 0){
+            System.out.println("Invalid rounds count");
             System.exit(1);
             return;
         }
         
-        try(Scanner scanner = new Scanner(new File(args[1]))) {
+        try(Scanner scanner = new Scanner(new File(args[0]))) {
             ISimulationBuilder simulationBuilder = new SimulationBuilder(scanner);
-            Integer roundsCount = ScannerHelper.tryParseInt(args[0]);
-            if(roundsCount == null || roundsCount <= 0){
-                System.out.println("Invalid rounds count");
-                System.exit(1);
-                return;
-            }
             SimulationData simulationData = simulationBuilder.buildSimulation();
             
             System.out.println("Simulation data:");
             System.out.println(simulationData);
+            
+            System.out.println("Starting simulation");
             
             IInvestorService investorService = new InvestorService(simulationData.getCompanies());
             seedInvestors(investorService, simulationData);
@@ -39,6 +41,10 @@ public class Main {
             for(int i = 0; i < roundsCount; i++){
                 tradingSystem.nextRound();
             }
+            
+            System.out.println("Simulation finished");
+            System.out.println("Investors:");
+            System.out.println(investorService);
             
         }
         catch(FileNotFoundException e){

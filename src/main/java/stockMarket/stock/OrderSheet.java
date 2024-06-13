@@ -41,10 +41,10 @@ public class OrderSheet implements ISheet {
     public void insertOrder(Order order) {
         switch (order.getType()) {
             case BUY:
-                binInsert(buyOrders, order);
+                buyOrders.add(order);
                 break;
             case SALE:
-                binInsert(saleOrders, order);
+                saleOrders.add(order);
                 break;
             default:
                 throw new IllegalArgumentException("Unknown order type");
@@ -53,13 +53,14 @@ public class OrderSheet implements ISheet {
     
     public List<TransactionInfo> processOrders(int roundNo){
         prepareTemporaryWallets();
-
-        int i = 0;
-
-        List<TransactionInfo> transactionsForThisRound = new ArrayList<>();
-
+        
+        Collections.sort(buyOrders);
+        Collections.sort(saleOrders);
+        
         List<Order> tempBuyOrders = new ArrayList<>(buyOrders);
         List<Order> tempSaleOrders = new ArrayList<>(saleOrders);
+        List<TransactionInfo> transactionsForThisRound = new ArrayList<>();
+        int innerLoopProcessNo = 0; // Used to verify if temporaries wallets are up-to-date.
 
         while(!tempBuyOrders.isEmpty() || !tempSaleOrders.isEmpty()){
             Order orderToProcess = getNextOrderToProcess(tempBuyOrders, tempSaleOrders, roundNo);
@@ -69,7 +70,7 @@ public class OrderSheet implements ISheet {
             if(orderToProcess.isExpired(roundNo))
                 continue;
 
-            List<TransactionInfo> transactions = tryProcess(orderToProcess, tempBuyOrders.iterator(), tempSaleOrders.iterator(), roundNo,i++);
+            List<TransactionInfo> transactions = tryProcess(orderToProcess, tempBuyOrders.iterator(), tempSaleOrders.iterator(), roundNo,innerLoopProcessNo++);
             if(transactions.isEmpty()){
                 if(orderToProcess.getType() == OrderType.BUY){
                     tempBuyOrders.remove(orderToProcess);
@@ -204,8 +205,8 @@ public class OrderSheet implements ISheet {
         Order buyOrder = currentOrder.getType() == OrderType.BUY ? currentOrder : possibleOrder;
         Order sellOrder = currentOrder.getType() == OrderType.SALE ? currentOrder : possibleOrder;
 
-        SingleStockWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestorId(), processId);
-        SingleStockWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestorId(), processId);
+        SingleStockWallet buyersWallet = updateWalletIfNecessary(buyOrder.getInvestorId(), roundNo,processId);
+        SingleStockWallet sellersWallet = updateWalletIfNecessary(sellOrder.getInvestorId(), roundNo, processId);
 
         int stockAmountForWholeTransaction = Math.min(currentDemand,Math.min(buyOrder.getAmount(), sellOrder.getAmount()));
         int transactionRate = getTransactionRate(buyOrder, sellOrder);
@@ -233,12 +234,12 @@ public class OrderSheet implements ISheet {
         return InitTransactionResult.successful(new TransactionInfo(buyOrder, sellOrder, stockAmountForWholeTransaction, transactionRate, roundNo));
     }
 
-    private SingleStockWallet updateWalletIfNecessary(int investorId, int processId){
+    private SingleStockWallet updateWalletIfNecessary(int investorId, int roundNo, int processId){
         SingleStockWallet wallet = temporaryWallets.get(investorId);
-        if(wallet.getProcessCounter() != processId) {
+        if(wallet.getRoundNo() != roundNo || wallet.getProcessCounter() != processId) {
             int stockAmount = investorService.getStockAmount(investorId, stockCompany.getId());
             int funds = investorService.getFunds(investorId);
-            wallet.setProcessInfo(processId, funds, stockAmount);
+            wallet.setProcessInfo(roundNo,processId, funds, stockAmount);
         }
         return wallet;
     }
@@ -247,27 +248,6 @@ public class OrderSheet implements ISheet {
         if(!doOrdersMatch(orderA, orderB))
             throw new IllegalArgumentException("Orders do not match");
         return orderA.compareTo(orderB) < 0 ? orderA.getLimit() : orderB.getLimit();
-    }
-
-    private void binInsert(List<Order> list, Order order){
-        int left = 0;
-        int right = list.size();
-        while(left < right){
-            int mid = (left+right)/2;
-            if(list.get(mid).compareTo(order) < 0){
-                left = mid+1;
-            }else{
-                right = mid;
-            }
-        }
-
-        int index = left;
-        list.add(order);
-
-        for(int i = list.size()-1; i > index; i--){
-            list.set(i, list.get(i-1));
-        }
-        list.set(index, order);
     }
 
     private boolean wasProperlyProcessed(Order order, int currentDemand){

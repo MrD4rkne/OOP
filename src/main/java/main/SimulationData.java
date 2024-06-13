@@ -3,6 +3,7 @@ package main;
 import stockMarket.core.StockCompany;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class SimulationData{
@@ -71,5 +72,13 @@ public class SimulationData{
     
     public int getStartingFundAmount(){
         return startingFundAmount;
+    }
+    
+    @Override
+    public String toString() {
+        return "Companies: " + companies + "\n"+
+                "Starting rates:" + companiesStartingPrices + "\n"+
+                "Investors: Random = " + randomInvestorsCount + ", SMA = " + smaInvestorCount + "\n"+
+                "Wallets on start: Funds = " + getStartingFundAmount() + ", shares amounts: " + Arrays.toString(startingAmounts) + "\n";
     }
 }

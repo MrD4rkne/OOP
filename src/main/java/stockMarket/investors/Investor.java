@@ -15,4 +15,6 @@ public abstract class Investor {
     }
 
     public abstract void makeOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet);
+    
+    public abstract String toString();
 }

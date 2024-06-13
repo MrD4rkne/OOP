@@ -69,4 +69,19 @@ public class InvestorWallet extends Wallet {
             shares.add(new Share(stockCompany, 0));
         }
     }
+    
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getFunds());
+        sb.append(" ");
+        for(int i = 0; i < shares.size(); i++) {
+            Share share = this.shares.get(i);
+            sb.append(share.getStockCompany().getName());
+            sb.append(": ");
+            sb.append(share.getAmount());
+            if(i < shares.size() - 1) sb.append(" ");
+        }
+        return sb.toString();
+    }
 }

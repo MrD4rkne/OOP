@@ -7,6 +7,7 @@ public class SingleStockWallet extends Wallet {
 
     private int stockAmount;
     private int processCounter;
+    private int roundNo;
 
     public SingleStockWallet(int investorId, int funds, int stockAmount) {
         super(investorId, funds);
@@ -17,7 +18,10 @@ public class SingleStockWallet extends Wallet {
         this.processCounter = NEVER_ACCESSED;
     }
 
-    public void setProcessInfo(int processCounter, int funds, int stockAmount) {
+    public void setProcessInfo(int roundNo, int processCounter, int funds, int stockAmount) {
+        if(roundNo < 0) {
+            throw new IllegalArgumentException("Round number cannot be negative");
+        }
         if(processCounter < 0) {
             throw new IllegalArgumentException("Process counter cannot be negative");
         }
@@ -27,7 +31,7 @@ public class SingleStockWallet extends Wallet {
         if(stockAmount < 0) {
             throw new IllegalArgumentException("Stock amount cannot be negative");
         }
-
+        this.roundNo = roundNo;
         this.processCounter = processCounter;
         this.stockAmount = stockAmount;
         this.funds = funds;
@@ -62,5 +66,9 @@ public class SingleStockWallet extends Wallet {
         }
 
         stockAmount -= amount;
+    }
+
+    public int getRoundNo() {
+        return roundNo;
     }
 }

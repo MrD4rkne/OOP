@@ -4,10 +4,10 @@ import stockMarket.core.StockCompany;
 import stockMarket.orders.*;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 public class RandomInvestor extends Investor{
     private final static int PRICE_MARGIN = 10;
-    private final static int MAX_ROUND_NO = 100;
     
     private final Random random;
     
@@ -15,7 +15,6 @@ public class RandomInvestor extends Investor{
         this.random = new Random();
     }
     
-    // todo: max round number ?
     @Override
     public void makeOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet) {
         // Choose order type & company.
@@ -34,7 +33,16 @@ public class RandomInvestor extends Investor{
         }
         
         Order order = InvestorHelper.createRandomTypeOrder(random, orderType, getId(), transactionInfoProvider.getStock(stock), amount, limit, transactionInfoProvider.getCurrentRoundNo());
-        transactionInfoProvider.addOrder(this,order);
+        try{
+            transactionInfoProvider.addOrder(this,order);
+        }catch(Exception e){
+            Logger.getGlobal().severe("Error while adding order." + e.getMessage());
+        }
     }
-    
+
+    @Override
+    public String toString() {
+        return getId() + ": Random Investor";
+    }
+
 }
