@@ -3,10 +3,7 @@ package main;
 import jdk.jshell.spi.ExecutionEnv;
 import stockMarket.core.ITradingSystem;
 import stockMarket.core.TradingSystem;
-import stockMarket.investors.IInvestorService;
-import stockMarket.investors.InvestorService;
-import stockMarket.investors.RandomInvestor;
-import stockMarket.investors.SmaInvestor;
+import stockMarket.investors.*;
 
 import javax.xml.catalog.Catalog;
 import java.io.File;
@@ -55,12 +52,13 @@ public class Main {
     }
     
     private static void seedInvestors(IInvestorService investorService, SimulationData simulationData){
+        SmaCalculator smaCalculator = new SmaCalculator(simulationData.getCompanies().length);
         for(int i = 0; i < simulationData.getRandomInvestorsCount(); i++){
             investorService.registerInvestor(new RandomInvestor());
         }
         
         for(int i = 0; i < simulationData.getSmaInvestorCount(); i++){
-            investorService.registerInvestor(new SmaInvestor());
+            investorService.registerInvestor(new SmaInvestor(smaCalculator));
         }
         int totalInvestorsCount = simulationData.getRandomInvestorsCount() + simulationData.getSmaInvestorCount();
         for(int i = 0; i< totalInvestorsCount; i++){
