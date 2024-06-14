@@ -1,5 +1,5 @@
 package main;
 
-public interface ISimulationBuilder {
+public interface ISimulationDataProvider {
     SimulationData buildSimulation() throws InvalidDataException;
 }

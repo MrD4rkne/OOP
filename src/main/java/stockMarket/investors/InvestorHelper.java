@@ -25,7 +25,7 @@ public class InvestorHelper {
     private static int getRandomOrderMode(Random random){
         // Define the probabilities for each value
         int[] values = {0, 1, 2, 3}; // Possible values
-        double[] probabilities = {0.001,0.333, 0.333, 0.333}; // Probabilities must sum to 1.0
+        double[] probabilities = {0.1,0.3,0.3,0.3};
 
         // Calculate cumulative probabilities
         double[] cumulativeProbabilities = new double[probabilities.length];

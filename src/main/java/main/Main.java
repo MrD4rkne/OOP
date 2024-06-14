@@ -1,11 +1,10 @@
 package main;
 
-import jdk.jshell.spi.ExecutionEnv;
+import stockMarket.core.StockLogger;
 import stockMarket.core.ITradingSystem;
 import stockMarket.core.TradingSystem;
 import stockMarket.investors.*;
 
-import javax.xml.catalog.Catalog;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -24,28 +23,11 @@ public class Main {
             System.exit(1);
             return;
         }
-        
+
+        SimulationData simulationData = null;
         try(Scanner scanner = new Scanner(new File(args[0]))) {
-            ISimulationBuilder simulationBuilder = new SimulationBuilder(scanner);
-            SimulationData simulationData = simulationBuilder.buildSimulation();
-            
-            System.out.println("Simulation data:");
-            System.out.println(simulationData);
-            
-            System.out.println("Starting simulation");
-            
-            IInvestorService investorService = new InvestorService(simulationData.getCompanies());
-            seedInvestors(investorService, simulationData);
-            ITradingSystem tradingSystem = new TradingSystem(new ConsoleLogger(false), investorService, simulationData.getCompanies(),simulationData.getCompaniesStartingPrices());
-            
-            for(int i = 0; i < roundsCount; i++){
-                tradingSystem.nextRound();
-            }
-            
-            System.out.println("Simulation finished");
-            System.out.println("Investors:");
-            System.out.println(investorService);
-            
+            ISimulationDataProvider simulationDataProvider = new SimulationBuilder(scanner);
+            simulationData = simulationDataProvider.buildSimulation();
         }
         catch(FileNotFoundException e){
             System.out.println("File not found: " + args[1]);
@@ -55,6 +37,29 @@ public class Main {
             System.out.println(e.getMessage());
             System.exit(1);
         }
+
+        System.out.println("Simulation data:");
+        System.out.println(simulationData);
+        
+        // Seed investors
+        IInvestorService investorService = new InvestorService(simulationData.getCompanies());
+        seedInvestors(investorService, simulationData);
+
+        System.out.println("Investors:");
+        System.out.println(investorService);
+
+        StockLogger logger = new ConsoleLogger(false);
+        System.out.println("Starting simulation");
+
+        ITradingSystem tradingSystem = new TradingSystem(logger, investorService, simulationData.getCompanies(),simulationData.getCompaniesStartingPrices());
+        for(int i = 0; i < roundsCount; i++){
+            tradingSystem.nextRound();
+        }
+
+        System.out.println("Simulation finished");
+        System.out.println();
+        System.out.println("Investors:");
+        System.out.println(investorService);
     }
     
     private static void seedInvestors(IInvestorService investorService, SimulationData simulationData){

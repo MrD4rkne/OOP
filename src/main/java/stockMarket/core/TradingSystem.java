@@ -10,7 +10,7 @@ import java.util.List;
 public class TradingSystem implements ITradingSystem {
     private static final int FIRST_ROUND_NO = 0;
     
-    private final ILogger logger;
+    private final StockLogger logger;
 
     private final OrderSheet[] sheetsOrders;
 
@@ -22,7 +22,7 @@ public class TradingSystem implements ITradingSystem {
 
     private int roundNo;
 
-    public TradingSystem(ILogger logger, IInvestorService investorService, StockCompany[] stockCompanies,int[] lastRoundPrices) {
+    public TradingSystem(StockLogger logger, IInvestorService investorService, StockCompany[] stockCompanies, int[] lastRoundPrices) {
         this.logger = logger;
         this.investorService = investorService;
         this.roundNo = FIRST_ROUND_NO;

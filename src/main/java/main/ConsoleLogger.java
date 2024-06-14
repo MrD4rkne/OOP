@@ -1,15 +1,14 @@
 package main;
 
-import stockMarket.core.ILogger;
+import stockMarket.core.StockLogger;
 import stockMarket.core.StockCompany;
 import stockMarket.core.TransactionInfo;
 import stockMarket.investors.IInvestorService;
-import stockMarket.orders.Order;
 import stockMarket.stock.OrderSheet;
 
 import java.util.List;
 
-public class ConsoleLogger implements ILogger {
+public class ConsoleLogger implements StockLogger {
     private final static String BREAK_LINE = "#".repeat(40);
     
     private final boolean isDebugMode;

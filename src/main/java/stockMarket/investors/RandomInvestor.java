@@ -24,7 +24,11 @@ public class RandomInvestor extends Investor{
         
         // Choose price.
         int limit = Math.max(1,random.nextInt(2*PRICE_MARGIN + 1) + transactionInfoProvider.getLastTransactionPrice(stock) - PRICE_MARGIN);
-        int amount = random.nextInt(1,100);
+        
+        int maxAmount = wallet.getFunds() / wallet.getStocksCount() / limit;
+        if(maxAmount == 0)
+            return;
+        int amount = random.nextInt(1,maxAmount+1);
         if(orderType == OrderType.SALE && amount > wallet.getShares(stock).getAmount()) {
            return;
         }

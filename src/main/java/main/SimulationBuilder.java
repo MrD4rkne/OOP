@@ -1,9 +1,7 @@
 package main;
 
 import stockMarket.core.StockCompany;
-import stockMarket.core.TradingSystem;
 
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -11,7 +9,7 @@ import java.util.Scanner;
 
 import static main.ScannerHelper.tryParseInt;
 
-public class SimulationBuilder implements ISimulationBuilder{
+public class SimulationBuilder implements ISimulationDataProvider {
     private final static String INVESTOR_RANDOM = "R";
     private final static String INVESTOR_SMA = "S";
     

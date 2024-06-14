@@ -72,6 +72,8 @@ public class OrderSheet implements ISheet {
 
             List<TransactionInfo> transactions = tryProcess(orderToProcess, tempBuyOrders.iterator(), tempSaleOrders.iterator(), roundNo,innerLoopProcessNo++);
             if(transactions.isEmpty()){
+                if(!orderToProcess.doNeedToBeProcessedFullyAtOnce())
+                    break;
                 if(orderToProcess.getType() == OrderType.BUY){
                     tempBuyOrders.remove(orderToProcess);
                 }
