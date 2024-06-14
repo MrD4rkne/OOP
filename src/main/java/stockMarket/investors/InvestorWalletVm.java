@@ -1,10 +1,12 @@
 package stockMarket.investors;
 
-import stockMarket.stock.Share;
-import stockMarket.stock.ShareVm;
+import stockMarket.core.ShareVm;
 
 import java.util.Arrays;
 
+/**
+ * View model for an investor's wallet.
+ */
 public class InvestorWalletVm {
     private final int investorId;
 
@@ -46,9 +48,9 @@ public class InvestorWalletVm {
         sb.append(" ");
         for(int i = 0; i < shares.length; i++) {
             ShareVm share = this.shares[i];
-            sb.append(share.getStockCompany().getName());
+            sb.append(share.stockCompany().name());
             sb.append(": ");
-            sb.append(share.getAmount());
+            sb.append(share.amount());
             if(i < shares.length - 1) sb.append(" ");
         }
         return sb.toString();

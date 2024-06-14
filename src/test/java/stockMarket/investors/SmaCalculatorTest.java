@@ -1,14 +1,10 @@
 package stockMarket.investors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-import org.junit.Before;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
 
 class SmaCalculatorTest {
 
@@ -22,8 +18,8 @@ class SmaCalculatorTest {
             when(providerMock.getCurrentRoundNo()).thenReturn(0);
             when(providerMock.getLastTransactionPrice(0)).thenReturn(100);
 
-            SMA signal = calculator.getSignal(0, providerMock);
-            assertEquals(SMA.NONE, signal);
+            SmaSignal signal = calculator.getSignal(0, providerMock);
+            assertEquals(SmaSignal.NONE, signal);
         }
     }
 
@@ -53,10 +49,10 @@ class SmaCalculatorTest {
         when(providerMock.getLastTransactionPrice(0)).thenReturn(12);
 
         // Act
-        SMA signal = calculator.getSignal(0, providerMock);
+        SmaSignal signal = calculator.getSignal(0, providerMock);
         
         // Assert
-        assertEquals(SMA.BUY, signal);
+        assertEquals(SmaSignal.BUY, signal);
     }
 
     /**
@@ -85,10 +81,10 @@ class SmaCalculatorTest {
         when(providerMock.getLastTransactionPrice(0)).thenReturn(1);
 
         // Act
-        SMA signal = calculator.getSignal(0, providerMock);
+        SmaSignal signal = calculator.getSignal(0, providerMock);
         
         // Assert
-        assertEquals(SMA.SELL, signal);
+        assertEquals(SmaSignal.SELL, signal);
     }
 
     /**
@@ -115,8 +111,8 @@ class SmaCalculatorTest {
         when(providerMock.getCurrentRoundNo()).thenReturn(rates.length);
         when(providerMock.getLastTransactionPrice(0)).thenReturn(1);
 
-        SMA signal = calculator.getSignal(0, providerMock);
-        assertEquals(SMA.NONE, signal);
+        SmaSignal signal = calculator.getSignal(0, providerMock);
+        assertEquals(SmaSignal.NONE, signal);
     }
     
     @Test
@@ -132,9 +128,7 @@ class SmaCalculatorTest {
         when(providerMock.getCurrentRoundNo()).thenReturn(2);
         when(providerMock.getLastTransactionPrice(0)).thenReturn(100);
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            calculator.getSignal(0, providerMock);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> calculator.getSignal(0, providerMock));
 
         when(providerMock.getCurrentRoundNo()).thenReturn(1);
         when(providerMock.getLastTransactionPrice(0)).thenReturn(100);
@@ -144,8 +138,6 @@ class SmaCalculatorTest {
         
         when(providerMock.getCurrentRoundNo()).thenReturn(0);
         when(providerMock.getLastTransactionPrice(0)).thenReturn(100);
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            calculator.getSignal(0, providerMock);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> calculator.getSignal(0, providerMock));
     }
 }

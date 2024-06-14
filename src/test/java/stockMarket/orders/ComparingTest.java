@@ -1,6 +1,6 @@
 package stockMarket.orders;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 import stockMarket.investors.Investor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

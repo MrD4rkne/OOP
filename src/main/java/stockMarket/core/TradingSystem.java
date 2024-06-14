@@ -1,8 +1,9 @@
 package stockMarket.core;
 
+import stockMarket.companies.StockCompany;
 import stockMarket.investors.*;
 import stockMarket.orders.Order;
-import stockMarket.stock.OrderSheet;
+import stockMarket.companies.CompanySheet;
 
 import java.util.Arrays;
 import java.util.List;
@@ -10,33 +11,45 @@ import java.util.List;
 public class TradingSystem implements ITradingSystem {
     private static final int FIRST_ROUND_NO = 0;
     
-    private final StockLogger logger;
+    private final IStockMarketLogger logger;
 
-    private final OrderSheet[] sheetsOrders;
+    private final CompanySheet[] sheetsOrders;
 
     private final IInvestorService investorService;
     
     private final IOrderGatherer orderGatherer;
     
     private final StockCompany[] stockCompanies;
+    
+    private final int roundsCount;
 
     private int roundNo;
 
-    public TradingSystem(StockLogger logger, IInvestorService investorService, StockCompany[] stockCompanies, int[] lastRoundPrices) {
+    public TradingSystem(IStockMarketLogger logger, IInvestorService investorService, StockCompany[] stockCompanies, int[] lastRoundPrices, int roundsCount)
+    {
         this.logger = logger;
         this.investorService = investorService;
         this.roundNo = FIRST_ROUND_NO;
-        this.sheetsOrders = new OrderSheet[lastRoundPrices.length];
+        this.sheetsOrders = new CompanySheet[lastRoundPrices.length];
         this.stockCompanies = Arrays.copyOf(stockCompanies, stockCompanies.length);
         seedSheetsOrders(lastRoundPrices);
         orderGatherer = new OrderGatherer(investorService, sheetsOrders);
+        this.roundsCount = roundsCount;
+    }
+    
+    @Override
+    public boolean hasNextRound(){
+        return roundNo < roundsCount;
     }
 
+    @Override
     public void nextRound(){
+        if(!hasNextRound())
+            throw new IllegalStateException("No more rounds to simulate");
         logger.startRound(roundNo);
         askInvestorsForOrders();
         
-        for(OrderSheet sheetsOrder : sheetsOrders){
+        for(CompanySheet sheetsOrder : sheetsOrders){
             logger.logSheet(sheetsOrder);
         }
         
@@ -44,10 +57,15 @@ public class TradingSystem implements ITradingSystem {
         roundNo++;
     }
     
+    @Override
+    public String toString(){
+        return investorService.toString();
+    }
+    
     private void processStocks(){
-        for (OrderSheet sheetsOrder : sheetsOrders) {
-            sheetsOrder.processOrders(roundNo);
-            //logger.logTransactionsForStock(sheetsOrder.getStockCompany(), transactionInfos);
+        for (CompanySheet sheetsOrder : sheetsOrders) {
+            List<TransactionInfo> newTransactions = sheetsOrder.processOrders(roundNo);
+            logger.logTransactionsForStock(sheetsOrder.getStockCompany(),newTransactions);
         }
         
         logger.endRound(roundNo, investorService);
@@ -56,11 +74,12 @@ public class TradingSystem implements ITradingSystem {
     private void askInvestorsForOrders(){
         List<Order> ordersToAdd = orderGatherer.getOrders(roundNo);
         ordersToAdd.forEach(order -> sheetsOrders[order.getStockId()].insertOrder(order));
+        logger.logNewOrders(ordersToAdd);
     }
 
     private void seedSheetsOrders(int[] lastRoundPrices){
         for(int i = 0; i < lastRoundPrices.length; i++){
-            sheetsOrders[i] = new OrderSheet(stockCompanies[i],lastRoundPrices[i],investorService);
+            sheetsOrders[i] = new CompanySheet(stockCompanies[i],lastRoundPrices[i],investorService);
         }
     }
 }

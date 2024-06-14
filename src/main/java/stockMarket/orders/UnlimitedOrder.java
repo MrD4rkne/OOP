@@ -1,7 +1,11 @@
 package stockMarket.orders;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
+/*
+    * Represents unlimited order.
+    * It is valid until it is fully processed.
+ */
 public class UnlimitedOrder extends Order{
     
     public UnlimitedOrder(OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo) {
@@ -13,7 +17,7 @@ public class UnlimitedOrder extends Order{
     }
 
     @Override
-    protected String acronim(){
+    protected String shortName(){
         return "UN";
     }
 }

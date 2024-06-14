@@ -1,9 +1,11 @@
 package stockMarket.orders;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
-import javax.swing.*;
-
+/**
+ * Represents an order in the stock market.
+ * Each order expires once it is fully processed or canceled.
+ */
 public abstract class Order implements Comparable<Order> {
     private int id;
 
@@ -20,10 +22,6 @@ public abstract class Order implements Comparable<Order> {
     private final int investorId;
 
     private boolean isCancelled;
-
-    public Order(OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo){
-        this(-1, type, investorId, stockCompany, amount, limit, firstRoundNo);
-    }
     
     public Order(int id, OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo) {
         if(amount <= 0) {
@@ -68,7 +66,7 @@ public abstract class Order implements Comparable<Order> {
     }
     
     public int getStockId() {
-        return stockCompany.getId();
+        return stockCompany.id();
     }
     
     public int getFirstRoundNo() {
@@ -97,6 +95,11 @@ public abstract class Order implements Comparable<Order> {
         this.id = id;
     }
     
+    /**
+     * Completes the order by reducing the amount of the order.
+     * @param roundNo the current round number
+     * @param amount the amount to complete
+     */
     public void complete(int roundNo, int amount){
         if(amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
@@ -167,11 +170,11 @@ public abstract class Order implements Comparable<Order> {
                 && investorId == other.getInvestorId();
     }
     
-    protected abstract String acronim();
+    protected abstract String shortName();
 
     @Override
     public String toString() {
-        return acronim() + " id=" + id + ", type=" + type + ", amount=" + amount + ", company=" + stockCompany.getName() + ", firstRoundNo="
+        return shortName() + " id=" + id + ", type=" + type + ", amount=" + amount + ", company=" + stockCompany.name() + ", firstRoundNo="
                 + firstRoundNo + ", limit=" + limit + ", investorId=" + investorId;
     }
 }

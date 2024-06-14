@@ -5,10 +5,6 @@ public abstract class Wallet {
 
     protected int funds;
 
-    public Wallet(int investorId) {
-        this(investorId, 0);
-    }
-
     public Wallet(int investorId, int funds) {
         if(funds < 0) {
             throw new IllegalArgumentException("Funds cannot be negative");

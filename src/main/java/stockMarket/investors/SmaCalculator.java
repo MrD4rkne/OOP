@@ -2,23 +2,25 @@ package stockMarket.investors;
 
 import java.util.Arrays;
 
+/**
+ * Calculates the Simple Moving Average (SMA) for the stock.
+ */
 public class SmaCalculator {
-    private int LONG_SMA_LENGTH = 10;
-    private int SHORT_SMA_LENGTH = 5;
+    private final int LONG_SMA_LENGTH = 10;
+    private final int SHORT_SMA_LENGTH = 5;
+    
     private final int[][] lastTenTransactionRates;
-
-    private final SMA[] signals;
-
+    private final SmaSignal[] signals;
     private int lastRoundNo;
 
     public SmaCalculator(int stocksCount){
         lastTenTransactionRates=new int[stocksCount][LONG_SMA_LENGTH];
-        signals= new SMA[stocksCount];
-        Arrays.fill(signals, SMA.NONE);
+        signals= new SmaSignal[stocksCount];
+        Arrays.fill(signals, SmaSignal.NONE);
         this.lastRoundNo=-1;
     }
 
-    public SMA getSignal(int stockId, ITransactionInfoProvider provider){
+    public SmaSignal getSignal(int stockId, ITransactionInfoProvider provider){
         int roundNo = provider.getCurrentRoundNo();
         if(lastRoundNo != roundNo){
             if(lastRoundNo +1 != roundNo)
@@ -51,15 +53,15 @@ public class SmaCalculator {
         }
     }
 
-    private SMA interpret(double prevDifference, double currentDifference){
+    private SmaSignal interpret(double prevDifference, double currentDifference){
         if(prevDifference>=0 && currentDifference <0){
             // Short SMA gets ahead of long SMA10.
-            return SMA.BUY;
+            return SmaSignal.BUY;
         }
         if(prevDifference<=0 && currentDifference > 0){
-            return SMA.SELL;
+            return SmaSignal.SELL;
         }
-        return SMA.NONE;
+        return SmaSignal.NONE;
     }
 
     private double calculateLongSMA(int stockId) {return calculate(stockId, LONG_SMA_LENGTH);}
@@ -81,10 +83,4 @@ public class SmaCalculator {
             array[i-1] = array[i];
         }
     }
-}
-
-enum SMA{
-    SELL,
-    BUY,
-    NONE
 }

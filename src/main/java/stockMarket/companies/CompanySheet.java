@@ -1,6 +1,5 @@
-package stockMarket.stock;
+package stockMarket.companies;
 
-import stockMarket.core.StockCompany;
 import stockMarket.core.TransactionInfo;
 import stockMarket.investors.IInvestorService;
 import stockMarket.orders.Order;
@@ -8,7 +7,10 @@ import stockMarket.orders.OrderType;
 
 import java.util.*;
 
-public class OrderSheet implements ISheet {
+/**
+ * Holds and process orders of shares of stock company.
+ */
+public class CompanySheet implements ISheet {
     private final StockCompany stockCompany;
     
     private final List<Order> buyOrders;
@@ -17,12 +19,11 @@ public class OrderSheet implements ISheet {
 
     private final IInvestorService investorService;
     
-
     private List<SingleStockWallet> temporaryWallets;
     
     private int lastTransactionRate;
     
-    public OrderSheet(StockCompany stockCompany, int startingTransactionRate, IInvestorService investorService) {
+    public CompanySheet(StockCompany stockCompany, int startingTransactionRate, IInvestorService investorService) {
         this.stockCompany = stockCompany;
         this.buyOrders = new ArrayList<>();
         this.saleOrders = new ArrayList<>();
@@ -31,7 +32,7 @@ public class OrderSheet implements ISheet {
     }
     
     public int getStockId() {
-        return stockCompany.getId();
+        return stockCompany.id();
     }
     
     public StockCompany getStockCompany() {
@@ -52,38 +53,10 @@ public class OrderSheet implements ISheet {
     }
     
     public List<TransactionInfo> processOrders(int roundNo){
-        prepareTemporaryWallets();
-        
         Collections.sort(buyOrders);
         Collections.sort(saleOrders);
         
-        List<Order> tempBuyOrders = new ArrayList<>(buyOrders);
-        List<Order> tempSaleOrders = new ArrayList<>(saleOrders);
-        List<TransactionInfo> transactionsForThisRound = new ArrayList<>();
-        int innerLoopProcessNo = 0; // Used to verify if temporaries wallets are up-to-date.
-
-        while(!tempBuyOrders.isEmpty() || !tempSaleOrders.isEmpty()){
-            Order orderToProcess = getNextOrderToProcess(tempBuyOrders, tempSaleOrders, roundNo);
-            if(orderToProcess == null)
-                break;
-
-            if(orderToProcess.isExpired(roundNo))
-                continue;
-
-            List<TransactionInfo> transactions = tryProcess(orderToProcess, tempBuyOrders.iterator(), tempSaleOrders.iterator(), roundNo,innerLoopProcessNo++);
-            if(transactions.isEmpty()){
-                if(!orderToProcess.doNeedToBeProcessedFullyAtOnce())
-                    break;
-                if(orderToProcess.getType() == OrderType.BUY){
-                    tempBuyOrders.remove(orderToProcess);
-                }
-                else {
-                    tempSaleOrders.remove(orderToProcess);
-                }
-            }
-            transactionsForThisRound.addAll(transactions);
-        }
-
+        List<TransactionInfo> transactionsForThisRound = runProcessing(roundNo);
         buyOrders.removeIf(order->order.isExpired(roundNo+1));
         saleOrders.removeIf(order->order.isExpired(roundNo+1));
         return transactionsForThisRound;
@@ -101,7 +74,7 @@ public class OrderSheet implements ISheet {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Stock: ");
-        sb.append(stockCompany.getName());
+        sb.append(stockCompany.name());
         sb.append("\n");
         
         sb.append("Buy orders:\n");
@@ -126,46 +99,78 @@ public class OrderSheet implements ISheet {
         
         return sb.toString();
     }
+    
+    private List<TransactionInfo> runProcessing(int roundNo){
+        prepareTemporaryWallets();
+        List<Order> tempBuyOrders = new ArrayList<>(buyOrders);
+        List<Order> tempSaleOrders = new ArrayList<>(saleOrders);
+        List<TransactionInfo> transactionsForThisRound = new ArrayList<>();
+        
+        int innerLoopProcessNo = 0; // Used to verify if temporaries wallets are up-to-date.
 
-    private List<TransactionInfo> tryProcess(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
+        while(!tempBuyOrders.isEmpty() || !tempSaleOrders.isEmpty()){
+            Order orderToProcess = getNextOrderToProcess(tempBuyOrders, tempSaleOrders, roundNo);
+            if(orderToProcess == null)
+                break;
+
+            if(orderToProcess.isExpired(roundNo))
+                continue;
+
+            List<TransactionInfo> transactions = tryProcessOrder(orderToProcess, tempBuyOrders.iterator(), tempSaleOrders.iterator(), roundNo,innerLoopProcessNo++);
+            if(transactions.isEmpty()){
+                if(!orderToProcess.doNeedToBeProcessedFullyAtOnce())
+                    break;
+                if(orderToProcess.getType() == OrderType.BUY){
+                    tempBuyOrders.remove(orderToProcess);
+                }
+                else {
+                    tempSaleOrders.remove(orderToProcess);
+                }
+            }
+            transactionsForThisRound.addAll(transactions);
+        }
+        
+        return transactionsForThisRound;
+    }
+
+    private List<TransactionInfo> tryProcessOrder(Order orderToProcess, Iterator<Order> buyOrders, Iterator<Order> sellOrders, int roundNo, int processId){
         List<TransactionInfo> transactions = new ArrayList<>();
         int currentDemand = orderToProcess.getAmount();
         Order currentOrder = orderToProcess;
 
         while(!wasProperlyProcessed(currentOrder, currentDemand)){
+            if(orderToProcess.isExpired(roundNo)){
+                return Collections.emptyList();
+            }
+            
+            Order possibleOrder;
             try {
-                if(orderToProcess.isExpired(roundNo)){
-                    return Collections.emptyList();
-                }
-                
-                Order possibleOrder = currentOrder.getType() == OrderType.SALE ? buyOrders.next() : sellOrders.next();
-                if(possibleOrder == orderToProcess)
-                    continue;
-
-                if(possibleOrder.isExpired(roundNo)){
-                    continue;
-                }
-
-                InitTransactionResult result = tryInitTransaction(currentOrder, currentDemand, roundNo, processId, possibleOrder);
-                if(result.isImpossible())
-                    break;
-
-                if(result.isNotEnoughFunds())
-                    continue;
-
-                TransactionInfo possibleTransaction = result.getTransaction();
-                if(possibleTransaction.amount() < possibleOrder.getAmount()){
-                    currentDemand = possibleOrder.getAmount()-possibleTransaction.amount();
-                    currentOrder = possibleOrder;
-                }else{
-                    currentDemand -= possibleTransaction.amount();
-                }
-
-                transactions.add(possibleTransaction);
-
+                possibleOrder = currentOrder.getType() == OrderType.SALE ? buyOrders.next() : sellOrders.next();
             }catch (NoSuchElementException ignored){
                 break;
             }
+
+            if(possibleOrder == orderToProcess)
+                continue;
+            if(possibleOrder.isExpired(roundNo)){
+                continue;
+            }
+            
+            InitTransactionResult result = tryInitTransaction(currentOrder, currentDemand, roundNo, processId, possibleOrder);
+            if(result.isImpossible())
+                break;
+            if(result.isNotEnoughFunds())
+                continue;
+
+            TransactionInfo possibleTransaction = result.getTransaction();
+            if(possibleTransaction.amount() < possibleOrder.getAmount()){
+                currentDemand = possibleOrder.getAmount()-possibleTransaction.amount();
+                currentOrder = possibleOrder;
+            }else{
+                currentDemand -= possibleTransaction.amount();
+            }
+
+            transactions.add(possibleTransaction);
         }
 
         if(!wasProperlyProcessed(currentOrder, currentDemand))
@@ -179,23 +184,18 @@ public class OrderSheet implements ISheet {
     }
 
     private void finalizeTransaction(TransactionInfo transaction){
-        try {
-            int buyerId = transaction.buyOrder().getInvestorId();
-            int sellerId = transaction.sellOrder().getInvestorId();
+        int buyerId = transaction.buyOrder().getInvestorId();
+        int sellerId = transaction.sellOrder().getInvestorId();
 
-            transaction.buyOrder().complete(transaction.roundNo(), transaction.amount());
-            transaction.sellOrder().complete(transaction.roundNo(), transaction.amount());
+        transaction.buyOrder().complete(transaction.roundNo(), transaction.amount());
+        transaction.sellOrder().complete(transaction.roundNo(), transaction.amount());
 
-            investorService.addStock(buyerId, stockCompany.getId(), transaction.amount());
-            investorService.removeStock(sellerId, stockCompany.getId(), transaction.amount());
+        investorService.addStock(buyerId, stockCompany.id(), transaction.amount());
+        investorService.removeStock(sellerId, stockCompany.id(), transaction.amount());
+        investorService.removeFunds(buyerId, transaction.getTotalValue());
+        investorService.addFunds(sellerId, transaction.getTotalValue());
 
-            investorService.removeFunds(buyerId, transaction.getTotalValue());
-            investorService.addFunds(sellerId, transaction.getTotalValue());
-
-            lastTransactionRate = transaction.rate();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
+        lastTransactionRate = transaction.rate();
     }
 
     private InitTransactionResult tryInitTransaction(Order currentOrder, int currentDemand, int roundNo, int processId, Order possibleOrder)
@@ -234,16 +234,6 @@ public class OrderSheet implements ISheet {
         sellersWallet.removeStock(stockAmountForWholeTransaction);
         sellersWallet.addFunds(transactionFunds);
         return InitTransactionResult.successful(new TransactionInfo(buyOrder, sellOrder, stockAmountForWholeTransaction, transactionRate, roundNo));
-    }
-
-    private SingleStockWallet updateWalletIfNecessary(int investorId, int roundNo, int processId){
-        SingleStockWallet wallet = temporaryWallets.get(investorId);
-        if(wallet.getRoundNo() != roundNo || wallet.getProcessCounter() != processId) {
-            int stockAmount = investorService.getStockAmount(investorId, stockCompany.getId());
-            int funds = investorService.getFunds(investorId);
-            wallet.setProcessInfo(roundNo,processId, funds, stockAmount);
-        }
-        return wallet;
     }
 
     private int getTransactionRate(Order orderA, Order orderB){
@@ -297,6 +287,16 @@ public class OrderSheet implements ISheet {
         for(int i = 0; i < investorsCount; i++){
             temporaryWallets.add(new SingleStockWallet(i,0,0));
         }
+    }
+
+    private SingleStockWallet updateWalletIfNecessary(int investorId, int roundNo, int processId){
+        SingleStockWallet wallet = temporaryWallets.get(investorId);
+        if(wallet.getRoundNo() != roundNo || wallet.getProcessCounter() != processId) {
+            int stockAmount = investorService.getStockAmount(investorId, stockCompany.id());
+            int funds = investorService.getFunds(investorId);
+            wallet.setProcessInfo(roundNo,processId, funds, stockAmount);
+        }
+        return wallet;
     }
 
     private static class InitTransactionResult{

@@ -1,13 +1,24 @@
 package stockMarket.investors;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 import stockMarket.orders.*;
 
 import java.util.Random;
 
+/**
+ * Helper class for creating orders for investors.
+ */
 public class InvestorHelper {
     private static final int MAX_ROUND_NO = 10;
     
+    /**
+     * Creates a random order for an investor.
+     * @param random Random object to generate random values.
+     * @param investorId id of the investor.
+     * @param company Company for which the order is created.
+     * @param roundNo Current round number.
+     * @return Order with random type.
+     */
     public static Order createRandomTypeOrder(Random random, OrderType orderType, int investorId, StockCompany company, int amount, int limit, int roundNo){
         int  orderMode = getRandomOrderMode(random);
         return switch (orderMode) {

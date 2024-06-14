@@ -48,6 +48,6 @@ public record TransactionInfo(Order buyOrder, Order sellOrder, int amount, int r
     
     @Override
     public String toString() {
-        return "stock: " + buyOrder.getStockCompany().getName() + ", amount: " + amount + ", rate: " + rate + ", round: " + roundNo + " | sell order: " + sellOrder.getId() + " | buy order: " + buyOrder.getId();
+        return "stock: " + buyOrder.getStockCompany().name() + ", amount: " + amount + ", rate: " + rate + ", round: " + roundNo + " | sell order: " + sellOrder.getId() + " | buy order: " + buyOrder.getId();
     }
 }

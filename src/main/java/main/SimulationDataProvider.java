@@ -1,6 +1,6 @@
 package main;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,17 +9,23 @@ import java.util.Scanner;
 
 import static main.ScannerHelper.tryParseInt;
 
-public class SimulationBuilder implements ISimulationDataProvider {
+/**
+ * SimulationDataProvider class implements ISimulationDataProvider interface and provides the simulation data.
+ * It reads the data from the input and creates the SimulationData object.
+ * 
+ * @see ISimulationDataProvider
+ */
+public class SimulationDataProvider implements ISimulationDataProvider {
     private final static String INVESTOR_RANDOM = "R";
     private final static String INVESTOR_SMA = "S";
     
     private final Scanner scanner;
     
-    public SimulationBuilder(Scanner scanner){
+    public SimulationDataProvider(Scanner scanner){
         this.scanner = scanner;
     }
     
-    public SimulationData buildSimulation()
+    public SimulationData getData()
     throws InvalidDataException
     {
         SimulationData simulationData = new SimulationData();
@@ -127,7 +133,7 @@ public class SimulationBuilder implements ISimulationDataProvider {
             }
             
             for(int j = 0; j < companies.length; j++){
-                if(companies[j].getName().equals(companyData[0])){
+                if(companies[j].name().equals(companyData[0])){
                     if(startingAmounts[j] != -1){
                         throw new InvalidDataException("Company data must be unique");
                     }

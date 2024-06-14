@@ -1,7 +1,11 @@
 package stockMarket.orders;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
+/**
+ * Represents fill or kill order.
+ * It must be fully processed at once, or it will be canceled.
+ */
 public class FillOrKillOrder extends Order{
     
     public FillOrKillOrder(OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo) {
@@ -27,7 +31,7 @@ public class FillOrKillOrder extends Order{
     }
 
     @Override
-    protected String acronim(){
+    protected String shortName(){
         return "FK";
     }
 }

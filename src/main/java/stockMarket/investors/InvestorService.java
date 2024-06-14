@@ -1,7 +1,7 @@
 package stockMarket.investors;
 
-import stockMarket.core.StockCompany;
-import stockMarket.stock.ShareVm;
+import stockMarket.companies.StockCompany;
+import stockMarket.core.ShareVm;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -120,26 +120,12 @@ public class InvestorService implements IInvestorService {
     }
 
     @Override
-    public StockCompany[] getStockCompanies() {
-        return Arrays.copyOf(stockCompanies, stockCompanies.length);
-    }
-
-    @Override
-    public StockCompany getStockCompany(int stockId) {
-        if(stockId<0 || stockId>=stockCompanies.length){
-            throw new IllegalArgumentException("Stock with this id does not exist");
-        }
-        
-        return stockCompanies[stockId];
-    }
-
-    @Override
     public int getStockAmount(int investorId, int stockId) {
         Optional<InvestorWallet> walletToRemoveStock = getWalletByInvestorId(investorId);
         if(walletToRemoveStock.isEmpty()){
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
-        return walletToRemoveStock.get().getShares(stockId);
+        return walletToRemoveStock.get().getSharesOfCompany(stockId);
     }
 
     @Override
@@ -150,7 +136,7 @@ public class InvestorService implements IInvestorService {
         }
 
         InvestorWallet wallet = walletToRemoveStock.get();
-        ShareVm[] stockVms = wallet.getShares().stream().map(stock -> new ShareVm(stock.getStockCompany(), stock.getAmount())).toArray(ShareVm[]::new);
+        ShareVm[] stockVms = wallet.getAllOwnShares().stream().map(stock -> new ShareVm(stock.getStockCompany(), stock.getAmount())).toArray(ShareVm[]::new);
         return new InvestorWalletVm(wallet.getInvestorId(), wallet.getFunds(), stockVms);
     }
     

@@ -3,7 +3,7 @@ package stockMarket.orders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
 class GoodTillEndOfTurnOrderTest {
     @Test
@@ -64,9 +64,7 @@ class GoodTillEndOfTurnOrderTest {
         boolean isExpiredAfterRound1 = orderExpiryByRound.isExpired(orderRound+1);
 
         // Assert
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            orderExpiryByRound.complete(orderRound+1,1);
-        });
+        Assertions.assertThrows(IllegalStateException.class, () -> orderExpiryByRound.complete(orderRound+1,1));
 
         Assertions.assertFalse(isExpiredBefore);
         Assertions.assertFalse(isExpiredAfterRound0);

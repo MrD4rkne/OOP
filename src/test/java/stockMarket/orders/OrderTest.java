@@ -3,7 +3,7 @@ package stockMarket.orders;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
 public class OrderTest {
     @Test
@@ -65,33 +65,19 @@ public class OrderTest {
         Order order = new ConcreteOrder(OrderType.BUY, 0, company, amount, 2, 0);
 
         // Act & Assert
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(0,-1);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> order.complete(0,-1));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(0,0);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> order.complete(0,0));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(0,amount+1);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> order.complete(0,amount+1));
 
-        Assertions.assertDoesNotThrow(() -> {
-            order.complete(0,1);
-        });
+        Assertions.assertDoesNotThrow(() -> order.complete(0,1));
 
-        Assertions.assertDoesNotThrow(() -> {
-            order.complete(0,amount-1);
-        });
+        Assertions.assertDoesNotThrow(() -> order.complete(0,amount-1));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(0,amount);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> order.complete(0,amount));
 
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            order.complete(0,1);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> order.complete(0,1));
     }
 
     // This class is used to test the abstract class Order
@@ -101,7 +87,7 @@ public class OrderTest {
         }
         
         @Override
-        public String acronim(){
+        public String shortName(){
             return "CONCRETE";
         }
     }

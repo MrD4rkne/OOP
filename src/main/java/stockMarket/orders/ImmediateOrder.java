@@ -1,7 +1,11 @@
 package stockMarket.orders;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
+/**
+ * Represents immediate order.
+ * It is valid only if processed (even partially) in the same round it was added.
+ */
 public class ImmediateOrder extends GoodTillEndOfTurnOrder{
 
     public ImmediateOrder(OrderType type, int investorId, StockCompany stockCompany, int amount, int limit, int firstRoundNo) {
@@ -13,7 +17,7 @@ public class ImmediateOrder extends GoodTillEndOfTurnOrder{
     }
 
     @Override
-    protected String acronim(){
+    protected String shortName(){
         return "IM";
     }
 }

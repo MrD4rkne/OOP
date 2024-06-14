@@ -1,6 +1,6 @@
-package stockMarket.stock;
+package stockMarket.core;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
 public class Share {
     private final StockCompany stockCompany;

@@ -1,8 +1,12 @@
 package stockMarket.investors;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 import stockMarket.orders.Order;
 
+/**
+ * Provides information about transactions in stock market.
+ * This interface is used by investors to get information about transactions and to make orders.
+ */
 public interface ITransactionInfoProvider {
     int getCurrentRoundNo();
 

@@ -1,5 +1,8 @@
 package main;
 
+/**
+ * ISimulationDataProvider interface provides a method to get the simulation data.
+ */
 public interface ISimulationDataProvider {
-    SimulationData buildSimulation() throws InvalidDataException;
+    SimulationData getData() throws InvalidDataException;
 }

@@ -1,14 +1,19 @@
 package stockMarket.investors;
 
-import stockMarket.core.StockCompany;
 import stockMarket.orders.*;
-
 import java.util.Random;
 import java.util.logging.Logger;
 
+/**
+ * Investor that uses Simple Moving Average to make decisions. 
+ * It buys when the short-term average crosses the long-term average from below and sells when the short-term average crosses the long-term average from above.
+ * Short-term: SMA5, long-term: SMA10.
+ */
 public class SmaInvestor extends Investor{
-    private final int RATE_INTERVAL = 10;
+    private final int LIMIT_MARGIN = 10;
+    
     private final SmaCalculator smaCalculator;
+    
     private final Random random;
 
     public SmaInvestor(SmaCalculator smaCalculator){
@@ -19,42 +24,47 @@ public class SmaInvestor extends Investor{
 
     @Override
     public void makeOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet) {
+        // Check for signals.
+        // On signal 
         int stockId = -1;
-        int limit=0, amount=0;
-        SMA sma = SMA.NONE;
+        SmaSignal sma = SmaSignal.NONE;
         for(int i = 0; i< wallet.getStocksCount(); i++){
-            SMA curr = smaCalculator.getSignal(i,transactionInfoProvider);
-            if(curr==SMA.NONE){
+            SmaSignal curr = smaCalculator.getSignal(i,transactionInfoProvider);
+            if(curr== SmaSignal.NONE){
                 continue;
             }
 
-            if(curr == SMA.BUY && hasEnoughMoney(wallet,transactionInfoProvider,i)){
-                stockId=i;
-                sma=curr;
-                limit = transactionInfoProvider.getLastTransactionPrice(i)-RATE_INTERVAL;
-                amount = wallet.getFunds() / Math.max(1,limit);
-                break;
-            }
-
-            if(curr == SMA.SELL && wallet.getShares(i).getAmount() > 0){
-                stockId=i;
-                sma=curr;
-                limit = transactionInfoProvider.getLastTransactionPrice(i)+RATE_INTERVAL;
-                amount = wallet.getShares(i).getAmount();
+            if((curr == SmaSignal.BUY && hasEnoughMoney(wallet,transactionInfoProvider,i)) || (curr == SmaSignal.SELL && wallet.getShares(i).amount() > 0)){
+                stockId = i;
+                sma = curr;
                 break;
             }
         }
 
-        if(sma == SMA.NONE)
+        if(sma == SmaSignal.NONE)
             return;
-
-        OrderType orderType = sma == SMA.BUY ? OrderType.BUY : OrderType.SALE;
-        Order order = InvestorHelper.createRandomTypeOrder(random, orderType, getId(), transactionInfoProvider.getStock(stockId), amount, limit, transactionInfoProvider.getCurrentRoundNo());
+        
         try{
+            Order order = createOrder(transactionInfoProvider,wallet,stockId,sma);
             transactionInfoProvider.addOrder(this,order);
         }catch(Exception e){
             Logger.getGlobal().severe("Error while adding order." + e.getMessage());
         }
+    }
+    
+    private Order createOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet, int stockId, SmaSignal sma){
+        if(sma == SmaSignal.NONE)
+            throw new IllegalArgumentException("Signal must be BUY or SELL");
+
+        int minLimit = transactionInfoProvider.getLastTransactionPrice(stockId) - LIMIT_MARGIN;
+        int maxLimit = transactionInfoProvider.getLastTransactionPrice(stockId) + LIMIT_MARGIN;
+        maxLimit = sma == SmaSignal.BUY ? Math.min(maxLimit, wallet.getFunds()) : maxLimit;
+        int limit = random.nextInt(minLimit, maxLimit + 1);
+        
+        int amount = sma == SmaSignal.BUY ? wallet.getFunds() / limit : random.nextInt(wallet.getShares(stockId).amount()) + 1;
+
+        OrderType orderType = sma == SmaSignal.BUY ? OrderType.BUY : OrderType.SALE;
+        return InvestorHelper.createRandomTypeOrder(random, orderType, getId(), transactionInfoProvider.getStock(stockId), amount, limit, transactionInfoProvider.getCurrentRoundNo());
     }
 
     @Override
@@ -63,6 +73,6 @@ public class SmaInvestor extends Investor{
     }
 
     private boolean hasEnoughMoney(InvestorWalletVm wallet, ITransactionInfoProvider transactionInfoProvider, int stockId){
-        return wallet.getFunds() >= transactionInfoProvider.getLastTransactionPrice(stockId) - RATE_INTERVAL;
+        return wallet.getFunds() >= Math.max(1,transactionInfoProvider.getLastTransactionPrice(stockId) - LIMIT_MARGIN);
     }
 }

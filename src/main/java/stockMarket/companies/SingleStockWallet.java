@@ -1,7 +1,11 @@
-package stockMarket.stock;
+package stockMarket.companies;
 
 import stockMarket.core.Wallet;
 
+/**
+ * SingleStockWallet class provides the methods for reading and modifying the wallet data of investor.
+ * It is used for storing the wallet data of investor for a single stock during processing the orders.
+ */
 public class SingleStockWallet extends Wallet {
     private final int NEVER_ACCESSED = -1;
 

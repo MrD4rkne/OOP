@@ -1,11 +1,16 @@
 package main;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * SimulationData class holds the data for the simulation.
+ * It contains the list of companies, their starting prices, the number of random and SMA investors,
+ * the starting amounts of funds and shares for the investors.
+ */
 public class SimulationData{
     private final List<StockCompany> companies;
     
@@ -78,7 +83,7 @@ public class SimulationData{
     public String toString() {
         return "Companies: " + companies + "\n"+
                 "Starting rates:" + companiesStartingPrices + "\n"+
-                "Investors: Random = " + randomInvestorsCount + ", SMA = " + smaInvestorCount + "\n"+
-                "Wallets on start: Funds = " + getStartingFundAmount() + ", shares amounts: " + Arrays.toString(startingAmounts) + "\n";
+                "Investors: random = " + randomInvestorsCount + ", sma = " + smaInvestorCount + "\n"+
+                "Wallets on start: funds = " + getStartingFundAmount() + ", shares amounts: " + Arrays.toString(startingAmounts) + "\n";
     }
 }

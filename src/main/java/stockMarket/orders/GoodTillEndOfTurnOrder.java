@@ -1,7 +1,11 @@
 package stockMarket.orders;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
+/**
+ * Represents good till end of turn order.
+ * It is valid until the end of the dueRoundNo turn.
+ */
 public class GoodTillEndOfTurnOrder extends Order{
 
     private final int dueRoundNo;
@@ -30,7 +34,7 @@ public class GoodTillEndOfTurnOrder extends Order{
     }
 
     @Override
-    protected String acronim(){
+    protected String shortName(){
         return "TR";
     }
     

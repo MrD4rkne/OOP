@@ -1,12 +1,15 @@
 package stockMarket.investors;
 
-import stockMarket.core.StockCompany;
-import stockMarket.stock.Share;
+import stockMarket.companies.StockCompany;
+import stockMarket.core.Share;
 import stockMarket.core.Wallet;
 
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents an investor's wallet in the stock market.
+ */
 public class InvestorWallet extends Wallet {
     private final List<Share> shares;
 
@@ -49,12 +52,12 @@ public class InvestorWallet extends Wallet {
         shares.get(stockId).removeAmount(amount);
     }
 
-    public int getShares(int stockId) {
+    public int getSharesOfCompany(int stockId) {
         validateStockId(stockId);
         return shares.get(stockId).getAmount();
     }
 
-    public List<Share> getShares() {
+    public List<Share> getAllOwnShares() {
         return new ArrayList<>(shares);
     }
     
@@ -77,7 +80,7 @@ public class InvestorWallet extends Wallet {
         sb.append(" ");
         for(int i = 0; i < shares.size(); i++) {
             Share share = this.shares.get(i);
-            sb.append(share.getStockCompany().getName());
+            sb.append(share.getStockCompany().name());
             sb.append(": ");
             sb.append(share.getAmount());
             if(i < shares.size() - 1) sb.append(" ");

@@ -2,7 +2,7 @@ package stockMarket.orders;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 
 public class GoodTillCancelledorderTest {
     @Test

@@ -1,13 +1,15 @@
 package stockMarket.investors;
 
-import stockMarket.core.StockCompany;
 import stockMarket.orders.*;
 
 import java.util.Random;
 import java.util.logging.Logger;
 
+/**
+ * Random investor that makes random orders.
+ */
 public class RandomInvestor extends Investor{
-    private final static int PRICE_MARGIN = 10;
+    private final static int LIMIT_MARGIN = 10;
     
     private final Random random;
     
@@ -20,16 +22,15 @@ public class RandomInvestor extends Investor{
         // Choose order type & company.
         OrderType orderType = random.nextBoolean() ? OrderType.BUY : OrderType.SALE;
         int stock = random.nextInt(wallet.getStocksCount());
-        StockCompany company = transactionInfoProvider.getStock(stock);
         
         // Choose price.
-        int limit = Math.max(1,random.nextInt(2*PRICE_MARGIN + 1) + transactionInfoProvider.getLastTransactionPrice(stock) - PRICE_MARGIN);
+        int limit = Math.max(1,random.nextInt(2* LIMIT_MARGIN + 1) + transactionInfoProvider.getLastTransactionPrice(stock) - LIMIT_MARGIN);
         
         int maxAmount = wallet.getFunds() / wallet.getStocksCount() / limit;
         if(maxAmount == 0)
             return;
         int amount = random.nextInt(1,maxAmount+1);
-        if(orderType == OrderType.SALE && amount > wallet.getShares(stock).getAmount()) {
+        if(orderType == OrderType.SALE && amount > wallet.getShares(stock).amount()) {
            return;
         }
         if(orderType == OrderType.BUY && amount * limit > wallet.getFunds()) {

@@ -1,8 +1,8 @@
 package stockMarket.sheet;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 import stockMarket.investors.RandomInvestor;
-import stockMarket.stock.OrderSheet;
+import stockMarket.companies.CompanySheet;
 import stockMarket.core.TransactionInfo;
 import stockMarket.investors.Investor;
 import stockMarket.investors.InvestorService;
@@ -11,8 +11,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-
-import static org.mockito.Mockito.mock;
 
 class RoundProcessing {
     
@@ -37,7 +35,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[0], 1,investorService);
+        CompanySheet sheetsOrder = new CompanySheet(stockCompanies[0], 1,investorService);
         Order[] orders = new Order[investorsCount];
 
         investorService.addFunds(0, 150*100);
@@ -102,7 +100,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[1], 1,investorService);
+        CompanySheet sheetsOrder = new CompanySheet(stockCompanies[1], 1,investorService);
         Order[] orders = new Order[investorsCount];
 
         investorService.addStock(investors[0].getId(), 1, 10);
@@ -160,7 +158,7 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[stockId], 1,investorService);
+        CompanySheet sheetsOrder = new CompanySheet(stockCompanies[stockId], 1,investorService);
         Order[] orders = new Order[investorsCount];
         
         investorService.addStock(investors[0].getId(), stockId, 100);
@@ -223,14 +221,14 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[stockId], 1,investorService);
+        CompanySheet sheetsOrder = new CompanySheet(stockCompanies[stockId], 1,investorService);
         Order[] orders = new Order[investorsCount];
         
-        investorService.addFunds(investors[stockId].getId(), 100*1);
+        investorService.addFunds(investors[stockId].getId(), 100);
         orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), stockCompanies[stockId],100, 1, roundNo);
         sheetsOrder.insertOrder(orders[0]);
 
-        investorService.addFunds(investors[1].getId(), 100*1);
+        investorService.addFunds(investors[1].getId(), 100);
         orders[1]=new FillOrKillOrder(1, OrderType.BUY, investors[1].getId(), stockCompanies[stockId],100, 1, roundNo);
         sheetsOrder.insertOrder(orders[1]);
 
@@ -281,14 +279,14 @@ class RoundProcessing {
         // Arrange
         InvestorService investorService = new InvestorService(stockCompanies);
         Investor[] investors = seedInvestors(investorService, investorsCount);
-        OrderSheet sheetsOrder = new OrderSheet(stockCompanies[stockId], 1,investorService);
+        CompanySheet sheetsOrder = new CompanySheet(stockCompanies[stockId], 1,investorService);
         Order[] orders = new Order[investorsCount];
 
-        investorService.addFunds(investors[0].getId(), 100*1);
+        investorService.addFunds(investors[0].getId(), 100);
         orders[0]=new FillOrKillOrder(0, OrderType.BUY, investors[0].getId(), stockCompanies[stockId],100, 1, roundNo);
         sheetsOrder.insertOrder(orders[0]);
 
-        investorService.addFunds(investors[1].getId(), 90*1);
+        investorService.addFunds(investors[1].getId(), 90);
         orders[1]=new ImmediateOrder(1, OrderType.BUY, investors[1].getId(), stockCompanies[stockId],90, 1, roundNo);
         sheetsOrder.insertOrder(orders[1]);
 

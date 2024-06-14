@@ -1,14 +1,21 @@
 package main;
 
-import stockMarket.core.StockLogger;
-import stockMarket.core.StockCompany;
+import stockMarket.core.IStockMarketLogger;
+import stockMarket.companies.StockCompany;
 import stockMarket.core.TransactionInfo;
 import stockMarket.investors.IInvestorService;
-import stockMarket.stock.OrderSheet;
+import stockMarket.orders.Order;
+import stockMarket.companies.CompanySheet;
 
 import java.util.List;
 
-public class ConsoleLogger implements StockLogger {
+/**
+ * ConsoleLogger class implements IStockLogger interface and logs the information to the console.
+ * It logs the start of the round, order sheets, transactions, new orders and end of the round.
+ * 
+ * @see IStockMarketLogger
+ */
+public class ConsoleLogger implements IStockMarketLogger {
     private final static String BREAK_LINE = "#".repeat(40);
     
     private final boolean isDebugMode;
@@ -18,17 +25,17 @@ public class ConsoleLogger implements StockLogger {
     }
     
     @Override
-    public void startRound(int round) {
+    public void startRound(int roundNo) {
         if(!isDebugMode)
             return;
         System.out.println();
-        System.out.println("Round " + round);
+        System.out.println("Round " + roundNo);
         System.out.println();
         System.out.println(BREAK_LINE);
     }
 
     @Override
-    public void logSheet(OrderSheet sheetsOrder) {
+    public void logSheet(CompanySheet sheetsOrder) {
         if(!isDebugMode)
             return;
         System.out.println(sheetsOrder.toString());
@@ -46,14 +53,23 @@ public class ConsoleLogger implements StockLogger {
     }
 
     @Override
-    public void endRound(int round, IInvestorService investorService) {
+    public void logNewOrders(List<Order> orders) {
         if(!isDebugMode)
             return;
-        System.out.println("End of round " + round);
-        System.out.println("Wallets:");
-        for (int i = 0; i < investorService.count(); i++) {
-            System.out.println(investorService.getWallet(i));
+        System.out.println("Orders:");
+        for (Order order : orders) {
+            System.out.println(order);
         }
+        System.out.println();
+    }
+
+    @Override
+    public void endRound(int roundNo, IInvestorService investorService) {
+        if(!isDebugMode)
+            return;
+        System.out.println("End of round " + roundNo);
+        System.out.println("Wallets:");
+        System.out.println(investorService);
         System.out.println(BREAK_LINE);
     }
 }

@@ -1,9 +1,9 @@
 package stockMarket.investors;
 
-import stockMarket.core.StockCompany;
+import stockMarket.companies.StockCompany;
 import stockMarket.orders.Order;
 import stockMarket.orders.OrderType;
-import stockMarket.stock.IReadonlySheet;
+import stockMarket.companies.IReadonlySheet;
 
 import java.util.ArrayList;
 import java.util.Arrays;

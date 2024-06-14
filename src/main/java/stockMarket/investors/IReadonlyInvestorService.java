@@ -1,5 +1,8 @@
 package stockMarket.investors;
 
+/**
+ * Readonly investors' service. Provides methods to read data about investors.
+ */
 public interface IReadonlyInvestorService {
     Investor getInvestor(int investorId);
 
