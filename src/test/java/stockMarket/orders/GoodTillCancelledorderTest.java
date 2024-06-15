@@ -10,18 +10,18 @@ public class GoodTillCancelledorderTest {
         // Arrange
         StockCompany company = new StockCompany(1, "A");
         final int ammount = 10;
-        final int firstComplete = (int)Math.ceil(ammount/3.0);
-        final int secondComplete = (int)Math.ceil(ammount/2.0);
-        final int finalComplete = ammount - firstComplete -secondComplete;
-        UnlimitedOrder goodTillCancelledOrder = new UnlimitedOrder(0,OrderType.SALE, 0, company, ammount, 2, 0);
+        final int firstComplete = (int) Math.ceil(ammount / 3.0);
+        final int secondComplete = (int) Math.ceil(ammount / 2.0);
+        final int finalComplete = ammount - firstComplete - secondComplete;
+        UnlimitedOrder goodTillCancelledOrder = new UnlimitedOrder(0, OrderType.SALE, 0, company, ammount, 2, 0);
 
         // Act
         boolean isExpiredBefore = goodTillCancelledOrder.isExpired(0);
-        goodTillCancelledOrder.complete(0,firstComplete);
+        goodTillCancelledOrder.complete(0, firstComplete);
         boolean isExpiredAfter = goodTillCancelledOrder.isExpired(0);
-        goodTillCancelledOrder.complete(0,secondComplete);
+        goodTillCancelledOrder.complete(0, secondComplete);
         boolean isExpiredAfter2 = goodTillCancelledOrder.isExpired(0);
-        goodTillCancelledOrder.complete(0,finalComplete);
+        goodTillCancelledOrder.complete(0, finalComplete);
         boolean isExpiredAfter3 = goodTillCancelledOrder.isExpired(0);
 
         // Assert

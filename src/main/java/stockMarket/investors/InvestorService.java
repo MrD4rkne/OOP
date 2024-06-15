@@ -12,7 +12,7 @@ public class InvestorService implements IInvestorService {
     private final List<InvestorWallet> wallets;
 
     private final List<Investor> investors;
-    
+
     private final StockCompany[] stockCompanies;
 
     public InvestorService(StockCompany[] stockCompanies) {
@@ -33,7 +33,7 @@ public class InvestorService implements IInvestorService {
 
     @Override
     public Investor getInvestor(int investorId) {
-        if(!doesInvestorExist(investorId)){
+        if (!doesInvestorExist(investorId)) {
             throw new IllegalArgumentException("Investor with this id does not exist");
         }
 
@@ -47,13 +47,13 @@ public class InvestorService implements IInvestorService {
 
     @Override
     public boolean doesInvestorExist(int investorId) {
-        return investorId>=0 && investorId<wallets.size();
+        return investorId >= 0 && investorId < wallets.size();
     }
 
     @Override
     public void addFunds(int investorId, int amount) {
         Optional<InvestorWallet> walletToAddFunds = getWalletByInvestorId(investorId);
-        if(walletToAddFunds.isEmpty()){
+        if (walletToAddFunds.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
@@ -63,7 +63,7 @@ public class InvestorService implements IInvestorService {
     @Override
     public boolean hasFunds(int investorId, int amount) {
         Optional<InvestorWallet> walletToCheckFunds = getWalletByInvestorId(investorId);
-        if(walletToCheckFunds.isEmpty()){
+        if (walletToCheckFunds.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
@@ -73,7 +73,7 @@ public class InvestorService implements IInvestorService {
     @Override
     public void removeFunds(int investorId, int amount) {
         Optional<InvestorWallet> walletToRemoveFunds = getWalletByInvestorId(investorId);
-        if(walletToRemoveFunds.isEmpty()){
+        if (walletToRemoveFunds.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
@@ -83,7 +83,7 @@ public class InvestorService implements IInvestorService {
     @Override
     public int getFunds(int investorId) {
         Optional<InvestorWallet> walletToRemoveFunds = getWalletByInvestorId(investorId);
-        if(walletToRemoveFunds.isEmpty()){
+        if (walletToRemoveFunds.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
         return walletToRemoveFunds.get().getFunds();
@@ -92,7 +92,7 @@ public class InvestorService implements IInvestorService {
     @Override
     public void addStock(int investorId, int stockId, int amount) {
         Optional<InvestorWallet> walletToAddStock = getWalletByInvestorId(investorId);
-        if(walletToAddStock.isEmpty()){
+        if (walletToAddStock.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
@@ -102,7 +102,7 @@ public class InvestorService implements IInvestorService {
     @Override
     public boolean hasStock(int investorId, int stockId, int amount) {
         Optional<InvestorWallet> walletToCheckStock = getWalletByInvestorId(investorId);
-        if(walletToCheckStock.isEmpty()){
+        if (walletToCheckStock.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
@@ -112,7 +112,7 @@ public class InvestorService implements IInvestorService {
     @Override
     public void removeStock(int investorId, int stockId, int amount) {
         Optional<InvestorWallet> walletToRemoveStock = getWalletByInvestorId(investorId);
-        if(walletToRemoveStock.isEmpty()){
+        if (walletToRemoveStock.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
@@ -122,7 +122,7 @@ public class InvestorService implements IInvestorService {
     @Override
     public int getStockAmount(int investorId, int stockId) {
         Optional<InvestorWallet> walletToRemoveStock = getWalletByInvestorId(investorId);
-        if(walletToRemoveStock.isEmpty()){
+        if (walletToRemoveStock.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
         return walletToRemoveStock.get().getSharesOfCompany(stockId);
@@ -131,7 +131,7 @@ public class InvestorService implements IInvestorService {
     @Override
     public InvestorWalletVm getWallet(int investorId) {
         Optional<InvestorWallet> walletToRemoveStock = getWalletByInvestorId(investorId);
-        if(walletToRemoveStock.isEmpty()){
+        if (walletToRemoveStock.isEmpty()) {
             throw new IllegalArgumentException("Wallet with this investor's id does not exist");
         }
 
@@ -139,11 +139,11 @@ public class InvestorService implements IInvestorService {
         ShareVm[] stockVms = wallet.getAllOwnShares().stream().map(stock -> new ShareVm(stock.getStockCompany(), stock.getAmount())).toArray(ShareVm[]::new);
         return new InvestorWalletVm(wallet.getInvestorId(), wallet.getFunds(), stockVms);
     }
-    
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for(int i = 0; i<investors.size(); i++){
+        for (int i = 0; i < investors.size(); i++) {
             sb.append(investors.get(i).toString());
             sb.append(": ");
             sb.append(wallets.get(i).toString());
@@ -152,7 +152,7 @@ public class InvestorService implements IInvestorService {
         return sb.toString();
     }
 
-    private Optional<InvestorWallet> getWalletByInvestorId(int investorId){
+    private Optional<InvestorWallet> getWalletByInvestorId(int investorId) {
         return wallets.stream().filter(wallet -> wallet.getInvestorId() == investorId).findFirst();
     }
 }

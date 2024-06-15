@@ -1,24 +1,26 @@
 package stockMarket.investors;
 
-import stockMarket.orders.*;
+import stockMarket.orders.Order;
+import stockMarket.orders.OrderType;
+
 import java.util.Random;
 import java.util.logging.Logger;
 
 /**
- * Investor that uses Simple Moving Average to make decisions. 
+ * Investor that uses Simple Moving Average to make decisions.
  * It buys when the short-term average crosses the long-term average from below and sells when the short-term average crosses the long-term average from above.
  * Short-term: SMA5, long-term: SMA10.
  */
-public class SmaInvestor extends Investor{
+public class SmaInvestor extends Investor {
     private final int LIMIT_MARGIN = 10;
-    
+
     private final SmaCalculator smaCalculator;
-    
+
     private final Random random;
 
-    public SmaInvestor(SmaCalculator smaCalculator, Random random){
+    public SmaInvestor(SmaCalculator smaCalculator, Random random) {
         super();
-        this.smaCalculator=smaCalculator;
+        this.smaCalculator = smaCalculator;
         this.random = random;
     }
 
@@ -27,27 +29,27 @@ public class SmaInvestor extends Investor{
         // Check for signals.
         int stockId = -1;
         SmaSignal sma = SmaSignal.NONE;
-        for(int i = 0; i< wallet.getStocksCount(); i++){
-            SmaSignal curr = smaCalculator.getSignal(i,transactionInfoProvider);
-            if(curr== SmaSignal.NONE){
+        for (int i = 0; i < wallet.getStocksCount(); i++) {
+            SmaSignal curr = smaCalculator.getSignal(i, transactionInfoProvider);
+            if (curr == SmaSignal.NONE) {
                 continue;
             }
 
-            if(canMakeOrder(wallet,transactionInfoProvider,curr,i)){
+            if (canMakeOrder(wallet, transactionInfoProvider, curr, i)) {
                 stockId = i;
                 sma = curr;
                 break;
             }
         }
-        
+
         // If no satisfiable signals, do nothing this time.
-        if(sma == SmaSignal.NONE)
+        if (sma == SmaSignal.NONE)
             return;
-        
-        try{
-            Order order = createOrder(transactionInfoProvider,wallet,stockId,sma);
-            transactionInfoProvider.addOrder(this,order);
-        }catch(Exception e){
+
+        try {
+            Order order = createOrder(transactionInfoProvider, wallet, stockId, sma);
+            transactionInfoProvider.addOrder(this, order);
+        } catch (Exception e) {
             Logger.getGlobal().severe("Error while adding order." + e.getMessage());
             throw e;
         }
@@ -58,11 +60,11 @@ public class SmaInvestor extends Investor{
         return getId() + ": SMA Investor";
     }
 
-    private Order createOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet, int stockId, SmaSignal sma){
-        if(sma == SmaSignal.NONE)
+    private Order createOrder(ITransactionInfoProvider transactionInfoProvider, InvestorWalletVm wallet, int stockId, SmaSignal sma) {
+        if (sma == SmaSignal.NONE)
             throw new IllegalArgumentException("Signal must be BUY or SELL");
 
-        int minLimit = Math.max(1,transactionInfoProvider.getLastTransactionPrice(stockId) - LIMIT_MARGIN);
+        int minLimit = Math.max(1, transactionInfoProvider.getLastTransactionPrice(stockId) - LIMIT_MARGIN);
         int maxLimit = transactionInfoProvider.getLastTransactionPrice(stockId) + LIMIT_MARGIN;
         maxLimit = sma == SmaSignal.BUY ? Math.min(maxLimit, wallet.getFunds()) : maxLimit;
         int limit = random.nextInt(minLimit, maxLimit + 1);
@@ -72,8 +74,8 @@ public class SmaInvestor extends Investor{
         OrderType orderType = sma == SmaSignal.BUY ? OrderType.BUY : OrderType.SALE;
         return InvestorHelper.createRandomTypeOrder(random, orderType, getId(), transactionInfoProvider.getStock(stockId), amount, limit, transactionInfoProvider.getCurrentRoundNo());
     }
-    
-    private boolean canMakeOrder(InvestorWalletVm wallet, ITransactionInfoProvider transactionInfoProvider, SmaSignal smaSignal, int stockId){
+
+    private boolean canMakeOrder(InvestorWalletVm wallet, ITransactionInfoProvider transactionInfoProvider, SmaSignal smaSignal, int stockId) {
         return switch (smaSignal) {
             case BUY -> hasEnoughMoney(wallet, transactionInfoProvider, stockId);
             case SELL -> hasAnyShares(wallet, stockId);
@@ -81,11 +83,11 @@ public class SmaInvestor extends Investor{
         };
     }
 
-    private boolean hasEnoughMoney(InvestorWalletVm wallet, ITransactionInfoProvider transactionInfoProvider, int stockId){
-        return wallet.getFunds() >= Math.max(1,transactionInfoProvider.getLastTransactionPrice(stockId) - LIMIT_MARGIN);
+    private boolean hasEnoughMoney(InvestorWalletVm wallet, ITransactionInfoProvider transactionInfoProvider, int stockId) {
+        return wallet.getFunds() >= Math.max(1, transactionInfoProvider.getLastTransactionPrice(stockId) - LIMIT_MARGIN);
     }
-    
-    private boolean hasAnyShares(InvestorWalletVm wallet, int stockId){
+
+    private boolean hasAnyShares(InvestorWalletVm wallet, int stockId) {
         return wallet.getShares(stockId).amount() > 0;
     }
 }

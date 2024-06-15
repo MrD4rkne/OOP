@@ -15,7 +15,7 @@ class InvestorServiceTest {
 
     @BeforeEach
     void setUp() {
-        stockCompanies = new StockCompany[] {
+        stockCompanies = new StockCompany[]{
                 new StockCompany(0, "A"),
                 new StockCompany(1, "B")
         };

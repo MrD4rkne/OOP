@@ -11,14 +11,14 @@ import java.util.List;
 public interface ISheet extends IReadonlySheet {
     /**
      * Inserts the order into the order sheet.
-     * 
+     *
      * @param order the order
      */
     void insertOrder(Order order);
 
     /**
      * Processes the orders in the order sheet.
-     * 
+     *
      * @param roundNo the number of the round
      * @return the list of transaction information finalized during processing the orders
      */

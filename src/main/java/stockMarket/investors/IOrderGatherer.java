@@ -9,5 +9,5 @@ import java.util.List;
  * An order gatherer is responsible for gathering orders from investors.
  */
 public interface IOrderGatherer extends ITransactionInfoProvider {
-   List<Order> getOrders(int roundNo);
+    List<Order> getOrders(int roundNo);
 }

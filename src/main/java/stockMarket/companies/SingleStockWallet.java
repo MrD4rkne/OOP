@@ -15,7 +15,7 @@ public class SingleStockWallet extends Wallet {
 
     public SingleStockWallet(int investorId, int funds, int stockAmount) {
         super(investorId, funds);
-        if(stockAmount < 0) {
+        if (stockAmount < 0) {
             throw new IllegalArgumentException("Stock amount cannot be negative");
         }
         this.stockAmount = stockAmount;
@@ -23,16 +23,16 @@ public class SingleStockWallet extends Wallet {
     }
 
     public void setProcessInfo(int roundNo, int processCounter, int funds, int stockAmount) {
-        if(roundNo < 0) {
+        if (roundNo < 0) {
             throw new IllegalArgumentException("Round number cannot be negative");
         }
-        if(processCounter < 0) {
+        if (processCounter < 0) {
             throw new IllegalArgumentException("Process counter cannot be negative");
         }
-        if(funds < 0) {
+        if (funds < 0) {
             throw new IllegalArgumentException("Funds cannot be negative");
         }
-        if(stockAmount < 0) {
+        if (stockAmount < 0) {
             throw new IllegalArgumentException("Stock amount cannot be negative");
         }
         this.roundNo = roundNo;
@@ -54,7 +54,7 @@ public class SingleStockWallet extends Wallet {
     }
 
     public void addStock(int possibleAmount) {
-        if(possibleAmount < 0) {
+        if (possibleAmount < 0) {
             throw new IllegalArgumentException("Possible amount cannot be negative");
         }
 
@@ -62,10 +62,10 @@ public class SingleStockWallet extends Wallet {
     }
 
     public void removeStock(int amount) {
-        if(amount < 0) {
+        if (amount < 0) {
             throw new IllegalArgumentException("Amount cannot be negative");
         }
-        if(!hasStock(amount)) {
+        if (!hasStock(amount)) {
             throw new IllegalArgumentException("Not enough stocks");
         }
 

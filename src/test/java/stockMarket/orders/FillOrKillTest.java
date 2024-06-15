@@ -16,11 +16,11 @@ public class FillOrKillTest {
 
         // Act
         boolean completedIsExpiredBefore = completedOrder.isExpired(0);
-        completedOrder.complete(0,amount);
+        completedOrder.complete(0, amount);
         boolean completedIsExpiredAfter = completedOrder.isExpired(1);
-        
+
         boolean notCompletedIsExpiredBefore = notCompletedOrder.isExpired(0);
-        notCompletedOrder.complete(0,amount-1);
+        notCompletedOrder.complete(0, amount - 1);
         boolean notCompletedIsExpiredAfter = notCompletedOrder.isExpired(1);
 
         // Assert

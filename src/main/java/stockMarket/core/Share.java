@@ -8,7 +8,7 @@ public class Share {
     private int amount;
 
     public Share(StockCompany stockCompany, int amount) {
-        if(amount < 0) {
+        if (amount < 0) {
             throw new IllegalArgumentException("Amount cannot be negative");
         }
 
@@ -25,7 +25,7 @@ public class Share {
     }
 
     public void addAmount(int amount) {
-        if(amount <= 0) {
+        if (amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
 
@@ -33,10 +33,10 @@ public class Share {
     }
 
     public void removeAmount(int amount) {
-        if(amount <= 0) {
+        if (amount <= 0) {
             throw new IllegalArgumentException("Amount cannot be non-positive");
         }
-        if(this.amount < amount) {
+        if (this.amount < amount) {
             throw new IllegalArgumentException("Not enough Stocks");
         }
 

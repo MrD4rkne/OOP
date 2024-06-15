@@ -3,7 +3,6 @@ package stockMarket.investors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import stockMarket.companies.StockCompany;
 import stockMarket.core.ShareVm;
 import stockMarket.orders.Order;

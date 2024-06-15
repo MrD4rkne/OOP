@@ -11,20 +11,20 @@ import java.util.List;
  * It contains the list of companies, their starting prices, the number of random and SMA investors,
  * the starting amounts of funds and shares for the investors.
  */
-public class SimulationData{
+public class SimulationData {
     private final List<StockCompany> companies;
-    
+
     private final List<Integer> companiesStartingPrices;
-    
+
     private int[] startingAmounts;
-    
+
     private int randomInvestorsCount;
-    
+
     private int smaInvestorCount;
-    
+
     private int startingFundAmount;
-    
-    public SimulationData(){
+
+    public SimulationData() {
         this.companies = new ArrayList<>();
         this.companiesStartingPrices = new ArrayList<>();
         this.randomInvestorsCount = 0;
@@ -32,58 +32,57 @@ public class SimulationData{
         this.startingAmounts = new int[0];
         this.startingFundAmount = 0;
     }
-    
-    public void addCompany(String name, int startingPrice){
+
+    public void addCompany(String name, int startingPrice) {
         companies.add(new StockCompany(companies.size(), name));
         companiesStartingPrices.add(startingPrice);
     }
-    
-    public StockCompany[] getCompanies(){
+
+    public StockCompany[] getCompanies() {
         return companies.toArray(StockCompany[]::new);
     }
-    
-    public int[] getCompaniesStartingPrices(){
-        return companiesStartingPrices.stream().mapToInt(i->i).toArray();
+
+    public int[] getCompaniesStartingPrices() {
+        return companiesStartingPrices.stream().mapToInt(i -> i).toArray();
     }
-    
-    public void increaseRandomInvestorsCount(){
+
+    public void increaseRandomInvestorsCount() {
         randomInvestorsCount++;
     }
-    
-    public void increaseSmaInvestorCount(){
+
+    public void increaseSmaInvestorCount() {
         smaInvestorCount++;
     }
-    
-    public int getRandomInvestorsCount(){
+
+    public int getRandomInvestorsCount() {
         return randomInvestorsCount;
     }
-    
-    public int getSmaInvestorCount(){
+
+    public int getSmaInvestorCount() {
         return smaInvestorCount;
     }
 
+    public int[] getStartingAmounts() {
+        return startingAmounts;
+    }
 
     public void setStartingAmounts(int[] startingAmounts) {
         this.startingAmounts = startingAmounts;
     }
-    
-    public int[] getStartingAmounts(){
-        return startingAmounts;
+
+    public int getStartingFundAmount() {
+        return startingFundAmount;
     }
 
     public void setStartingFundAmount(Integer startingFunds) {
         this.startingFundAmount = startingFunds;
     }
-    
-    public int getStartingFundAmount(){
-        return startingFundAmount;
-    }
-    
+
     @Override
     public String toString() {
-        return "Companies: " + companies + "\n"+
-                "Starting rates:" + companiesStartingPrices + "\n"+
-                "Investors: random = " + randomInvestorsCount + ", sma = " + smaInvestorCount + "\n"+
+        return "Companies: " + companies + "\n" +
+                "Starting rates:" + companiesStartingPrices + "\n" +
+                "Investors: random = " + randomInvestorsCount + ", sma = " + smaInvestorCount + "\n" +
                 "Wallets on start: funds = " + getStartingFundAmount() + ", shares amounts: " + Arrays.toString(startingAmounts) + "\n";
     }
 }

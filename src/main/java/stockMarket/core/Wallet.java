@@ -6,7 +6,7 @@ public abstract class Wallet {
     protected int funds;
 
     public Wallet(int investorId, int funds) {
-        if(funds < 0) {
+        if (funds < 0) {
             throw new IllegalArgumentException("Funds cannot be negative");
         }
 
@@ -27,7 +27,7 @@ public abstract class Wallet {
     }
 
     public void addFunds(int amount) {
-        if(amount < 0) {
+        if (amount < 0) {
             throw new IllegalArgumentException("Amount cannot be negative");
         }
 
@@ -35,10 +35,10 @@ public abstract class Wallet {
     }
 
     public void removeFunds(int amount) {
-        if(amount < 0) {
+        if (amount < 0) {
             throw new IllegalArgumentException("Amount cannot be negative");
         }
-        if(!hasFunds(amount)) {
+        if (!hasFunds(amount)) {
             throw new IllegalArgumentException("Not enough funds");
         }
 

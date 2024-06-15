@@ -13,13 +13,13 @@ class GoodTillEndOfTurnOrderTest {
         final int amount = 10;
         final int orderRound = 10;
         StockCompany company = new StockCompany(1, "A");
-        GoodTillEndOfTurnOrder goodTillEndOfTurnOrder = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, company, amount, 1, 0, orderRound);
+        GoodTillEndOfTurnOrder goodTillEndOfTurnOrder = new GoodTillEndOfTurnOrder(0, OrderType.SALE, 0, company, amount, 1, 0, orderRound);
 
         // Act & Assert
-        for(int i = 0; i <= orderRound + 10; i++){
+        for (int i = 0; i <= orderRound + 10; i++) {
             boolean isExpired = goodTillEndOfTurnOrder.isExpired(i);
 
-            if(i > orderRound){
+            if (i > orderRound) {
                 Assertions.assertTrue(isExpired);
             } else {
                 Assertions.assertFalse(isExpired);
@@ -34,11 +34,11 @@ class GoodTillEndOfTurnOrderTest {
         final int amount = 10;
         final int orderRound = 1;
         StockCompany company = new StockCompany(1, "A");
-        GoodTillEndOfTurnOrder orderExpiryByAmmountBeforeRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, company, amount, 1, 0, orderRound);
+        GoodTillEndOfTurnOrder orderExpiryByAmmountBeforeRound = new GoodTillEndOfTurnOrder(0, OrderType.SALE, 0, company, amount, 1, 0, orderRound);
 
         // Act
         boolean isExpiredBefore = orderExpiryByAmmountBeforeRound.isExpired(0);
-        orderExpiryByAmmountBeforeRound.complete(0,amount);
+        orderExpiryByAmmountBeforeRound.complete(0, amount);
         boolean isExpiredAfterRound0 = orderExpiryByAmmountBeforeRound.isExpired(0);
         boolean isExpiredAfterRound1 = orderExpiryByAmmountBeforeRound.isExpired(1);
 
@@ -50,21 +50,21 @@ class GoodTillEndOfTurnOrderTest {
 
     @Test
     @DisplayName("is expired - complete by round no")
-    void expiryByRound(){
+    void expiryByRound() {
         // Arrange
         final int amount = 10;
         final int orderRound = 0;
         StockCompany company = new StockCompany(1, "A");
-        GoodTillEndOfTurnOrder orderExpiryByRound = new GoodTillEndOfTurnOrder(0,OrderType.SALE, 0, company, amount, 1, 0, orderRound);
+        GoodTillEndOfTurnOrder orderExpiryByRound = new GoodTillEndOfTurnOrder(0, OrderType.SALE, 0, company, amount, 1, 0, orderRound);
 
         // Act
         boolean isExpiredBefore = orderExpiryByRound.isExpired(0);
-        orderExpiryByRound.complete(0,amount-1);
+        orderExpiryByRound.complete(0, amount - 1);
         boolean isExpiredAfterRound0 = orderExpiryByRound.isExpired(orderRound);
-        boolean isExpiredAfterRound1 = orderExpiryByRound.isExpired(orderRound+1);
+        boolean isExpiredAfterRound1 = orderExpiryByRound.isExpired(orderRound + 1);
 
         // Assert
-        Assertions.assertThrows(IllegalStateException.class, () -> orderExpiryByRound.complete(orderRound+1,1));
+        Assertions.assertThrows(IllegalStateException.class, () -> orderExpiryByRound.complete(orderRound + 1, 1));
 
         Assertions.assertFalse(isExpiredBefore);
         Assertions.assertFalse(isExpiredAfterRound0);

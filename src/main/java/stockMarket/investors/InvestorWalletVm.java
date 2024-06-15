@@ -29,12 +29,12 @@ public class InvestorWalletVm {
     }
 
     public ShareVm getShares(int stockId) {
-        if(stockId < 0 || stockId >= shares.length) {
+        if (stockId < 0 || stockId >= shares.length) {
             throw new IllegalArgumentException("Stock with this id does not exist");
         }
         return shares[stockId];
     }
-    
+
     public int getStocksCount() {
         return shares.length;
     }
@@ -46,12 +46,12 @@ public class InvestorWalletVm {
         sb.append(" ");
         sb.append(getFunds());
         sb.append(" ");
-        for(int i = 0; i < shares.length; i++) {
+        for (int i = 0; i < shares.length; i++) {
             ShareVm share = this.shares[i];
             sb.append(share.stockCompany().name());
             sb.append(": ");
             sb.append(share.amount());
-            if(i < shares.length - 1) sb.append(" ");
+            if (i < shares.length - 1) sb.append(" ");
         }
         return sb.toString();
     }

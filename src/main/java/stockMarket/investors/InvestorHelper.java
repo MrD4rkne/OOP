@@ -10,17 +10,18 @@ import java.util.Random;
  */
 public class InvestorHelper {
     private static final int MAX_ROUND_NO = 10;
-    
+
     /**
      * Creates a random order for an investor.
-     * @param random Random object to generate random values.
+     *
+     * @param random     Random object to generate random values.
      * @param investorId id of the investor.
-     * @param company Company for which the order is created.
-     * @param roundNo Current round number.
+     * @param company    Company for which the order is created.
+     * @param roundNo    Current round number.
      * @return Order with random type.
      */
-    public static Order createRandomTypeOrder(Random random, OrderType orderType, int investorId, StockCompany company, int amount, int limit, int roundNo){
-        int  orderMode = getRandomOrderMode(random);
+    public static Order createRandomTypeOrder(Random random, OrderType orderType, int investorId, StockCompany company, int amount, int limit, int roundNo) {
+        int orderMode = getRandomOrderMode(random);
         return switch (orderMode) {
             case 0 -> new UnlimitedOrder(orderType, investorId, company, amount, limit, roundNo);
             case 1 -> new FillOrKillOrder(orderType, investorId, company, amount, limit, roundNo);
@@ -32,11 +33,11 @@ public class InvestorHelper {
             default -> throw new IllegalArgumentException("Unexpected value: " + orderMode);
         };
     }
-    
-    private static int getRandomOrderMode(Random random){
+
+    private static int getRandomOrderMode(Random random) {
         // Define the probabilities for each value
         int[] values = {0, 1, 2, 3}; // Possible values
-        double[] probabilities = {0.1,0.3,0.3,0.3};
+        double[] probabilities = {0.1, 0.3, 0.3, 0.3};
 
         // Calculate cumulative probabilities
         double[] cumulativeProbabilities = new double[probabilities.length];

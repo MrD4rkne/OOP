@@ -14,9 +14,9 @@ public class Main {
     public static void main(String[] args) {
         // Use with caution, each round transactions, sheets and wallets will be logged.
         final boolean shouldLog = false;
-        
+
         // Validate arguments' count.
-        if(args.length != 2){
+        if (args.length != 2) {
             System.out.println("Usage: <inputFile> <roundsCount>");
             System.exit(1);
             return;
@@ -24,7 +24,7 @@ public class Main {
 
         // Validate rounds count.
         Integer roundsCount = ScannerHelper.tryParseInt(args[1]);
-        if(roundsCount == null || roundsCount <= 0){
+        if (roundsCount == null || roundsCount <= 0) {
             System.out.println("Invalid rounds count");
             System.exit(1);
             return;
@@ -32,22 +32,20 @@ public class Main {
 
         // Read simulation data.
         SimulationData simulationData = null;
-        try(Scanner scanner = new Scanner(new File(args[0]))) {
+        try (Scanner scanner = new Scanner(new File(args[0]))) {
             ISimulationDataProvider simulationDataProvider = new SimulationDataProvider(scanner);
             simulationData = simulationDataProvider.getData();
-        }
-        catch(FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             System.out.println("File not found: " + args[1]);
             System.exit(1);
-        }
-        catch (InvalidDataException e) {
+        } catch (InvalidDataException e) {
             System.out.println(e.getMessage());
             System.exit(1);
         }
 
         System.out.println("Simulation data:");
         System.out.println(simulationData);
-        
+
         // Seed investors
         IInvestorService investorService = new InvestorService(simulationData.getCompanies());
         seedInvestors(investorService, simulationData);
@@ -58,13 +56,13 @@ public class Main {
         IStockMarketLogger logger = new ConsoleLogger(shouldLog);
 
         // Simulate
-        ITradingSystem tradingSystem = new TradingSystem(logger, investorService, simulationData.getCompanies(),simulationData.getCompaniesStartingPrices(), roundsCount);
+        ITradingSystem tradingSystem = new TradingSystem(logger, investorService, simulationData.getCompanies(), simulationData.getCompaniesStartingPrices(), roundsCount);
         runSimulation(tradingSystem);
     }
-    
-    private static void runSimulation(ITradingSystem tradingSystem){
+
+    private static void runSimulation(ITradingSystem tradingSystem) {
         System.out.println("Starting simulation");
-        while(tradingSystem.hasNextRound()){
+        while (tradingSystem.hasNextRound()) {
             tradingSystem.nextRound();
         }
 
@@ -73,23 +71,23 @@ public class Main {
         System.out.println("Investors:");
         System.out.println(tradingSystem);
     }
-    
-    private static void seedInvestors(IInvestorService investorService, SimulationData simulationData){
+
+    private static void seedInvestors(IInvestorService investorService, SimulationData simulationData) {
         SmaCalculator smaCalculator = new SmaCalculator(simulationData.getCompanies().length);
         // Seed random investors
-        for(int i = 0; i < simulationData.getRandomInvestorsCount(); i++){
+        for (int i = 0; i < simulationData.getRandomInvestorsCount(); i++) {
             investorService.registerInvestor(new RandomInvestor(new Random()));
         }
-        
+
         // Seed SMA investors
-        for(int i = 0; i < simulationData.getSmaInvestorCount(); i++){
+        for (int i = 0; i < simulationData.getSmaInvestorCount(); i++) {
             investorService.registerInvestor(new SmaInvestor(smaCalculator, new Random()));
         }
-        
+
         int totalInvestorsCount = simulationData.getRandomInvestorsCount() + simulationData.getSmaInvestorCount();
-        for(int i = 0; i< totalInvestorsCount; i++){
+        for (int i = 0; i < totalInvestorsCount; i++) {
             investorService.addFunds(i, simulationData.getStartingFundAmount());
-            for(int companyId = 0; companyId < simulationData.getCompanies().length; companyId++){
+            for (int companyId = 0; companyId < simulationData.getCompanies().length; companyId++) {
                 investorService.addStock(i, companyId, simulationData.getStartingAmounts()[companyId]);
             }
         }
