@@ -83,7 +83,7 @@ public class OrderGatherer implements IOrderGatherer {
         if (order == null) {
             throw new IllegalArgumentException("Order cannot be null");
         }
-        if (order.getStockId() < 0 || order.getStockId() >= sheets.length) {
+        if (order.getStockId() >= sheets.length) {
             throw new IllegalArgumentException("Invalid stock index");
         }
         if (order.getInvestorId() != investor.getId()) {

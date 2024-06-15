@@ -7,6 +7,7 @@ import stockMarket.investors.*;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -77,12 +78,12 @@ public class Main {
         SmaCalculator smaCalculator = new SmaCalculator(simulationData.getCompanies().length);
         // Seed random investors
         for(int i = 0; i < simulationData.getRandomInvestorsCount(); i++){
-            investorService.registerInvestor(new RandomInvestor());
+            investorService.registerInvestor(new RandomInvestor(new Random()));
         }
         
         // Seed SMA investors
         for(int i = 0; i < simulationData.getSmaInvestorCount(); i++){
-            investorService.registerInvestor(new SmaInvestor(smaCalculator));
+            investorService.registerInvestor(new SmaInvestor(smaCalculator, new Random()));
         }
         
         int totalInvestorsCount = simulationData.getRandomInvestorsCount() + simulationData.getSmaInvestorCount();

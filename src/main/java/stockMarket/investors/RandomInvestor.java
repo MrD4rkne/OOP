@@ -13,8 +13,8 @@ public class RandomInvestor extends Investor{
     
     private final Random random;
     
-    public RandomInvestor() {
-        this.random = new Random();
+    public RandomInvestor(Random random) {
+        this.random = random;
     }
     
     @Override
@@ -26,7 +26,7 @@ public class RandomInvestor extends Investor{
         // Choose price.
         int limit = Math.max(1,random.nextInt(2* LIMIT_MARGIN + 1) + transactionInfoProvider.getLastTransactionPrice(stock) - LIMIT_MARGIN);
         
-        int maxAmount = wallet.getFunds() / wallet.getStocksCount() / limit;
+        int maxAmount = orderType == OrderType.BUY ? wallet.getFunds() / wallet.getStocksCount() / limit : wallet.getShares(stock).amount();
         if(maxAmount == 0)
             return;
         int amount = random.nextInt(1,maxAmount+1);
@@ -42,6 +42,7 @@ public class RandomInvestor extends Investor{
             transactionInfoProvider.addOrder(this,order);
         }catch(Exception e){
             Logger.getGlobal().severe("Error while adding order." + e.getMessage());
+            throw e;
         }
     }
 

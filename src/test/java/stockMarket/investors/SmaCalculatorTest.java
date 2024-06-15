@@ -10,10 +10,12 @@ class SmaCalculatorTest {
 
     @Test
     public void testInitialSignalIsNone() {
+        // Arrange
         ITransactionInfoProvider providerMock = mock(ITransactionInfoProvider.class);
         int stocksCount = 1;
         SmaCalculator calculator = new SmaCalculator(stocksCount);
         
+        // Act & assert
         for(int i = 0; i<20; i++) {
             when(providerMock.getCurrentRoundNo()).thenReturn(0);
             when(providerMock.getLastTransactionPrice(0)).thenReturn(100);

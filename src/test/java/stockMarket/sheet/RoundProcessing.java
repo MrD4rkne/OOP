@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Random;
 
 class RoundProcessing {
     
@@ -344,7 +345,7 @@ class RoundProcessing {
     private Investor[] seedInvestors(InvestorService investorService, int n) {
         Investor[] investors = new Investor[n];
         for (int i = 0; i < n; i++) {
-            Investor investor = new RandomInvestor();
+            Investor investor = new RandomInvestor(new Random());
             investors[i] = investorService.registerInvestor(investor);
         }
         return investors;
