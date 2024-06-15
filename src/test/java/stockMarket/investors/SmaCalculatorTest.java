@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class SmaCalculatorTest {
 
     @Test
-    public void testInitialSignalIsNone() {
+    public void initialSignalIsNone() {
         // Arrange
         ITransactionInfoProvider providerMock = mock(ITransactionInfoProvider.class);
         int stocksCount = 1;
@@ -31,7 +31,7 @@ class SmaCalculatorTest {
      * 								SMA10	8,8	9	9,3
      */
     @Test
-    public void testBuySignal() {
+    public void buySignal() {
         // Arrange
         ITransactionInfoProvider providerMock = mock(ITransactionInfoProvider.class);
         int stocksCount = 1;
@@ -63,7 +63,7 @@ class SmaCalculatorTest {
      * 								SMA10	3,9	3,9
      */
     @Test
-    public void testSellSignal() {
+    public void sellSignal() {
         // Arrange
         ITransactionInfoProvider providerMock = mock(ITransactionInfoProvider.class);
         int stocksCount = 1;
@@ -95,7 +95,7 @@ class SmaCalculatorTest {
      * 								SMA10	3,9	3,9	3,8
      */
     @Test
-    public void testNoSignalChange() {
+    public void noSignalChange() {
         ITransactionInfoProvider providerMock = mock(ITransactionInfoProvider.class);
         int stocksCount = 1;
         SmaCalculator calculator = new SmaCalculator(stocksCount);
@@ -118,7 +118,7 @@ class SmaCalculatorTest {
     }
     
     @Test
-    public void testRoundMustBeCalledInOrder() {
+    public void roundMustBeCalledInOrder() {
         ITransactionInfoProvider providerMock = mock(ITransactionInfoProvider.class);
         int stocksCount = 1;
         SmaCalculator calculator = new SmaCalculator(stocksCount);

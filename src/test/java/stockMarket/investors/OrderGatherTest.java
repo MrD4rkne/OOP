@@ -1,8 +1,8 @@
 package stockMarket.investors;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.stubbing.Stubber;
 import stockMarket.companies.IReadonlySheet;
 import stockMarket.companies.StockCompany;
 import stockMarket.core.ShareVm;
@@ -12,24 +12,37 @@ import stockMarket.orders.UnlimitedOrder;
 
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 public class OrderGatherTest {
+
+    private IReadonlyInvestorService investorService;
+    private IReadonlySheet sheet;
+    private IOrderGatherer orderGatherer;
+    private StockCompany company;
+    private Investor investor;
+
+    @BeforeEach
+    public void setUp() {
+        investorService = mock(IReadonlyInvestorService.class);
+        sheet = mock(IReadonlySheet.class);
+        company = new StockCompany(0, "ABCD");
+        investor = mock(Investor.class);
+        when(sheet.getLatestTransactionPrice()).thenReturn(1);
+        when(sheet.getStockCompany()).thenReturn(company);
+        when(sheet.getStockId()).thenReturn(company.id());
+        orderGatherer = new OrderGatherer(investorService, new IReadonlySheet[]{sheet});
+    }
+
     @Test
     public void testEmptyOrders() {
         // Arrange
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
         when(investorService.count()).thenReturn(0);
-        
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-        int roundNo = 0;
-        
+
         // Act
-        List<Order> orders = orderGatherer.getOrders(roundNo);
-        
+        List<Order> orders = orderGatherer.getOrders(0);
+
         // Assert
         Assertions.assertNotNull(orders);
         Assertions.assertEquals(0, orders.size());
@@ -38,37 +51,16 @@ public class OrderGatherTest {
     @Test
     public void testValidBuy() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
-        
-        StockCompany company = new StockCompany(0, "ABCD");
-        
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[0]));
+        setUpInvestorWithFunds(1000);
 
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-        
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-        
-        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10,10,0);
-
-        doAnswer(invocationOnMock ->
-                {
-                    orderGatherer.addOrder(investor, order);
-                    return null;
-                }
-        ).when(investor).makeOrder(any(), any());
-        
-        int roundNo = 0;
+        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10, 10, 0);
+        doAnswer(invocation -> {
+            orderGatherer.addOrder(investor, order);
+            return null;
+        }).when(investor).makeOrder(any(), any());
 
         // Act
-        List<Order> orders = orderGatherer.getOrders(roundNo);
+        List<Order> orders = orderGatherer.getOrders(0);
 
         // Assert
         Assertions.assertNotNull(orders);
@@ -79,37 +71,16 @@ public class OrderGatherTest {
     @Test
     public void testValidSell() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFundsAndShares(1000, 100);
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[]{new ShareVm(company, 100)}));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-
-        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10,10,0);
-
-        doAnswer(invocationOnMock ->
-                {
-                    orderGatherer.addOrder(investor, order);
-                    return null;
-                }
-        ).when(investor).makeOrder(any(), any());
-
-        int roundNo = 0;
+        Order order = new UnlimitedOrder(0, OrderType.SALE, 0, company, 10, 10, 0);
+        doAnswer(invocation -> {
+            orderGatherer.addOrder(investor, order);
+            return null;
+        }).when(investor).makeOrder(any(), any());
 
         // Act
-        List<Order> orders = orderGatherer.getOrders(roundNo);
+        List<Order> orders = orderGatherer.getOrders(0);
 
         // Assert
         Assertions.assertNotNull(orders);
@@ -120,54 +91,21 @@ public class OrderGatherTest {
     @Test
     public void nullOrder() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFunds(1000);
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[0]));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-
-        Order order = null;
-
+        // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            orderGatherer.addOrder(investor, order);
+            orderGatherer.addOrder(investor, null);
         });
     }
 
     @Test
     public void invalidStockId() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFunds(1000);
+        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, new StockCompany(1, "DDD"), 10, 10, 0);
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[0]));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-
-        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, new StockCompany(1, "DDD"), 10,10,0);
-
+        // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             orderGatherer.addOrder(investor, order);
         });
@@ -176,33 +114,14 @@ public class OrderGatherTest {
     @Test
     public void invalidInvestorId() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFunds(1000);
+        Order order = new UnlimitedOrder(0, OrderType.BUY, 1, company, 10, 10, 0);
+        doAnswer(invocation -> {
+            orderGatherer.addOrder(investor, order);
+            return null;
+        }).when(investor).makeOrder(any(), any());
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[0]));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-        
-
-        Order order = new UnlimitedOrder(0, OrderType.BUY, 1, company, 10,10,0);
-        doAnswer(invocationOnMock ->
-                {
-                    orderGatherer.addOrder(investor, order);
-                    return null;
-                }
-        ).when(investor).makeOrder(any(), any());
-
+        // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             orderGatherer.getOrders(0);
         });
@@ -211,33 +130,14 @@ public class OrderGatherTest {
     @Test
     public void invalidRoundNo() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFunds(1000);
+        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10, 10, 1);
+        doAnswer(invocation -> {
+            orderGatherer.addOrder(investor, order);
+            return null;
+        }).when(investor).makeOrder(any(), any());
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[0]));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-
-
-        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10,10,1);
-        doAnswer(invocationOnMock ->
-                {
-                    orderGatherer.addOrder(investor, order);
-                    return null;
-                }
-        ).when(investor).makeOrder(any(), any());
-
+        // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             orderGatherer.getOrders(0);
         });
@@ -246,33 +146,14 @@ public class OrderGatherTest {
     @Test
     public void toLargeLimit() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFunds(1000);
+        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10, 11, 1);
+        doAnswer(invocation -> {
+            orderGatherer.addOrder(investor, order);
+            return null;
+        }).when(investor).makeOrder(any(), any());
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[0]));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-
-
-        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10,11,1);
-        doAnswer(invocationOnMock ->
-                {
-                    orderGatherer.addOrder(investor, order);
-                    return null;
-                }
-        ).when(investor).makeOrder(any(), any());
-
+        // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             orderGatherer.getOrders(0);
         });
@@ -281,33 +162,15 @@ public class OrderGatherTest {
     @Test
     public void toSmallLimit() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFunds(1000);
+        when(sheet.getLatestTransactionPrice()).thenReturn(12);
+        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10, 1, 1);
+        doAnswer(invocation -> {
+            orderGatherer.addOrder(investor, order);
+            return null;
+        }).when(investor).makeOrder(any(), any());
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[0]));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(12);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-
-
-        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 10,1,1);
-        doAnswer(invocationOnMock ->
-                {
-                    orderGatherer.addOrder(investor, order);
-                    return null;
-                }
-        ).when(investor).makeOrder(any(), any());
-
+        // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             orderGatherer.getOrders(0);
         });
@@ -316,33 +179,14 @@ public class OrderGatherTest {
     @Test
     public void noFunds() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFunds(1000);
+        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 100, 11, 1);
+        doAnswer(invocation -> {
+            orderGatherer.addOrder(investor, order);
+            return null;
+        }).when(investor).makeOrder(any(), any());
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[0]));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-
-
-        Order order = new UnlimitedOrder(0, OrderType.BUY, 0, company, 100,11,1);
-        doAnswer(invocationOnMock ->
-                {
-                    orderGatherer.addOrder(investor, order);
-                    return null;
-                }
-        ).when(investor).makeOrder(any(), any());
-
+        // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             orderGatherer.getOrders(0);
         });
@@ -351,35 +195,33 @@ public class OrderGatherTest {
     @Test
     public void noStock() {
         // Arrange
-        Investor investor = mock(Investor.class);
-        when(investor.getId()).thenReturn(0);
+        setUpInvestorWithFundsAndShares(1000, 100);
+        Order order = new UnlimitedOrder(0, OrderType.SALE, 0, company, 101, 11, 1);
+        doAnswer(invocation -> {
+            orderGatherer.addOrder(investor, order);
+            return null;
+        }).when(investor).makeOrder(any(), any());
 
-        StockCompany company = new StockCompany(0, "ABCD");
-
-        IReadonlyInvestorService investorService = mock(IReadonlyInvestorService.class);
-        when(investorService.count()).thenReturn(1);
-        when(investorService.getInvestor(0)).thenReturn(investor);
-        when(investorService.getFunds(0)).thenReturn(1000);
-        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, 1000, new ShareVm[]{new ShareVm(company, 100)}));
-
-        IReadonlySheet[] sheets = new IReadonlySheet[]{mock(IReadonlySheet.class)};
-        when(sheets[0].getLatestTransactionPrice()).thenReturn(1);
-        when(sheets[0].getStockCompany()).thenReturn(company);
-        when(sheets[0].getStockId()).thenReturn(company.id());
-
-        IOrderGatherer orderGatherer = new OrderGatherer(investorService, sheets);
-
-
-        Order order = new UnlimitedOrder(0, OrderType.SALE, 0, company, 101,11,1);
-        doAnswer(invocationOnMock ->
-                {
-                    orderGatherer.addOrder(investor, order);
-                    return null;
-                }
-        ).when(investor).makeOrder(any(), any());
-
+        // Act & Assert
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             orderGatherer.getOrders(0);
         });
+    }
+
+    private void setUpInvestorWithFunds(int funds) {
+        when(investor.getId()).thenReturn(0);
+        when(investorService.count()).thenReturn(1);
+        when(investorService.getInvestor(0)).thenReturn(investor);
+        when(investorService.getFunds(0)).thenReturn(funds);
+        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, funds, new ShareVm[0]));
+    }
+
+    private void setUpInvestorWithFundsAndShares(int funds, int shares) {
+        when(investor.getId()).thenReturn(0);
+        when(investorService.count()).thenReturn(1);
+        when(investorService.getInvestor(0)).thenReturn(investor);
+        when(investorService.getFunds(0)).thenReturn(funds);
+        when(investorService.getWallet(0)).thenReturn(new InvestorWalletVm(0, funds, new ShareVm[]{new ShareVm(company, shares)}));
+        when(investorService.getStockAmount(0, company.id())).thenReturn(shares);
     }
 }

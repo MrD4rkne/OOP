@@ -62,7 +62,7 @@ public class SmaInvestor extends Investor{
         if(sma == SmaSignal.NONE)
             throw new IllegalArgumentException("Signal must be BUY or SELL");
 
-        int minLimit = transactionInfoProvider.getLastTransactionPrice(stockId) - LIMIT_MARGIN;
+        int minLimit = Math.max(1,transactionInfoProvider.getLastTransactionPrice(stockId) - LIMIT_MARGIN);
         int maxLimit = transactionInfoProvider.getLastTransactionPrice(stockId) + LIMIT_MARGIN;
         maxLimit = sma == SmaSignal.BUY ? Math.min(maxLimit, wallet.getFunds()) : maxLimit;
         int limit = random.nextInt(minLimit, maxLimit + 1);

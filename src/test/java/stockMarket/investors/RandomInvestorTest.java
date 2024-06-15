@@ -146,6 +146,7 @@ public class RandomInvestorTest {
         Assertions.assertDoesNotThrow(()->{
             List<Order> orders = orderGatherer.getOrders(0);
             Assertions.assertEquals(0, orders.size());
+
         });
     }
 }
