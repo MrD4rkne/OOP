@@ -13,9 +13,9 @@ import java.util.*;
 public class CompanySheet implements ISheet {
     private final StockCompany stockCompany;
 
-    private final List<Order> buyOrders;
+    private final Set<Order> buyOrders;
 
-    private final List<Order> saleOrders;
+    private final Set<Order> saleOrders;
 
     private final IInvestorService investorService;
 
@@ -25,8 +25,8 @@ public class CompanySheet implements ISheet {
 
     public CompanySheet(StockCompany stockCompany, int startingTransactionRate, IInvestorService investorService) {
         this.stockCompany = stockCompany;
-        this.buyOrders = new ArrayList<>();
-        this.saleOrders = new ArrayList<>();
+        this.buyOrders = new TreeSet<>();
+        this.saleOrders = new TreeSet<>();
         this.investorService = investorService;
         this.lastTransactionRate = startingTransactionRate;
     }
@@ -53,9 +53,6 @@ public class CompanySheet implements ISheet {
     }
 
     public List<TransactionInfo> processOrders(int roundNo) {
-        Collections.sort(buyOrders);
-        Collections.sort(saleOrders);
-
         List<TransactionInfo> transactionsForThisRound = runProcessing(roundNo);
         buyOrders.removeIf(order -> order.isExpired(roundNo + 1));
         saleOrders.removeIf(order -> order.isExpired(roundNo + 1));
