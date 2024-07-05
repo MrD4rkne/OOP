@@ -29,7 +29,7 @@ Input template:
 *now for each stop*
 <stop's name> <interval>
 ```
-- last interval is time during which tram waits on loop (on both sides.
+- last interval is time during which tram waits on loop (on both sides).
 - stop's inside line must be declared before in stops' section
 
 ### Logic
